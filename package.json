@@ -18,7 +18,7 @@
     }
   },
   "scripts": {
-    "test": "esy x test1",
+    "test": "esy x dune test",
     "format": "esy dune build @fmt --auto-promote",
     "doc": "esy dune build @doc"
   },
