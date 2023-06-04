@@ -8,3 +8,4 @@ _release
 *.install
 esy.lock
 reason-interpreter.install
+.vscode
