@@ -1,3 +1,4 @@
+[@deriving show]
 type t =
 | IDENT(string)
 | INT(string)
@@ -180,6 +181,11 @@ let of_char = (c: char): t => {
 
 }
 
-let keyword = () => {
-
+let keyword = (s: string) => {
+    switch s {
+        | "fn" => FN
+        | "let" => LET
+        | "BIND" => BIND
+        | s => IDENT(s)
+    }
 }

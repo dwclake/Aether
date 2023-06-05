@@ -1,6 +1,5 @@
 type t = {
     input: string,
-    pos: int,
     read_pos: int,
     ch: char
 };
@@ -8,9 +7,8 @@ type t = {
 let create = (~input: string): t => {
     {
         input,
-        pos: 0,
         read_pos: 1,
-        ch: String.get(input, 0)
+        ch: input.[0]
     }
 };
 
@@ -23,7 +21,6 @@ let read_char = (l: t): t => {
 
     {
         ...l,
-        pos: l.read_pos,
         read_pos: l.read_pos + 1,
         ch,
     }
