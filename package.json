@@ -27,6 +27,7 @@
     "@opam/reason": "*",
     "@opam/core": "*",
     "@opam/batteries": "*",
+    "@opam/ppx_deriving": "*",
     "ocaml": "*"
   },
   "devDependencies": {

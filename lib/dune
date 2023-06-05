@@ -1,6 +1,7 @@
 (library
  (name lib)
  (flags
-  (-w -40 -w +26))
+ (-w -40 -w +26))
  (public_name reason-interpreter)
- (libraries core batteries stdio str))
+ (libraries ppx_deriving core batteries stdio str)
+ (preprocess (pps ppx_deriving.show ppx_deriving.ord)))

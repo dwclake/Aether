@@ -1,5 +1,5 @@
 [@deriving show]
-type t =
+type t = 
 | IDENT(string)
 | INT(string)
 
@@ -43,7 +43,7 @@ type t =
 | TILDE
 
 | ILLEGAL
-| EOF
+| EOF;
 
 let to_string = (token: t): string => {
     switch token {
