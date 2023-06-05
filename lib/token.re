@@ -1,0 +1,15 @@
+type t =
+| IDENTIFIER(string)
+
+| LET
+
+| EQUALS
+| PLUS
+| MINUS
+
+| GREATER
+| LESSER
+
+| SEMICOLON
+| COLON
+| PIPE
