@@ -18,35 +18,27 @@ let l = Lexer.create(~input=code);
 
 let rec run_test = (l: Lexer.t, i: int, tests): unit => {
 
-    let i = if(i >= List.length(tests)) {
-        List.length(tests) - 1;
-    } else {
-        i
-    }
+    let i = Base.Int.clamp_exn(i, ~min=0, ~max=List.length(tests));
 
-    let (t, c) = List.nth(tests, i);
+    let (etok, ech) = List.nth(tests, i);
     let (l, tok) = Lexer.next_token(l);
 
-    if(tok != t) {
-        Stdio.printf("Test #%d - token type wrong. expected %s, got %s\n", i, Token.to_string(t), Token.to_string(tok));
+    if(tok != etok) {
+        Stdio.printf("Test #%d - token type wrong. expected %s, got %s\n", i, Token.to_string(etok), Token.to_string(tok));
     } 
 
-    let tok_char = switch(Token.to_char(tok)) {
-        | Some(ch) => ch
+    let ch = switch(Token.to_char(tok)) {
+        | Some(c) => c
         | None => '\000'
     };
-    if(tok_char != c) {
-        Stdio.printf("Test #%d - literal wrong. expected %c, got %s\n\n", i, c, Token.to_string(tok));
+    if(ch!= ech) {
+        Stdio.printf("Test #%d - literal wrong. expected %c, got %s\n\n", i, ech, Token.to_string(tok));
     }
 
-    if(tok != Token.EOF) {
-        run_test(
-        l,
-        i + 1,
-        tests
-        )
-    } else {
-        ()
+    if(tok != Token.EOF) { // Recursive case
+        run_test(l, i + 1, tests);
+    } else { // Base case
+        ();
     }
 }
 
