@@ -3,15 +3,16 @@ open Alcotest;
 
 let tt = testable(Token.pp, (a, b) => a == b);
 
-let rec test_token_seq = (l: Lexer.t, i: int, tests: list(Token.t)): unit => {
-    let etok = List.nth(tests, i);
-    let (l, tok) = Lexer.next_token(l);
-    
-    check(tt, string_of_int(i), etok, tok);
+let rec test_token_seq = (l: Lexer.t, i: int, tests): unit => {
+    switch (tests) {
+        | [] => ()
+        | [etok, ...tail] => {
+            let (l, tok) = Lexer.next_token(l);
 
-    if(tok != Token.EOF) { // Recursive case
-        test_token_seq(l, i + 1, tests);
-    }
+            check(tt, string_of_int(i), etok, tok);
+            test_token_seq(l, i + 1, tail);
+        }
+    };
 }
 
 let test_next_token = () => {
