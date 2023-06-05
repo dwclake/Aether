@@ -1,4 +1,3 @@
 (library
  (name lib)
- (public_name reason-interpreter)
  (preprocess (pps ppx_deriving.show ppx_deriving.ord)))
