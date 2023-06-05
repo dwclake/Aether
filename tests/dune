@@ -1,3 +1,9 @@
 (test
-  (name lexer)
-  (libraries lib stdio alcotest))
+  (name interpreter)
+  (modules interpreter)
+  (libraries lib alcotest
+             lexer_t))
+(library
+  (name lexer_t)
+  (modules lexer_t)
+  (libraries lib alcotest))
