@@ -17,9 +17,6 @@ let tests = [
 let l = Lexer.create(~input=code);
 
 let rec run_test = (l: Lexer.t, i: int, tests): unit => {
-
-    let i = Base.Int.clamp_exn(i, ~min=0, ~max=List.length(tests));
-
     let (etok, ech) = List.nth(tests, i);
     let (l, tok) = Lexer.next_token(l);
 
