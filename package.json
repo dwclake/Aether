@@ -34,6 +34,7 @@
     "@opam/ocaml-lsp-server": "*",
     "@opam/merlin": "*",
     "@opam/merlin-extend": "*",
-    "@opam/odoc": "*"
+    "@opam/odoc": "*",
+    "@opam/alcotest": "*"
   }
 }
