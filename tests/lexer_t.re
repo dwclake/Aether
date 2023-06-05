@@ -3,16 +3,14 @@ open Alcotest;
 
 let tt = testable(Token.pp, (a, b) => a == b);
 
-let rec test_token_seq = (l: Lexer.t, i: int, tests): unit => {
-    switch (tests) {
-        | [] => ()
-        | [etok, ...tail] => {
-            let (l, tok) = Lexer.next_token(l);
+let rec test_token_seq = (l: Lexer.t, i: int) => { fun
+    | [] => ()
+    | [etok, ...tail] => {
+        let (l, tok) = Lexer.next_token(l);
 
-            check(tt, string_of_int(i), etok, tok);
-            test_token_seq(l, i + 1, tail);
-        }
-    };
+        check(tt, string_of_int(i), etok, tok);
+        test_token_seq(l, i + 1, tail);
+    }
 }
 
 let test_next_token = () => {
@@ -34,5 +32,5 @@ let test_next_token = () => {
         Lexer.create(~input=code),
         0,
         tests
-        )
+    )
 }
