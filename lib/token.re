@@ -46,70 +46,103 @@ type t =
 
 let to_string = (token: t): string => {
     switch token {
-    | IDENT(id) => id
-    | INT(x) => x
+        | IDENT(id) => id
+        | INT(x) => x
 
-    | FN => "fn"
+        | FN => "fn"
 
-    | L_PAREN => "("
-    | R_PAREN => ")"
-    | L_BRACKET => "["
-    | R_BRACKET => "]"
-    | L_SQUIRELY => "{"
-    | R_SQUIRELY => "}"
+        | L_PAREN => "("
+        | R_PAREN => ")"
+        | L_BRACKET => "["
+        | R_BRACKET => "]"
+        | L_SQUIRELY => "{"
+        | R_SQUIRELY => "}"
 
-    | LET => "let"
-    | BIND => "bind"
-    | ASSIGN => "="
+        | LET => "let"
+        | BIND => "bind"
+        | ASSIGN => "="
 
-    | EQUALS => "=="
-    | NOT_EQUALS => "!="
-    | PLUS => "+"
-    | MINUS => "-"
+        | EQUALS => "=="
+        | NOT_EQUALS => "!="
+        | PLUS => "+"
+        | MINUS => "-"
 
-    | FORWARD_SLASH => "/"
-    | BACK_SLASH => "\\"
+        | FORWARD_SLASH => "/"
+        | BACK_SLASH => "\\"
 
-    | SINGLE_QUOTE => "'"
-    | DOUBLE_QUOTE => "\""
-    | BACK_TICK => "`"
+        | SINGLE_QUOTE => "'"
+        | DOUBLE_QUOTE => "\""
+        | BACK_TICK => "`"
 
-    | GREATER => ">"
-    | LESSER => "<"
-    
-    | SEMICOLON => ";"
-    | COLON => ":"
-    | PIPE => "|"
-    | COMMA => ","
-    | DOT => "."
-    
-    | ASTERISK => "*"
-    | BANG => "!"
-    | QUESTION => "?"
-    | TILDE => "~"
-    
-    | ILLEGAL => "illegal"
-    | EOF => "eof"
+        | GREATER => ">"
+        | LESSER => "<"
+        
+        | SEMICOLON => ";"
+        | COLON => ":"
+        | PIPE => "|"
+        | COMMA => ","
+        | DOT => "."
+        
+        | ASTERISK => "*"
+        | BANG => "!"
+        | QUESTION => "?"
+        | TILDE => "~"
+        
+        | ILLEGAL => "illegal"
+        | EOF => "eof"
     }
 }
 
-let from_string = (s: string): t => {
-    switch s {
-    | "hello" => IDENT("")
-    | "5" => INT("")
+let to_char = (token: t): option(char) => {
+    switch token {
+        | L_PAREN => Some('(')
+        | R_PAREN => Some(')')
+        | L_BRACKET => Some('[')
+        | R_BRACKET => Some(']')
+        | L_SQUIRELY => Some('{')
+        | R_SQUIRELY => Some('}')
 
-    | "fn" => FN
+        | ASSIGN => Some('=')
 
-    | "(" => L_PAREN
-    | ")" => R_PAREN
-    | "[" => L_BRACKET
-    | "]" => R_BRACKET
-    | "{" => L_SQUIRELY
-    | "}" => R_SQUIRELY
+        | PLUS => Some('+')
+        | MINUS => Some('-')
 
-    | "let" => LET
-    | "bind" => BIND
-    | "=" => 
+        | FORWARD_SLASH => Some('/')
+        | BACK_SLASH => Some('\\')
+
+        | SINGLE_QUOTE => Some('\'')
+        | DOUBLE_QUOTE => Some('\"')
+        | BACK_TICK => Some('`')
+
+        | GREATER => Some('>')
+        | LESSER => Some('<')
+        
+        | SEMICOLON => Some(';')
+        | COLON => Some(':')
+        | PIPE => Some('|')
+        | COMMA => Some(',')
+        | DOT => Some('.')
+        
+        | ASTERISK => Some('*')
+        | BANG => Some('!')
+        | QUESTION => Some('?')
+        | TILDE => Some('~')
+        
+        | EOF => Some('\000')
+        | _ => None
+    }
+}
+
+let of_char = (c: char): t => {
+    switch c {
+    | '(' => L_PAREN
+    | ')' => R_PAREN
+    | '[' => L_BRACKET
+    | ']' => R_BRACKET
+    | '{' => L_SQUIRELY
+    | '}' => R_SQUIRELY
+
+    | '=' => 
         if (true) {
             ASSIGN 
         } else if (true){
@@ -117,31 +150,31 @@ let from_string = (s: string): t => {
         } else {
             NOT_EQUALS
     };
-    | "+" => PLUS
-    | "-" => MINUS
+    | '+' => PLUS
+    | '-' => MINUS
 
-    | "/" => FORWARD_SLASH
-    | "\\" => BACK_SLASH
+    | '/' => FORWARD_SLASH
+    | '\\' => BACK_SLASH
 
-    | "'" => SINGLE_QUOTE
-    | "\"" => DOUBLE_QUOTE
-    | "`" => BACK_TICK
+    | '\'' => SINGLE_QUOTE
+    | '\"' => DOUBLE_QUOTE
+    | '`' => BACK_TICK
 
-    | ">" => GREATER
-    | "<" => LESSER
+    | '>' => GREATER
+    | '<' => LESSER
     
-    | ";" => SEMICOLON
-    | ":" => COLON
-    | "|" => PIPE
-    | "," => COMMA
-    | "." => DOT
+    | ';' => SEMICOLON
+    | ':' => COLON
+    | '|' => PIPE
+    | ',' => COMMA
+    | '.' => DOT
     
-    | "*" => ASTERISK
-    | "!" => BANG
-    | "?" => QUESTION
-    | "~" => TILDE
+    | '*' => ASTERISK
+    | '!' => BANG
+    | '?' => QUESTION
+    | '~' => TILDE
     
-    | "" => EOF
+    | '\000' => EOF
     | _ => ILLEGAL
     }
 

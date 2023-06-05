@@ -44,5 +44,6 @@ type t =
 | ILLEGAL
 | EOF
 
-let from_string: string => t
+let of_char: char => t
 let to_string: t => string
+let to_char: t => option(char)
