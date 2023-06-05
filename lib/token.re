@@ -1,4 +1,4 @@
-//[@deriving show]
+[@deriving show]
 type t = 
 | IDENT(string)
 | INT(string)

@@ -1,0 +1,3 @@
+(test
+  (name lexer)
+  (libraries lib stdio alcotest))
