@@ -1,6 +1,6 @@
 (test
-  (name interpreter)
-  (modules interpreter)
+  (name aether)
+  (modules aether)
   (libraries lib alcotest
              lexer_t))
 (library

@@ -1,9 +1,9 @@
 (lang dune 3.7)
 
-(name interpreter)
+(name aether)
 
 (generate_opam_files true)
 
 (package
- (name interpreter)
+ (name aether)
  (depends ocaml dune batteries alcotest core ppx_deriving))
