@@ -183,9 +183,9 @@ let of_char = (c: char): t => {
 
 let keyword = (s: string) => {
     switch s {
-        | "fn" => FN
-        | "let" => LET
-        | "BIND" => BIND
-        | s => IDENT(s)
+        | "fn" => Some(FN)
+        | "let" => Some(LET)
+        | "bind" => Some(BIND)
+        | _ => None
     }
 }

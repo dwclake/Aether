@@ -29,31 +29,60 @@ let read_char = (l: t): t => {
     }
 };
 
+let rec skip_whitespace = (l: t) => {
+    switch l.ch {
+    | ' ' | '\t' | '\n' | '\r' => skip_whitespace(read_char(l))
+    | _ => l
+    };
+};
+
 let is_letter = { fun
     | 'a'..'z' | 'A'..'Z' | '_' => true
     | _ => false
-    };
+};
 
-let rec read_ident = (~s="", l: t): (t, string) => {
-    switch(l.ch) {
-        | ch when is_letter(ch) => {
-            read_ident(read_char(l), ~s=s ++ Core.Char.to_string(ch));
+let is_number = { fun
+    | '0'..'9' => true
+    | _ => false
+};
+
+let is_alphanumeric = { fun
+    | ch when is_letter(ch) => true
+    | ch when is_number(ch) => true
+    | _ => false
+}
+
+let rec read_ident = (~s="", ~f, l: t): (t, string) => {
+    switch l.ch {
+        | ch when f(ch) => {
+            read_ident(
+                read_char(l), 
+                ~f,  
+                ~s=s ++ Core.Char.to_string(ch)
+            );
         }
         | _ => (l, s);
     };
-}
-
-let next_token = (l: t): (t, Token.t) => {
-    let (l, tok) = switch l.ch {
-        | ch when is_letter(ch) => {
-            let (l, literal) = read_ident(l);
-            let tok = Token.keyword(literal);
-            (l, tok);
-        }
-        | ch => (l, Token.of_char(ch));
-    };
-    
-    (read_char(l), tok);
 };
 
+let next_token = (l: t): (t, Token.t) => {
+    let l = skip_whitespace(l);
 
+    let (l, tok) = switch l.ch {
+        | ch when is_letter(ch) => {
+            let (l, literal) = read_ident(l, ~f=is_alphanumeric);
+            let token = switch (Token.keyword(literal)) {
+                | Some(t) => t
+                | None => Token.IDENT(literal)
+            };
+            (l, token);
+        }
+        | ch when is_number(ch) => {
+            let (l, literal) = read_ident(l, ~f=is_number);
+            (l, Token.INT(literal));
+        }
+        | ch => (read_char(l), Token.of_char(ch));
+    };
+    
+    (l, tok);
+};
