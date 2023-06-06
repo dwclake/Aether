@@ -6,4 +6,9 @@
 
 (package
  (name Aether)
- (depends ocaml dune batteries alcotest core ppx_deriving))
+ (depends (ocaml(= :5.0.0)) 
+          (dune(= :3.7)) 
+          (alcotest(= :1.7.0)) 
+          (core(= :0.15.1)) 
+          (ppx_deriving(= :5.2.1))
+ ))
