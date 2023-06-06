@@ -36,15 +36,16 @@ let test_next_token = () => {
 }
 
 
-let test_complex_tokens = () => {
-    let code = {|let five = 5;
-bind ten = 10;
+let test_ident_tokens = () => {
+    let code = {|
+        let five = 5;
+        bind ten = 10;
 
-let add = fn(x, y) {
-    x + y;
-};
+        let add = fn(x, y) {
+            x + y;
+        };
 
-let result = add(five, ten);
+        let result = add(five, ten);
     |};
 
     let tests = [
