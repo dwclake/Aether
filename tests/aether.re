@@ -6,7 +6,7 @@ let suite = [
         "Lexer",
         [
             test_case("Next token", `Quick, test_next_token),
-            test_case("Complex tokens", `Quick, test_complex_tokens)
+            test_case("Idents, some keywords, ints", `Quick, test_complex_tokens)
         ]
     ),
 ];
