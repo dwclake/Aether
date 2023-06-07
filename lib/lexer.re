@@ -50,7 +50,7 @@ let is_alphanumeric = { fun
     | ch when is_letter(ch) => true
     | ch when is_number(ch) => true
     | _ => false
-}
+};
 
 let rec read_sequence = (~s="", ~predicate, l: t): (t, string) => {
     switch l.ch {
