@@ -52,12 +52,12 @@ let is_alphanumeric = { fun
     | _ => false
 }
 
-let rec read_ident = (~s="", ~f, l: t): (t, string) => {
+let rec read_sequence = (~s="", ~predicate, l: t): (t, string) => {
     switch l.ch {
-        | ch when f(ch) => {
-            read_ident(
+        | ch when predicate(ch) => {
+            read_sequence(
                 read_char(l), 
-                ~f,  
+                ~predicate,  
                 ~s=s ++ Core.Char.to_string(ch)
             );
         }
@@ -70,15 +70,15 @@ let next_token = (l: t): (t, Token.t) => {
 
     let (l, tok) = switch l.ch {
         | ch when is_letter(ch) => {
-            let (l, literal) = read_ident(l, ~f=is_alphanumeric);
-            let token = switch (Token.keyword(literal)) {
+            let (l, literal) = read_sequence(l, ~predicate=is_alphanumeric);
+            let token = switch (Token.parse_keyword(literal)) {
                 | Some(t) => t
                 | None => Token.IDENT(literal)
             };
             (l, token);
         }
         | ch when is_number(ch) => {
-            let (l, literal) = read_ident(l, ~f=is_number);
+            let (l, literal) = read_sequence(l, ~predicate=is_number);
             (l, Token.INT(literal));
         }
         | ch => (read_char(l), Token.of_char(ch));

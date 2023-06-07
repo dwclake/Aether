@@ -181,7 +181,7 @@ let of_char = (c: char): t => {
 
 }
 
-let keyword = (s: string) => {
+let parse_keyword = (s: string) => {
     switch s {
         | "fn" => Some(FN)
         | "let" => Some(LET)

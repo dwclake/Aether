@@ -48,4 +48,4 @@ type t =
 let of_char: char => t;
 let to_string: t => string;
 let to_char: t => option(char);
-let keyword: string => option(t);
+let parse_keyword: string => option(t);
