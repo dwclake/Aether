@@ -14,7 +14,7 @@ let create = (~input: string): t => {
     }
 };
 
-let read_char = (l: t): t => {
+let advance = (l: t): t => {
     let ch = if(l.read_pos >= String.length(l.input)) {
         '\000';
     } else {
@@ -31,7 +31,7 @@ let read_char = (l: t): t => {
 
 let rec skip_whitespace = (l: t) => {
     switch l.ch {
-    | ' ' | '\t' | '\n' | '\r' => skip_whitespace(read_char(l))
+    | ' ' | '\t' | '\n' | '\r' => skip_whitespace(advance(l))
     | _ => l
     };
 };
@@ -56,7 +56,7 @@ let rec read_sequence = (~s="", ~predicate, l: t): (t, string) => {
     switch l.ch {
         | ch when predicate(ch) => {
             read_sequence(
-                read_char(l), 
+                advance(l), 
                 ~predicate,  
                 ~s=s ++ Core.Char.to_string(ch)
             );
@@ -81,7 +81,7 @@ let next_token = (l: t): (t, Token.t) => {
             let (l, literal) = read_sequence(l, ~predicate=is_number);
             (l, Token.INT(literal));
         }
-        | ch => (read_char(l), Token.of_char(ch));
+        | ch => (advance(l), Token.of_char(ch));
     };
     
     (l, tok);

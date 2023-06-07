@@ -6,3 +6,4 @@ _release
 *.native
 *.install
 .vscode
+.DS_Store
