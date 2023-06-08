@@ -14,7 +14,7 @@ let rec test_token_seq = (l: Lexer.t, i: int) => { fun
 };
 
 let test_next_token = () => {
-    let code = {|=+(){},;|};
+    let code = "=+(){},;";
 
     let tests = [
         Token.ASSIGN,
@@ -30,19 +30,19 @@ let test_next_token = () => {
 
     test_token_seq(
         Lexer.create(~input=code),
-        0,
+        1,
         tests
         )
 };
 
 
 let test_ident_tokens = () => {
-    let code = {|
+    let code = "
         let five = 5;
         let ten = 10;
 
         let result = add(five, ten);
-    |};
+    ";
 
     let tests = [
         Token.LET,
@@ -72,7 +72,7 @@ let test_ident_tokens = () => {
 
     test_token_seq(
         Lexer.create(~input=code),
-        0,
+        1,
         tests
     )
 };
@@ -122,21 +122,21 @@ let test_operators = () => {
 
     test_token_seq(
         Lexer.create(~input=code),
-        0,
+        1,
         tests
     )
 };
 
 
 let test_comp_ops = () => {
-    let code = {|
+    let code = "
         let x = 12;
         let y = 1 =>;
         5 <= 10;
         x >= 2;
         y != x;
         y == 1;
-    |};
+    ";
 
     let tests = [
         Token.LET,
@@ -176,13 +176,13 @@ let test_comp_ops = () => {
 
     test_token_seq(
         Lexer.create(~input=code),
-        0,
+        1,
         tests
     )
 };
 
 let test_keywords = () => {
-    let code = {|
+    let code = "
         let y = true;
         bind x = match y {
             | true => 20
@@ -196,7 +196,7 @@ let test_keywords = () => {
         } else {
             0
         }
-    |};
+    ";
 
     let tests = [
         Token.LET,
@@ -258,17 +258,17 @@ let test_keywords = () => {
 
     test_token_seq(
         Lexer.create(~input=code),
-        0,
+        1,
         tests
     )
 };
 
 let test_functions = () => {
-    let code = {|
+    let code = "
         fn add (x, y) {
             x + y
         };
-    |};
+    ";
 
     let tests = [
         Token.FN,
@@ -292,7 +292,7 @@ let test_functions = () => {
 
     test_token_seq(
         Lexer.create(~input=code),
-        0,
+        1,
         tests
     )
 };
