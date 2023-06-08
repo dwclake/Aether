@@ -1,49 +1,67 @@
 [@deriving show]
 type t =
-| IDENT(string)
-| INT(string)
+    | IDENT(string)
+    | INT(string)
 
-| FN
+    | FN
+    | LET
+    | BIND
+    | MATCH
+    | TRUE
+    | FALSE
+    | RETURN
+    | IF
+    | ELSE
+    | ELSE_IF
 
-| L_PAREN
-| R_PAREN
-| L_BRACKET
-| R_BRACKET
-| L_SQUIRELY
-| R_SQUIRELY
+    | L_PAREN
+    | R_PAREN
+    | L_BRACKET
+    | R_BRACKET
+    | L_SQUIRELY
+    | R_SQUIRELY
 
-| LET
-| BIND
-| ASSIGN
+    | ASSIGN
+    | FAT_ARROW
 
-| EQUALS
-| NOT_EQUALS
-| PLUS
-| MINUS
+    | EQUALS
+    | NOT_EQUALS
 
-| FORWARD_SLASH
-| BACK_SLASH
+    | PLUS
+    | MINUS
+    | MODULO
+    | CARET
 
-| SINGLE_QUOTE
-| DOUBLE_QUOTE
-| BACK_TICK
+    | FORWARD_SLASH
+    | BACK_SLASH
 
-| GREATER
-| LESSER
+    | SINGLE_QUOTE
+    | DOUBLE_QUOTE
+    | BACK_TICK
 
-| SEMICOLON
-| COLON
-| PIPE
-| COMMA
-| DOT
+    | GREATER
+    | LESSER
 
-| ASTERISK
-| BANG
-| QUESTION
-| TILDE
+    | GREATER_EQ
+    | LESSER_EQ
 
-| ILLEGAL
-| EOF;
+    | SEMICOLON
+    | COLON
+    | PIPE
+    | COMMA
+    | DOT
+
+    | ASTERISK
+    | BANG
+    | QUESTION
+    | TILDE
+    | POUND
+    | AT
+    | AMP
+    | DOLLAR
+
+    | ILLEGAL
+    | EOF;
 
 let of_char: char => t;
 let to_string: t => string;

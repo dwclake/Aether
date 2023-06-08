@@ -69,6 +69,7 @@ let next_token = (l: t): (t, Token.t) => {
     let l = skip_whitespace(l);
 
     let (l, tok) = switch l.ch {
+
         | ch when is_letter(ch) => {
             let (l, literal) = read_sequence(l, ~predicate=is_alphanumeric);
             let token = switch (Token.parse_keyword(literal)) {
@@ -77,10 +78,45 @@ let next_token = (l: t): (t, Token.t) => {
             };
             (l, token);
         }
+
         | ch when is_number(ch) => {
             let (l, literal) = read_sequence(l, ~predicate=is_number);
             (l, Token.INT(literal));
         }
+
+        | ch when ch == '>' => {
+            let l = advance(l);
+            switch l.ch {
+                | '=' => (advance(l), Token.GREATER_EQ)
+                | _ => (l, Token.GREATER)
+            }
+        }
+
+        | ch when ch == '<' => {
+            let l = advance(l);
+            switch l.ch {
+                | '=' => (advance(l), Token.LESSER_EQ)
+                | _ => (l, Token.LESSER)
+            }
+        }
+
+        | ch when ch == '!' => {
+            let l = advance(l);
+            switch l.ch {
+                | '=' => (advance(l), Token.NOT_EQUALS)
+                | _ => (l, Token.BANG)
+            }
+        }
+
+        | ch when ch == '=' => {
+            let l = advance(l);
+            switch l.ch {
+                | '=' => (advance(l), Token.EQUALS)
+                | '>' => (advance(l), Token.FAT_ARROW)
+                | _ => (l, Token.ASSIGN)
+            }
+        }
+
         | ch => (advance(l), Token.of_char(ch));
     };
     

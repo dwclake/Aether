@@ -1,49 +1,67 @@
 [@deriving show]
 type t = 
-| IDENT(string)
-| INT(string)
+    | IDENT(string)
+    | INT(string)
 
-| FN
+    | FN
+    | LET
+    | BIND
+    | MATCH
+    | TRUE
+    | FALSE
+    | RETURN
+    | IF
+    | ELSE
+    | ELSE_IF
 
-| L_PAREN
-| R_PAREN
-| L_BRACKET
-| R_BRACKET
-| L_SQUIRELY
-| R_SQUIRELY
+    | L_PAREN
+    | R_PAREN
+    | L_BRACKET
+    | R_BRACKET
+    | L_SQUIRELY
+    | R_SQUIRELY
 
-| LET
-| BIND
-| ASSIGN
+    | ASSIGN
+    | FAT_ARROW
 
-| EQUALS
-| NOT_EQUALS
-| PLUS
-| MINUS
+    | EQUALS
+    | NOT_EQUALS
 
-| FORWARD_SLASH
-| BACK_SLASH
+    | PLUS
+    | MINUS
+    | MODULO
+    | CARET
 
-| SINGLE_QUOTE
-| DOUBLE_QUOTE
-| BACK_TICK
+    | FORWARD_SLASH
+    | BACK_SLASH
 
-| GREATER
-| LESSER
+    | SINGLE_QUOTE
+    | DOUBLE_QUOTE
+    | BACK_TICK
 
-| SEMICOLON
-| COLON
-| PIPE
-| COMMA
-| DOT
+    | GREATER
+    | LESSER
 
-| ASTERISK
-| BANG
-| QUESTION
-| TILDE
+    | GREATER_EQ
+    | LESSER_EQ
 
-| ILLEGAL
-| EOF;
+    | SEMICOLON
+    | COLON
+    | PIPE
+    | COMMA
+    | DOT
+
+    | ASTERISK
+    | BANG
+    | QUESTION
+    | TILDE
+    | POUND
+    | AT
+    | AMP
+    | DOLLAR
+
+    | ILLEGAL
+    | EOF;
 
 let to_string = (token: t): string => {
     switch token {
@@ -51,6 +69,15 @@ let to_string = (token: t): string => {
         | INT(x) => x
 
         | FN => "fn"
+        | LET => "let"
+        | BIND => "bind"
+        | MATCH => "match"
+        | TRUE => "true"
+        | FALSE => "false"
+        | RETURN => "return"
+        | IF => "if"
+        | ELSE => "else"
+        | ELSE_IF => "else if"
 
         | L_PAREN => "("
         | R_PAREN => ")"
@@ -59,14 +86,16 @@ let to_string = (token: t): string => {
         | L_SQUIRELY => "{"
         | R_SQUIRELY => "}"
 
-        | LET => "let"
-        | BIND => "bind"
         | ASSIGN => "="
+        | FAT_ARROW => "=>"
 
         | EQUALS => "=="
         | NOT_EQUALS => "!="
+
         | PLUS => "+"
         | MINUS => "-"
+        | MODULO => "%"
+        | CARET => "^"
 
         | FORWARD_SLASH => "/"
         | BACK_SLASH => "\\"
@@ -78,6 +107,9 @@ let to_string = (token: t): string => {
         | GREATER => ">"
         | LESSER => "<"
         
+        | GREATER_EQ => ">="
+        | LESSER_EQ => "<="
+
         | SEMICOLON => ";"
         | COLON => ":"
         | PIPE => "|"
@@ -88,7 +120,11 @@ let to_string = (token: t): string => {
         | BANG => "!"
         | QUESTION => "?"
         | TILDE => "~"
-        
+        | POUND => "#"
+        | AT => "@"
+        | AMP => "&"
+        | DOLLAR => "$"
+
         | ILLEGAL => "illegal"
         | EOF => "eof"
     }
@@ -107,6 +143,8 @@ let to_char = (token: t): option(char) => {
 
         | PLUS => Some('+')
         | MINUS => Some('-')
+        | MODULO => Some('%')
+        | CARET => Some('^')
 
         | FORWARD_SLASH => Some('/')
         | BACK_SLASH => Some('\\')
@@ -128,6 +166,10 @@ let to_char = (token: t): option(char) => {
         | BANG => Some('!')
         | QUESTION => Some('?')
         | TILDE => Some('~')
+        | POUND => Some('#')
+        | AT => Some('@')
+        | AMP => Some('&')
+        | DOLLAR => Some('$')
         
         | EOF => Some('\000')
         | _ => None
@@ -143,16 +185,10 @@ let of_char = (c: char): t => {
     | '{' => L_SQUIRELY
     | '}' => R_SQUIRELY
 
-    | '=' => 
-        if (true) {
-            ASSIGN 
-        } else if (true){
-            EQUALS 
-        } else {
-            NOT_EQUALS
-    };
     | '+' => PLUS
     | '-' => MINUS
+    | '%' => MODULO
+    | '^' => CARET
 
     | '/' => FORWARD_SLASH
     | '\\' => BACK_SLASH
@@ -174,6 +210,10 @@ let of_char = (c: char): t => {
     | '!' => BANG
     | '?' => QUESTION
     | '~' => TILDE
+    | '#' => POUND
+    | '@' => AT
+    | '&' => AMP
+    | '$' => DOLLAR
     
     | '\000' => EOF
     | _ => ILLEGAL
@@ -186,6 +226,13 @@ let parse_keyword = (s: string) => {
         | "fn" => Some(FN)
         | "let" => Some(LET)
         | "bind" => Some(BIND)
+        | "match" => Some(MATCH)
+        | "true" => Some(TRUE)
+        | "false" => Some(FALSE)
+        | "return" => Some(RETURN)
+        | "if" => Some(IF)
+        | "else" => Some(ELSE)
+        | "else if" => Some(ELSE_IF)
         | _ => None
     }
 }
