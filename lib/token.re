@@ -12,7 +12,6 @@ type t =
     | RETURN
     | IF
     | ELSE
-    | ELSE_IF
 
     | L_PAREN
     | R_PAREN
@@ -77,7 +76,6 @@ let to_string = (token: t): string => {
         | RETURN => "return"
         | IF => "if"
         | ELSE => "else"
-        | ELSE_IF => "else if"
 
         | L_PAREN => "("
         | R_PAREN => ")"
@@ -232,7 +230,6 @@ let parse_keyword = (s: string) => {
         | "return" => Some(RETURN)
         | "if" => Some(IF)
         | "else" => Some(ELSE)
-        | "else if" => Some(ELSE_IF)
         | _ => None
     }
 }

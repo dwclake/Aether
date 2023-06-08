@@ -12,7 +12,6 @@ type t =
     | RETURN
     | IF
     | ELSE
-    | ELSE_IF
 
     | L_PAREN
     | R_PAREN

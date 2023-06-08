@@ -257,8 +257,10 @@ let test_more_keywords = () => {
 
         if x > 5 {
             return 2;
-        } else {
+        } else if x < 5 {
             1
+        } else {
+            0
         }
         |};
 
@@ -301,9 +303,19 @@ let test_more_keywords = () => {
 
         Token.R_SQUIRELY,
         Token.ELSE,
+        Token.IF,
+        Token.IDENT("x"),
+        Token.LESSER,
+        Token.INT("5"),
         Token.L_SQUIRELY,
 
         Token.INT("1"),
+
+        Token.R_SQUIRELY,
+        Token.ELSE,
+        Token.L_SQUIRELY,
+
+        Token.INT("0"),
         
         Token.R_SQUIRELY,
 
