@@ -21,6 +21,7 @@ type t =
     | R_SQUIRELY
 
     | ASSIGN
+    | SLIM_ARROW
     | FAT_ARROW
 
     | EQUALS

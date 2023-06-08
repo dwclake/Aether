@@ -21,6 +21,7 @@ type t =
     | R_SQUIRELY
 
     | ASSIGN
+    | SLIM_ARROW
     | FAT_ARROW
 
     | EQUALS
@@ -86,6 +87,7 @@ let to_string = (token: t): string => {
 
         | ASSIGN => "="
         | FAT_ARROW => "=>"
+        | SLIM_ARROW => "->"
 
         | EQUALS => "=="
         | NOT_EQUALS => "!="
@@ -182,6 +184,8 @@ let of_char = (c: char): t => {
     | ']' => R_BRACKET
     | '{' => L_SQUIRELY
     | '}' => R_SQUIRELY
+
+    | '=' => ASSIGN
 
     | '+' => PLUS
     | '-' => MINUS

@@ -32,7 +32,7 @@ let test_next_token = () => {
         Lexer.create(~input=code),
         1,
         tests
-        )
+    )
 };
 
 
@@ -265,7 +265,7 @@ let test_keywords = () => {
 
 let test_functions = () => {
     let code = "
-        fn add (x, y) {
+        fn add (x, y) -> int {
             x + y
         };
     ";
@@ -278,6 +278,8 @@ let test_functions = () => {
         Token.COMMA,
         Token.IDENT("y"),
         Token.R_PAREN,
+        Token.SLIM_ARROW,
+        Token.IDENT("int"),
         Token.L_SQUIRELY,
 
         Token.IDENT("x"),

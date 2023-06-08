@@ -117,6 +117,14 @@ let next_token = (l: t): (t, Token.t) => {
             }
         }
 
+        | ch when ch == '-' => {
+            let l = advance(l);
+            switch l.ch {
+                | '>' => (advance(l), Token.SLIM_ARROW)
+                | _ => (l, Token.MINUS)
+            }
+        }
+
         | ch => (advance(l), Token.of_char(ch));
     };
     
