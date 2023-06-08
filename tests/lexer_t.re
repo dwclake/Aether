@@ -262,7 +262,7 @@ let test_more_keywords = () => {
         } else {
             0
         }
-        |};
+    |};
 
     let tests = [
         Token.LET,
