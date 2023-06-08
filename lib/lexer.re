@@ -76,7 +76,7 @@ let rec read_sequence = (~s="", ~predicate, l: t): (t, string) => {
     };
 };
 
-let compound_or = (l: t, ~rules: list((char, Token.t)), ~default: Token.t): (t, Token.t) => {
+let compound_or = (l: t, ~default: Token.t, ~rules): (t, Token.t) => {
     let next_ch = peek(l);
     
     let rec loop = { fun

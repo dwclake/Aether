@@ -1,4 +1,8 @@
 (executable
- (name main)
  (public_name main)
- (libraries lib))
+ (modules main)
+ (libraries lib core stdio))
+(executable
+ (public_name repl)
+ (modules repl)
+ (libraries lib core stdio))
