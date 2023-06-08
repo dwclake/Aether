@@ -1,6 +1,6 @@
 open Stdio;
 
-let flush = () => Out_channel.flush(Out_channel.stdout);
+let flush_out = () => Out_channel.flush(Out_channel.stdout);
 
 let prompt = ">> ";
 
@@ -39,13 +39,14 @@ let print_toks = (tokens: list(Token.t)): unit => {
 }
 
 let rec start = () => {
-    printf("\n%s", prompt); flush();
+    open Core;
 
-    let input = In_channel.input_line(In_channel.stdin);
-    let tokens = switch input {
-        | Some(s) => lex_input(s)
-        | None => [Token.EOF]
-    };
+    printf("\n%s", prompt); flush_out();
+
+    let input = In_channel.input_lines(In_channel.stdin);
+
+    let tokens = List.fold(input, ~init="", ~f=((x, accum) => x ++ accum)) 
+        |> lex_input;
 
     printf("\n");
     print_toks(tokens);
