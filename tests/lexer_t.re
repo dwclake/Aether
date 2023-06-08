@@ -39,11 +39,7 @@ let test_next_token = () => {
 let test_ident_tokens = () => {
     let code = {|
         let five = 5;
-        bind ten = 10;
-
-        let add = fn(x, y) {
-            x + y;
-        };
+        let ten = 10;
 
         let result = add(five, ten);
     |};
@@ -55,28 +51,10 @@ let test_ident_tokens = () => {
         Token.INT("5"),
         Token.SEMICOLON,
 
-        Token.BIND,
+        Token.LET,
         Token.IDENT("ten"),
         Token.ASSIGN,
         Token.INT("10"),
-        Token.SEMICOLON,
-
-        Token.LET,
-        Token.IDENT("add"),
-        Token.ASSIGN,
-        Token.FN,
-        Token.L_PAREN,
-        Token.IDENT("x"),
-        Token.COMMA,
-        Token.IDENT("y"),
-        Token.R_PAREN,
-        Token.L_SQUIRELY,
-        Token.IDENT("x"),
-        Token.PLUS,
-        Token.IDENT("y"),
-        Token.SEMICOLON,
-
-        Token.R_SQUIRELY,
         Token.SEMICOLON,
 
         Token.LET,
@@ -99,16 +77,9 @@ let test_ident_tokens = () => {
     )
 };
 
-let test_more_operators = () => {
+let test_operators = () => {
     let code = {|
-        let five = 5;
-        bind ten = 10;
-
-        let add = fn(x, y) {
-            x + y;
-        };
-
-        let result = add(five, ten);
+        {};
         
         []$!-/*5\~`?'"%@^#;
 
@@ -116,45 +87,8 @@ let test_more_operators = () => {
     |};
 
     let tests = [
-        Token.LET,
-        Token.IDENT("five"),
-        Token.ASSIGN,
-        Token.INT("5"),
-        Token.SEMICOLON,
-
-        Token.BIND,
-        Token.IDENT("ten"),
-        Token.ASSIGN,
-        Token.INT("10"),
-        Token.SEMICOLON,
-
-        Token.LET,
-        Token.IDENT("add"),
-        Token.ASSIGN,
-        Token.FN,
-        Token.L_PAREN,
-        Token.IDENT("x"),
-        Token.COMMA,
-        Token.IDENT("y"),
-        Token.R_PAREN,
         Token.L_SQUIRELY,
-        Token.IDENT("x"),
-        Token.PLUS,
-        Token.IDENT("y"),
-        Token.SEMICOLON,
-
         Token.R_SQUIRELY,
-        Token.SEMICOLON,
-
-        Token.LET,
-        Token.IDENT("result"),
-        Token.ASSIGN,
-        Token.IDENT("add"),
-        Token.L_PAREN,
-        Token.IDENT("five"),
-        Token.COMMA,
-        Token.IDENT("ten"),
-        Token.R_PAREN,
         Token.SEMICOLON,
 
         Token.L_BRACKET,
@@ -247,10 +181,10 @@ let test_comp_ops = () => {
     )
 };
 
-let test_more_keywords = () => {
+let test_keywords = () => {
     let code = {|
         let y = true;
-        let x = match y {
+        bind x = match y {
             | true => 20
             | false => 10
         };
@@ -271,7 +205,7 @@ let test_more_keywords = () => {
         Token.TRUE,
         Token.SEMICOLON,
 
-        Token.LET,
+        Token.BIND,
         Token.IDENT("x"),
         Token.ASSIGN,
         Token.MATCH,
@@ -318,6 +252,40 @@ let test_more_keywords = () => {
         Token.INT("0"),
         
         Token.R_SQUIRELY,
+
+        Token.EOF
+    ];
+
+    test_token_seq(
+        Lexer.create(~input=code),
+        0,
+        tests
+    )
+};
+
+let test_functions = () => {
+    let code = {|
+        fn add (x, y) {
+            x + y
+        };
+    |};
+
+    let tests = [
+        Token.FN,
+        Token.IDENT("add"),
+        Token.L_PAREN,
+        Token.IDENT("x"),
+        Token.COMMA,
+        Token.IDENT("y"),
+        Token.R_PAREN,
+        Token.L_SQUIRELY,
+
+        Token.IDENT("x"),
+        Token.PLUS,
+        Token.IDENT("y"),
+
+        Token.R_SQUIRELY,
+        Token.SEMICOLON,
 
         Token.EOF
     ];
