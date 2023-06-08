@@ -76,6 +76,29 @@ let rec read_sequence = (~s="", ~predicate, l: t): (t, string) => {
     };
 };
 
+let compound_or = (l: t, ~rules: list((char, Token.t)), ~default: Token.t): (t, Token.t) => {
+    let next_ch = peek(l);
+    
+    let rec loop = { fun
+        | [] => default 
+        | [h, ...t] => {
+            let (ch, tok) = h;
+            if(next_ch == ch) {
+                tok
+            } else {
+                loop(t);
+            }
+        }
+    }
+
+    let tok = loop(rules);
+
+    switch tok {
+        | tok when tok == default => (advance(l), tok)
+        | _ => (advance(l, ~count=2), tok)
+    }
+}
+
 let next_token = (l: t): (t, Token.t) => {
     let l = skip_whitespace(l);
 
@@ -96,35 +119,22 @@ let next_token = (l: t): (t, Token.t) => {
         }
         // Compound operators
         | ch when ch == '>' => {
-            switch (l |> peek) {
-                | '=' => (advance(l, ~count=2), Token.GREATER_EQ)
-                | _ => (advance(l), Token.GREATER)
-            }
+            compound_or(l, ~default=Token.GREATER, ~rules=[('=', Token.GREATER_EQ)])
         }
         | ch when ch == '<' => {
-            switch (l |> peek) {
-                | '=' => (advance(l, ~count=2), Token.LESSER_EQ)
-                | _ => (advance(l), Token.LESSER)
-            }
+            compound_or(l, ~default=Token.LESSER, ~rules=[('=', Token.LESSER_EQ)])
         }
         | ch when ch == '!' => {
-            switch (l |> peek) {
-                | '=' => (advance(l, ~count=2), Token.NOT_EQUALS)
-                | _ => (advance(l), Token.BANG)
-            }
-        }
-        | ch when ch == '=' => {
-            switch (l |> peek) {
-                | '=' => (advance(l, ~count=2), Token.EQUALS)
-                | '>' => (advance(l, ~count=2), Token.FAT_ARROW)
-                | _ => (advance(l), Token.ASSIGN)
-            }
+            compound_or(l, ~default=Token.BANG, ~rules=[('=', Token.NOT_EQUALS)])
         }
         | ch when ch == '-' => {
-            switch (l |> peek) {
-                | '>' => (advance(l, ~count=2), Token.SLIM_ARROW)
-                | _ => (advance(l), Token.MINUS)
-            }
+            compound_or(l, ~default=Token.MINUS, ~rules=[('>', Token.SLIM_ARROW)])
+        }
+        | ch when ch == '=' => {
+            compound_or(l, ~default=Token.ASSIGN, ~rules=[
+                ('=', Token.EQUALS),
+                ('>', Token.FAT_ARROW)
+            ])
         }
         // Individual characters
         | ch => (advance(l), Token.of_char(ch));
