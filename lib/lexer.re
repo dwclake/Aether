@@ -1,6 +1,6 @@
 type t = {
     input: string,
-    _pos: int,
+    pos: int,
     read_pos: int,
     ch: char
 };
@@ -8,26 +8,37 @@ type t = {
 let create = (~input: string): t => {
     {
         input,
-        _pos: 0,
+        pos: 0,
         read_pos: 1,
         ch: input.[0]
     }
 };
 
-let advance = (l: t): t => {
-    let ch = if(l.read_pos >= String.length(l.input)) {
+let advance = (~count=1, l: t): t => {
+    let rp = l.pos + count;
+    let ch = if(rp >= String.length(l.input)) {
         '\000';
     } else {
-        String.get(l.input, l.read_pos);
+        String.get(l.input, rp);
     };
 
     {
         ...l,
-        _pos: l.read_pos,
-        read_pos: l.read_pos + 1,
+        pos: rp,
+        read_pos: rp + 1,
         ch,
     }
 };
+
+let peek = (l: t): char => {
+    let ch = if(l.read_pos >= String.length(l.input)) {
+        '\000';
+    } else {
+        String.get(l.input, l.read_pos);
+    }
+
+    ch
+}
 
 let rec skip_whitespace = (l: t) => {
     switch l.ch {
@@ -69,7 +80,7 @@ let next_token = (l: t): (t, Token.t) => {
     let l = skip_whitespace(l);
 
     let (l, tok) = switch l.ch {
-
+        // Idenifiers and keywords
         | ch when is_letter(ch) => {
             let (l, literal) = read_sequence(l, ~predicate=is_alphanumeric);
             let token = switch (Token.parse_keyword(literal)) {
@@ -78,53 +89,44 @@ let next_token = (l: t): (t, Token.t) => {
             };
             (l, token);
         }
-
+        // Integers
         | ch when is_number(ch) => {
             let (l, literal) = read_sequence(l, ~predicate=is_number);
             (l, Token.INT(literal));
         }
-
+        // Compound operators
         | ch when ch == '>' => {
-            let l = advance(l);
-            switch l.ch {
-                | '=' => (advance(l), Token.GREATER_EQ)
-                | _ => (l, Token.GREATER)
+            switch (l |> peek) {
+                | '=' => (advance(l, ~count=2), Token.GREATER_EQ)
+                | _ => (advance(l), Token.GREATER)
             }
         }
-
         | ch when ch == '<' => {
-            let l = advance(l);
-            switch l.ch {
-                | '=' => (advance(l), Token.LESSER_EQ)
-                | _ => (l, Token.LESSER)
+            switch (l |> peek) {
+                | '=' => (advance(l, ~count=2), Token.LESSER_EQ)
+                | _ => (advance(l), Token.LESSER)
             }
         }
-
         | ch when ch == '!' => {
-            let l = advance(l);
-            switch l.ch {
-                | '=' => (advance(l), Token.NOT_EQUALS)
-                | _ => (l, Token.BANG)
+            switch (l |> peek) {
+                | '=' => (advance(l, ~count=2), Token.NOT_EQUALS)
+                | _ => (advance(l), Token.BANG)
             }
         }
-
         | ch when ch == '=' => {
-            let l = advance(l);
-            switch l.ch {
-                | '=' => (advance(l), Token.EQUALS)
-                | '>' => (advance(l), Token.FAT_ARROW)
-                | _ => (l, Token.ASSIGN)
+            switch (l |> peek) {
+                | '=' => (advance(l, ~count=2), Token.EQUALS)
+                | '>' => (advance(l, ~count=2), Token.FAT_ARROW)
+                | _ => (advance(l), Token.ASSIGN)
             }
         }
-
         | ch when ch == '-' => {
-            let l = advance(l);
-            switch l.ch {
-                | '>' => (advance(l), Token.SLIM_ARROW)
-                | _ => (l, Token.MINUS)
+            switch (l |> peek) {
+                | '>' => (advance(l, ~count=2), Token.SLIM_ARROW)
+                | _ => (advance(l), Token.MINUS)
             }
         }
-
+        // Individual characters
         | ch => (advance(l), Token.of_char(ch));
     };
     
