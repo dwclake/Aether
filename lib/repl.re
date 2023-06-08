@@ -35,7 +35,7 @@ let print = (token: Token.t) => {
 let print_toks = (tokens: list(Token.t)): unit => {
     printf("{\n");
     tokens |> Core.List.iter(~f=print);
-    printf("}\n");
+    printf("}\n")
 }
 
 let rec start = () => {
