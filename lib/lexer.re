@@ -6,11 +6,16 @@ type t = {
 };
 
 let create = (~input: string): t => {
+    let ch = switch input {
+        | "" => '\000'
+        | _ => input.[0]
+    };
+
     {
         input,
         pos: 0,
         read_pos: 1,
-        ch: input.[0]
+        ch
     }
 };
 
