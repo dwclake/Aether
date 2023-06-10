@@ -8,11 +8,22 @@ module Node = {
     };
 };
 
-
-
 module Expression = {
-    type t;
+    type t = 
+        | IDENT(
+            Token.t,
+            string
+        )
+    ;
 
+    let expression_node = (_: t) => ();
+
+    let token_literal = (e: t): string => {
+        let token = switch e {
+            | IDENT(t, _) => t
+        };
+        Token.show(token)
+    };
 };
 
 module Identifier = {
@@ -24,21 +35,13 @@ module Identifier = {
     let expression_node = (_: t) => ();
 
     let token_literal = (i: t): string => {
-        Token.show(i.token)  
-    };
-};
-
-module LetStatement = {
-    type t = {
-        token: Token.t,
-        name: Identifier.t,
-        value: string
+        Token.show(i.token)
     };
 };
 
 module Statement  = {
     type t =
-        | LetStatement(
+        | LET(
             Token.t,
             Identifier.t,
             Expression.t
@@ -49,7 +52,7 @@ module Statement  = {
 
     let token_literal = (l: t): string => {
         let token = switch l {
-            | LetStatement(t, _, _) => t
+            | LET(t, _, _) => t
         };
         Token.show(token)
     };
