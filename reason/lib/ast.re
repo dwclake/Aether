@@ -1,19 +1,19 @@
 type identifier = {
     identifier: string
-}
+};
 
 type expression = 
-    | IDENTIFIER(identifier)
+    | IDENTIFIER(identifier);
 
 type statement =
     | LET {
         name: identifier,
         value: expression
-    }
+};
 
 type program = {
     statements: list(statement)
-}
+};
 
 type node = 
     | PROGRAM(program)
@@ -24,4 +24,4 @@ let token_literal = { fun
     | PROGRAM(_) => "program"
     | EXPRESSION(_) => "expression"
     | STATEMENT(_) => "statement"
-}
+};
