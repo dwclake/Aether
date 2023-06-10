@@ -19,7 +19,7 @@ let lex_input = (input: string): list(Token.t) => {
         of_tuple(Lexer.next_token(Lexer.create(~input)))
     );
 
-    while(lex^.t != Token.EOF){
+    while(lex^.t != Token.EOF) {
         tokens := tokens^ @ [lex^.t];
 
         lex := of_tuple(Lexer.next_token(lex^.l));
