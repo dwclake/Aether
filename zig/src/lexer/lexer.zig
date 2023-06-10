@@ -34,7 +34,16 @@ pub const Lexer = struct {
 test "next token" {
     const input = "=+(){},;";
 
-    const tests = [_]token.Token{ .assign, .plus, .lparen, .rparen, .lsquirly, .rsquirly, .comma, .semicolon };
+    const tests = [_]token.Token{ 
+        .assign, 
+        .plus, 
+        .lparen, 
+        .rparen, 
+        .lsquirly, 
+        .rsquirly, 
+        .comma, 
+        .semicolon 
+    };
 
     var lex = Lexer.init(input);
 
