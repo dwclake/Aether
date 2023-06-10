@@ -18,6 +18,17 @@ pub const Lexer = struct {
 
         return l;
     }
+
+    pub fn read_char() void {
+        if (Self.read_pos >= Self.input.len) {
+            Self.ch = 0;
+        } else {
+            Self.ch = Self.input[Self.read_pos];
+        }
+
+        Self.pos = Self.read_pos;
+        Self.read_pos += 1;
+    }
 };
 
 test "next token" {
