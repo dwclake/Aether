@@ -9,20 +9,20 @@ type lex = {
     t: Token.t
 }
 
-let of_tuple = ((l, t)): lex => {
+let to_lex = ((l, t)): lex => {
     { l, t }
 }
 
 let lex_input = (input: string): list(Token.t) => {
     let tokens = ref{[]};
     let lex = ref(
-        of_tuple(Lexer.next_token(Lexer.create(~input)))
+        to_lex(Lexer.next_token(Lexer.create(~input)))
     );
 
     while(lex^.t != Token.EOF) {
         tokens := tokens^ @ [lex^.t];
 
-        lex := of_tuple(Lexer.next_token(lex^.l));
+        lex := to_lex(Lexer.next_token(lex^.l));
     }
 
     tokens^

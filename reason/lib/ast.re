@@ -1,74 +1,27 @@
-module Node = {
-    type t = {
-        token: Token.t
-    };
+type identifier = {
+    identifier: string
+}
 
-    let token_literal = (n: t): string => {
-        Token.show(n.token)
-    };
-};
+type expression = 
+    | IDENTIFIER(identifier)
 
-module Expression = {
-    type t = 
-        | IDENT(
-            Token.t,
-            string
-        )
-    ;
+type statement =
+    | LET {
+        name: identifier,
+        value: expression
+    }
 
-    let expression_node = (_: t) => ();
+type program = {
+    statements: list(statement)
+}
 
-    let token_literal = (e: t): string => {
-        let token = switch e {
-            | IDENT(t, _) => t
-        };
-        Token.show(token)
-    };
-};
+type node = 
+    | PROGRAM(program)
+    | EXPRESSION(expression)
+    | STATEMENT(statement);
 
-module Identifier = {
-    type t = {
-        token: Token.t,
-        value: string
-    };
-
-    let expression_node = (_: t) => ();
-
-    let token_literal = (i: t): string => {
-        Token.show(i.token)
-    };
-};
-
-module Statement  = {
-    type t =
-        | LET(
-            Token.t,
-            Identifier.t,
-            Expression.t
-        )
-    ;
-
-    let statement_node = (_: t) => ();
-
-    let token_literal = (l: t): string => {
-        let token = switch l {
-            | LET(t, _, _) => t
-        };
-        Token.show(token)
-    };
-};
-
-
-module Program = {
-    type t = {
-        statements: list(Statement.t)
-    };
-
-    let token_literal = (p: t): string => {
-        if (List.length(p.statements) > 0) {
-            Statement.token_literal(List.nth(p.statements, 0))
-        } else {
-            ""
-        }
-    };
-};
+let token_literal = { fun
+    | PROGRAM(_) => "program"
+    | EXPRESSION(_) => "expression"
+    | STATEMENT(_) => "statement"
+}
