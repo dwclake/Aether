@@ -7,3 +7,5 @@ _release
 *.install
 .vscode
 .DS_Store
+zig-out
+zig-cache
