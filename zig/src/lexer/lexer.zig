@@ -5,7 +5,7 @@ pub const Lexer = struct {
     const Self = @This();
 
     input: []const u8,
-    pos: usize = 0, 
+    pos: usize = 0,
     read_pos: usize = 0,
     ch: u8 = 0,
 
@@ -19,31 +19,22 @@ pub const Lexer = struct {
         return l;
     }
 
-    pub fn read_char() void {
-        if (Self.read_pos >= Self.input.len) {
-            Self.ch = 0;
+    pub fn read_char(self: Self) void {
+        if (self.read_pos >= self.input.len) {
+            self.ch = 0;
         } else {
-            Self.ch = Self.input[Self.read_pos];
+            self.ch = self.input[self.read_pos];
         }
 
-        Self.pos = Self.read_pos;
-        Self.read_pos += 1;
+        self.pos = self.read_pos;
+        self.read_pos += 1;
     }
 };
 
 test "next token" {
     const input = "=+(){},;";
 
-    const tests = [_]token.Token{
-        .assign,
-        .plus,
-        .lparen,
-        .rparen,
-        .lsquirly,
-        .rsquirly,
-        .comma,
-        .semicolon
-    };
+    const tests = [_]token.Token{ .assign, .plus, .lparen, .rparen, .lsquirly, .rsquirly, .comma, .semicolon };
 
     var lex = Lexer.init(input);
 
