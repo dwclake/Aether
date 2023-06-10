@@ -19,7 +19,7 @@ pub const Lexer = struct {
         return l;
     }
 
-    pub fn read_char(self: Self) void {
+    pub fn read_char(self: *Self) void {
         if (self.read_pos >= self.input.len) {
             self.ch = 0;
         } else {
