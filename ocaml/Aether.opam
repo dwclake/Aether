@@ -6,7 +6,6 @@ depends: [
   "alcotest" {= 1.7.0}
   "core" {= 0.15.1}
   "ppx_deriving" {= 5.2.1}
-  "reason" {= 3.8.2}
   "odoc" {with-doc}
 ]
 build: [
