@@ -5,7 +5,7 @@ type t = {
     ch: char;
 };;
 
-class ['a] lex = fun lexer content ->
+class ['a] lex_r = fun lexer content ->
     object
         method l: t = lexer;
         method content: 'a = content;
@@ -68,17 +68,17 @@ let is_alphanumeric = function
     | _ -> false
 ;;
 
-let rec read_sequence ?(s = "") ~predicate (l: t): string lex =
+let rec read_sequence ?(s = "") ~predicate (l: t): string lex_r =
     match l.ch with
         | ch when predicate ch ->
             let literal = s ^ Core.Char.to_string ch in
             let l = advance l in
             read_sequence l ~predicate ~s:literal
         | _ ->
-            new lex l s
+            new lex_r l s
 ;;
 
-let compound_or (l: t) ~(default: Token.t) ~(rules): Token.t lex =
+let compound_or (l: t) ~(default: Token.t) ~(rules): Token.t lex_r =
     let next_ch = peek(l) in
     
     let rec loop = function
@@ -93,28 +93,28 @@ let compound_or (l: t) ~(default: Token.t) ~(rules): Token.t lex =
 
     match tok with
         | tok when tok == default ->
-            new lex (advance l) tok
+            new lex_r (advance l) tok
         | _ ->
-            new lex (advance l ~count:2) tok
+            new lex_r (advance l ~count:2) tok
 ;;
 
-let next_token (l: t): Token.t lex =
+let next_token (l: t): Token.t lex_r =
     let l = skip_whitespace l in
 
     match l.ch with
         (* Idenifiers and keywords *)
         | ch when is_letter ch ->
-                let lex = read_sequence l ~predicate:is_alphanumeric in
-            let token = match Token.parse_keyword lex#content with
+                let lex_r = read_sequence l ~predicate:is_alphanumeric in
+            let token = match Token.parse_keyword lex_r#content with
                 | Some(t) -> t
-                | None -> Token.IDENT(lex#content)
+                | None -> Token.IDENT(lex_r#content)
             in
-            new lex lex#l token
+            new lex_r lex_r#l token
         (* Integers *)
         | ch when is_number ch ->
-            let lex = 
+            let lex_r = 
                 read_sequence l ~predicate:is_number in
-            new lex lex#l (Token.INT(lex#content))
+            new lex_r lex_r#l (Token.INT(lex_r#content))
         (* Compound operators *)
         | ch when ch == '>' ->
             compound_or 
@@ -146,5 +146,5 @@ let next_token (l: t): Token.t lex =
                 ]
         (* Individual characters *)
         | ch -> 
-            new lex (advance l) (Token.of_char ch)
+            new lex_r (advance l) (Token.of_char ch)
 ;;

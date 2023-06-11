@@ -5,7 +5,7 @@ type t = {
     ch: char
 };
 
-type lex<'a> = {
+type lex_r<'a> = {
     ..
     l: t
 } as 'a;
@@ -73,7 +73,7 @@ let is_alphanumeric = { fun
     | _ => false
 };
 
-let rec read_sequence = (~s="", ~predicate, l: t): lex<{.. literal: string}> => {
+let rec read_sequence = (~s="", ~predicate, l: t): lex_r<{.. literal: string}> => {
     switch l.ch {
         | ch when predicate(ch) => {
             read_sequence(
@@ -89,7 +89,7 @@ let rec read_sequence = (~s="", ~predicate, l: t): lex<{.. literal: string}> => 
     };
 };
 
-let compound_or = (l: t, ~default: Token.t, ~rules): lex<{.. t: Token.t}> => {
+let compound_or = (l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> => {
     let next_ch = peek(l);
     
     let rec loop = { fun
@@ -115,7 +115,7 @@ let compound_or = (l: t, ~default: Token.t, ~rules): lex<{.. t: Token.t}> => {
     }
 }
 
-let next_token = (l: t): lex<{.. t: Token.t}> => {
+let next_token = (l: t): lex_r<{.. t: Token.t}> => {
     let l = skip_whitespace(l);
 
     switch l.ch {
