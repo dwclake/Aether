@@ -15,7 +15,7 @@ fn add(a, b) {
 };
 
 fn add(a, ?b) { // ? marks optional parameters
-    let x = if b {
+    let x = if b.is_some() {
         a + b
     } else {
         a + 0
