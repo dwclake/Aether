@@ -105,7 +105,7 @@ let next_token (l: t): Token.t lex_r =
     match l.ch with
         (* Idenifiers and keywords *)
         | ch when is_letter ch ->
-                let lex = read_sequence l ~predicate:is_alphanumeric in
+            let lex = read_sequence l ~predicate:is_alphanumeric in
             let token = match Token.parse_keyword lex#content with
                 | Some(t) -> t
                 | None -> Token.IDENT(lex#content)
@@ -119,7 +119,7 @@ let next_token (l: t): Token.t lex_r =
         | ch when ch == '>' ->
             compound_or 
                 ~default:Token.GREATER 
-                ~rules:[('=', Token.GREATEREQ)]
+                ~rules:[('=', Token.GREATEREQ)] 
                 l
         | ch when ch == '<' ->
             compound_or
@@ -141,8 +141,7 @@ let next_token (l: t): Token.t lex_r =
                 ~default:Token.ASSIGN 
                 ~rules:[
                     ('=', Token.EQUALS);
-                    ('>', Token.FATARROW)
-                ]
+                    ('>', Token.FATARROW)]
                 l
         (* Individual characters *)
         | ch -> 
