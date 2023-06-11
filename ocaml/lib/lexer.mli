@@ -1,7 +1,6 @@
 type t
 
 class ['a] lex_r:
-    t -> 'a ->
     object
         method l: t
         method content: 'a
