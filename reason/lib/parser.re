@@ -6,11 +6,11 @@ type t = {
 }
 
 let next_token = (p: t): t => {
-    let (l, tok) = Lexer.next_token(p.l);
+    let lex = Lexer.next_token(p.l);
     {
-        l,
+        l: lex.l,
         cur_t: p.peek_t,
-        peek_t: tok
+        peek_t: lex.t
     }
 }
 

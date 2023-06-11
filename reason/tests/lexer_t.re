@@ -6,10 +6,10 @@ let tt = testable(Token.pp, (a, b) => a == b);
 let rec test_token_seq = (l: Lexer.t, i: int) => { fun
     | [] => ()
     | [etok, ...tail] => {
-        let (l, tok) = Lexer.next_token(l);
+        let lex = Lexer.next_token(l);
 
-        check(tt, string_of_int(i), etok, tok);
-        test_token_seq(l, i + 1, tail);
+        check(tt, string_of_int(i), etok, lex.t);
+        test_token_seq(lex.l, i + 1, tail);
     }
 };
 
@@ -19,10 +19,10 @@ let test_next_token = () => {
     let tests = [
         Token.ASSIGN,
         Token.PLUS,
-        Token.L_PAREN,
-        Token.R_PAREN,
-        Token.L_SQUIRELY,
-        Token.R_SQUIRELY,
+        Token.LPAREN,
+        Token.RPAREN,
+        Token.LSQUIRLY,
+        Token.RSQUIRLY,
         Token.COMMA,
         Token.SEMICOLON,
         Token.EOF
@@ -61,11 +61,11 @@ let test_ident_tokens = () => {
         Token.IDENT("result"),
         Token.ASSIGN,
         Token.IDENT("add"),
-        Token.L_PAREN,
+        Token.LPAREN,
         Token.IDENT("five"),
         Token.COMMA,
         Token.IDENT("ten"),
-        Token.R_PAREN,
+        Token.RPAREN,
         Token.SEMICOLON,
         Token.EOF
     ];
@@ -87,24 +87,24 @@ let test_operators = () => {
     |};
 
     let tests = [
-        Token.L_SQUIRELY,
-        Token.R_SQUIRELY,
+        Token.LSQUIRLY,
+        Token.RSQUIRLY,
         Token.SEMICOLON,
 
-        Token.L_BRACKET,
-        Token.R_BRACKET,
+        Token.LBRACK,
+        Token.RBRACK,
         Token.DOLLAR,
         Token.BANG,
         Token.MINUS,
-        Token.FORWARD_SLASH,
+        Token.FORSLASH,
         Token.ASTERISK,
         Token.INT("5"),
-        Token.BACK_SLASH,
+        Token.BACKSLASH,
         Token.TILDE,
-        Token.BACK_TICK,
+        Token.BACKTICK,
         Token.QUESTION,
-        Token.SINGLE_QUOTE,
-        Token.DOUBLE_QUOTE,
+        Token.SINGLEQUOTE,
+        Token.DOUBLEQUOTE,
         Token.MODULO,
         Token.AT,
         Token.CARET,
@@ -149,21 +149,21 @@ let test_comp_ops = () => {
         Token.IDENT("y"),
         Token.ASSIGN,
         Token.INT("1"),
-        Token.FAT_ARROW,
+        Token.FATARROW,
         Token.SEMICOLON,
 
         Token.INT("5"),
-        Token.LESSER_EQ,
+        Token.LESSEREQ,
         Token.INT("10"),
         Token.SEMICOLON,
 
         Token.IDENT("x"),
-        Token.GREATER_EQ,
+        Token.GREATEREQ,
         Token.INT("2"),
         Token.SEMICOLON,
 
         Token.IDENT("y"),
-        Token.NOT_EQUALS,
+        Token.NOTEQ,
         Token.IDENT("x"),
         Token.SEMICOLON,
 
@@ -210,48 +210,48 @@ let test_keywords = () => {
         Token.ASSIGN,
         Token.MATCH,
         Token.IDENT("y"),
-        Token.L_SQUIRELY,
+        Token.LSQUIRLY,
 
         Token.PIPE,
         Token.TRUE,
-        Token.FAT_ARROW,
+        Token.FATARROW,
         Token.INT("20"),
 
         Token.PIPE,
         Token.FALSE,
-        Token.FAT_ARROW,
+        Token.FATARROW,
         Token.INT("10"),
 
-        Token.R_SQUIRELY,
+        Token.RSQUIRLY,
         Token.SEMICOLON,
 
         Token.IF,
         Token.IDENT("x"),
         Token.GREATER,
         Token.INT("5"),
-        Token.L_SQUIRELY,
+        Token.LSQUIRLY,
 
         Token.RETURN,
         Token.INT("2"),
         Token.SEMICOLON,
 
-        Token.R_SQUIRELY,
+        Token.RSQUIRLY,
         Token.ELSE,
         Token.IF,
         Token.IDENT("x"),
         Token.LESSER,
         Token.INT("5"),
-        Token.L_SQUIRELY,
+        Token.LSQUIRLY,
 
         Token.INT("1"),
 
-        Token.R_SQUIRELY,
+        Token.RSQUIRLY,
         Token.ELSE,
-        Token.L_SQUIRELY,
+        Token.LSQUIRLY,
 
         Token.INT("0"),
         
-        Token.R_SQUIRELY,
+        Token.RSQUIRLY,
 
         Token.EOF
     ];
@@ -273,20 +273,20 @@ let test_functions = () => {
     let tests = [
         Token.FN,
         Token.IDENT("add"),
-        Token.L_PAREN,
+        Token.LPAREN,
         Token.IDENT("x"),
         Token.COMMA,
         Token.IDENT("y"),
-        Token.R_PAREN,
-        Token.SLIM_ARROW,
+        Token.RPAREN,
+        Token.SLIMARROW,
         Token.IDENT("int"),
-        Token.L_SQUIRELY,
+        Token.LSQUIRLY,
 
         Token.IDENT("x"),
         Token.PLUS,
         Token.IDENT("y"),
 
-        Token.R_SQUIRELY,
+        Token.RSQUIRLY,
         Token.SEMICOLON,
 
         Token.EOF

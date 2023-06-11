@@ -13,37 +13,37 @@ type t =
     | IF
     | ELSE
 
-    | L_PAREN
-    | R_PAREN
-    | L_BRACKET
-    | R_BRACKET
-    | L_SQUIRELY
-    | R_SQUIRELY
+    | LPAREN
+    | RPAREN
+    | LBRACK
+    | RBRACK
+    | LSQUIRLY
+    | RSQUIRLY
 
     | ASSIGN
-    | SLIM_ARROW
-    | FAT_ARROW
+    | SLIMARROW
+    | FATARROW
 
     | EQUALS
-    | NOT_EQUALS
+    | NOTEQ
 
     | PLUS
     | MINUS
     | MODULO
     | CARET
 
-    | FORWARD_SLASH
-    | BACK_SLASH
+    | FORSLASH
+    | BACKSLASH
 
-    | SINGLE_QUOTE
-    | DOUBLE_QUOTE
-    | BACK_TICK
+    | SINGLEQUOTE
+    | DOUBLEQUOTE
+    | BACKTICK
 
     | GREATER
     | LESSER
 
-    | GREATER_EQ
-    | LESSER_EQ
+    | GREATEREQ
+    | LESSEREQ
 
     | SEMICOLON
     | COLON

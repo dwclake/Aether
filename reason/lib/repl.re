@@ -4,25 +4,16 @@ let flush_out = () => Out_channel.flush(Out_channel.stdout);
 
 let prompt = ">> ";
 
-type lex = {
-    l: Lexer.t,
-    t: Token.t
-}
-
-let to_lex = ((l, t)): lex => {
-    { l, t }
-}
-
 let lex_input = (input: string): list(Token.t) => {
     let tokens = ref{[]};
     let lex = ref(
-        to_lex(Lexer.next_token(Lexer.create(~input)))
+        Lexer.next_token(Lexer.create(~input))
     );
 
     while(lex^.t != Token.EOF) {
         tokens := tokens^ @ [lex^.t];
 
-        lex := to_lex(Lexer.next_token(lex^.l));
+        lex := Lexer.next_token(lex^.l);
     }
 
     tokens^

@@ -17,10 +17,10 @@ let test_next_token = () => {
     let tests = [
         Token.ASSIGN,
         Token.PLUS,
-        Token.L_PAREN,
-        Token.R_PAREN,
-        Token.L_SQUIRELY,
-        Token.R_SQUIRELY,
+        Token.LPAREN,
+        Token.RPAREN,
+        Token.LSQUIRLY,
+        Token.RSQUIRLY,
         Token.COMMA,
         Token.SEMICOLON,
         Token.EOF

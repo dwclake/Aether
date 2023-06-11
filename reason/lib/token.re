@@ -13,37 +13,37 @@ type t =
     | IF
     | ELSE
 
-    | L_PAREN
-    | R_PAREN
-    | L_BRACKET
-    | R_BRACKET
-    | L_SQUIRELY
-    | R_SQUIRELY
+    | LPAREN
+    | RPAREN
+    | LBRACK
+    | RBRACK
+    | LSQUIRLY
+    | RSQUIRLY
 
     | ASSIGN
-    | SLIM_ARROW
-    | FAT_ARROW
+    | SLIMARROW
+    | FATARROW
 
     | EQUALS
-    | NOT_EQUALS
+    | NOTEQ
 
     | PLUS
     | MINUS
     | MODULO
     | CARET
 
-    | FORWARD_SLASH
-    | BACK_SLASH
+    | FORSLASH
+    | BACKSLASH
 
-    | SINGLE_QUOTE
-    | DOUBLE_QUOTE
-    | BACK_TICK
+    | SINGLEQUOTE
+    | DOUBLEQUOTE
+    | BACKTICK
 
     | GREATER
     | LESSER
 
-    | GREATER_EQ
-    | LESSER_EQ
+    | GREATEREQ
+    | LESSEREQ
 
     | SEMICOLON
     | COLON
@@ -78,37 +78,37 @@ let to_string = (token: t): string => {
         | IF => "if"
         | ELSE => "else"
 
-        | L_PAREN => "("
-        | R_PAREN => ")"
-        | L_BRACKET => "["
-        | R_BRACKET => "]"
-        | L_SQUIRELY => "{"
-        | R_SQUIRELY => "}"
+        | LPAREN => "("
+        | RPAREN => ")"
+        | LBRACK => "["
+        | RBRACK => "]"
+        | LSQUIRLY => "{"
+        | RSQUIRLY => "}"
 
         | ASSIGN => "="
-        | FAT_ARROW => "=>"
-        | SLIM_ARROW => "->"
+        | FATARROW => "=>"
+        | SLIMARROW => "->"
 
         | EQUALS => "=="
-        | NOT_EQUALS => "!="
+        | NOTEQ => "!="
 
         | PLUS => "+"
         | MINUS => "-"
         | MODULO => "%"
         | CARET => "^"
 
-        | FORWARD_SLASH => "/"
-        | BACK_SLASH => "\\"
+        | FORSLASH => "/"
+        | BACKSLASH => "\\"
 
-        | SINGLE_QUOTE => "'"
-        | DOUBLE_QUOTE => "\""
-        | BACK_TICK => "`"
+        | SINGLEQUOTE => "'"
+        | DOUBLEQUOTE => "\""
+        | BACKTICK => "`"
 
         | GREATER => ">"
         | LESSER => "<"
         
-        | GREATER_EQ => ">="
-        | LESSER_EQ => "<="
+        | GREATEREQ => ">="
+        | LESSEREQ => "<="
 
         | SEMICOLON => ";"
         | COLON => ":"
@@ -132,12 +132,12 @@ let to_string = (token: t): string => {
 
 let to_char = (token: t): option(char) => {
     switch token {
-        | L_PAREN => Some('(')
-        | R_PAREN => Some(')')
-        | L_BRACKET => Some('[')
-        | R_BRACKET => Some(']')
-        | L_SQUIRELY => Some('{')
-        | R_SQUIRELY => Some('}')
+        | LPAREN => Some('(')
+        | RPAREN => Some(')')
+        | LBRACK => Some('[')
+        | RBRACK => Some(']')
+        | LSQUIRLY => Some('{')
+        | RSQUIRLY => Some('}')
 
         | ASSIGN => Some('=')
 
@@ -146,12 +146,12 @@ let to_char = (token: t): option(char) => {
         | MODULO => Some('%')
         | CARET => Some('^')
 
-        | FORWARD_SLASH => Some('/')
-        | BACK_SLASH => Some('\\')
+        | FORSLASH => Some('/')
+        | BACKSLASH => Some('\\')
 
-        | SINGLE_QUOTE => Some('\'')
-        | DOUBLE_QUOTE => Some('\"')
-        | BACK_TICK => Some('`')
+        | SINGLEQUOTE => Some('\'')
+        | DOUBLEQUOTE => Some('\"')
+        | BACKTICK => Some('`')
 
         | GREATER => Some('>')
         | LESSER => Some('<')
@@ -178,12 +178,12 @@ let to_char = (token: t): option(char) => {
 
 let of_char = (c: char): t => {
     switch c {
-    | '(' => L_PAREN
-    | ')' => R_PAREN
-    | '[' => L_BRACKET
-    | ']' => R_BRACKET
-    | '{' => L_SQUIRELY
-    | '}' => R_SQUIRELY
+    | '(' => LPAREN
+    | ')' => RPAREN
+    | '[' => LBRACK
+    | ']' => RBRACK
+    | '{' => LSQUIRLY
+    | '}' => RSQUIRLY
 
     | '=' => ASSIGN
 
@@ -192,12 +192,12 @@ let of_char = (c: char): t => {
     | '%' => MODULO
     | '^' => CARET
 
-    | '/' => FORWARD_SLASH
-    | '\\' => BACK_SLASH
+    | '/' => FORSLASH
+    | '\\' => BACKSLASH
 
-    | '\'' => SINGLE_QUOTE
-    | '\"' => DOUBLE_QUOTE
-    | '`' => BACK_TICK
+    | '\'' => SINGLEQUOTE
+    | '\"' => DOUBLEQUOTE
+    | '`' => BACKTICK
 
     | '>' => GREATER
     | '<' => LESSER
