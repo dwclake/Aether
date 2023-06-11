@@ -9,7 +9,7 @@ type statement =
     | LET {
         name: identifier,
         value: expression
-};
+    };
 
 type program = {
     statements: list(statement)
@@ -22,6 +22,10 @@ type node =
 
 let token_literal = { fun
     | PROGRAM(_) => "program"
-    | EXPRESSION(_) => "expression"
-    | STATEMENT(_) => "statement"
+    | EXPRESSION(e) => switch e {
+        | IDENTIFIER(i) => i.identifier
+    } 
+    | STATEMENT(s) => switch s {
+        | LET(n) => n.name.identifier
+    }
 };
