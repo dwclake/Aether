@@ -105,46 +105,45 @@ let next_token (l: t): Token.t lex_r =
     match l.ch with
         (* Idenifiers and keywords *)
         | ch when is_letter ch ->
-                let lex_r = read_sequence l ~predicate:is_alphanumeric in
-            let token = match Token.parse_keyword lex_r#content with
+                let lex = read_sequence l ~predicate:is_alphanumeric in
+            let token = match Token.parse_keyword lex#content with
                 | Some(t) -> t
-                | None -> Token.IDENT(lex_r#content)
+                | None -> Token.IDENT(lex#content)
             in
-            new lex_r lex_r#l token
+            new lex_r lex#l token
         (* Integers *)
         | ch when is_number ch ->
-            let lex_r = 
-                read_sequence l ~predicate:is_number in
-            new lex_r lex_r#l (Token.INT(lex_r#content))
+            let lex = read_sequence l ~predicate:is_number in
+            new lex_r lex#l (Token.INT(lex#content))
         (* Compound operators *)
         | ch when ch == '>' ->
             compound_or 
-                l 
                 ~default:Token.GREATER 
                 ~rules:[('=', Token.GREATEREQ)]
+                l
         | ch when ch == '<' ->
-            compound_or 
-                l 
+            compound_or
                 ~default:Token.LESSER 
                 ~rules:[('=', Token.LESSEREQ)]
+                l
         | ch when ch == '!' ->
             compound_or 
-                l  
                 ~default:Token.BANG 
                 ~rules:[('=', Token.NOTEQ)]
+                l
         | ch when ch == '-' ->
             compound_or 
-                l 
                 ~default:Token.MINUS 
                 ~rules:[('>', Token.SLIMARROW)]
+                l
         | ch when ch == '=' ->
             compound_or 
-                l 
                 ~default:Token.ASSIGN 
                 ~rules:[
                     ('=', Token.EQUALS);
                     ('>', Token.FATARROW)
                 ]
+                l
         (* Individual characters *)
         | ch -> 
             new lex_r (advance l) (Token.of_char ch)
