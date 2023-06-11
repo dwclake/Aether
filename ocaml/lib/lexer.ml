@@ -10,6 +10,7 @@ class ['a] lex_r = fun lexer content ->
         method l: t = lexer;
         method content: 'a = content;
     end
+;;
 
 let create ~(input: string) =
     let ch = match input with
