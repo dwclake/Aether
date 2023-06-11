@@ -139,7 +139,8 @@ let next_token (l: t): Token.t lex =
         | ch when ch == '=' ->
             compound_or 
                 l 
-                ~default:Token.ASSIGN ~rules:[
+                ~default:Token.ASSIGN 
+                ~rules:[
                     ('=', Token.EQUALS);
                     ('>', Token.FATARROW)
                 ]
