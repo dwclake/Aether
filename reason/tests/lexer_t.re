@@ -8,8 +8,8 @@ let rec test_token_seq = (l: Lexer.t, i: int) => { fun
     | [etok, ...tail] => {
         let lex = Lexer.next_token(l);
 
-        check(tt, string_of_int(i), etok, lex.t);
-        test_token_seq(lex.l, i + 1, tail);
+        check(tt, string_of_int(i), etok, lex#t);
+        test_token_seq(lex#l, i + 1, tail);
     }
 };
 

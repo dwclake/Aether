@@ -10,10 +10,10 @@ let lex_input = (input: string): list(Token.t) => {
         Lexer.next_token(Lexer.create(~input))
     );
 
-    while(lex^.t != Token.EOF) {
-        tokens := tokens^ @ [lex^.t];
+    while((lex^)#t != Token.EOF) {
+        tokens := tokens^ @ [(lex^)#t];
 
-        lex := Lexer.next_token(lex^.l);
+        lex := Lexer.next_token((lex^)#l);
     }
 
     tokens^

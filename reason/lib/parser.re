@@ -8,9 +8,9 @@ type t = {
 let next_token = (p: t): t => {
     let lex = Lexer.next_token(p.l);
     {
-        l: lex.l,
+        l: lex#l,
         cur_t: p.peek_t,
-        peek_t: lex.t
+        peek_t: lex#t
     }
 }
 
