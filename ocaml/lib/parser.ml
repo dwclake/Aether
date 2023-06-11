@@ -10,7 +10,7 @@ let next_token (p: t): t =
     {
         l = lex#l;
         cur_t = p.peek_t;
-        peek_t = lex#content;
+        peek_t = lex#value;
     }
 ;;
 
@@ -19,5 +19,6 @@ let create (l: Lexer.t): t =
         l;
         cur_t = Token.EOF;
         peek_t = Token.EOF;
-    } |> next_token |> next_token
+    } 
+    |> next_token |> next_token
 ;;

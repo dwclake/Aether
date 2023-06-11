@@ -19,5 +19,6 @@ let create = (l: Lexer.t): t => {
         l,
         cur_t: Token.EOF,
         peek_t: Token.EOF
-    } |> next_token |> next_token
+    } 
+    |> next_token |> next_token
 } 

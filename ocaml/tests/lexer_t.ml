@@ -8,7 +8,7 @@ let rec test_token_seq (l: Lexer.t) (i: int) = function
     | etok :: tail ->
         let lex = Lexer.next_token l in
 
-        check tt (string_of_int i) etok lex#content;
+        check tt (string_of_int i) etok lex#value;
         test_token_seq lex#l (i + 1) tail;
 ;;
 

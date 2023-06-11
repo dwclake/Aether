@@ -9,8 +9,8 @@ let lex_input (input: string): Token.t list =
     let lex = ref
         (Lexer.next_token(Lexer.create ~input))
     in
-    while (!lex#content != Token.EOF) do
-        tokens := !tokens @ [!lex#content];
+    while (!lex#value != Token.EOF) do
+        tokens := !tokens @ [!lex#value];
 
         lex := (Lexer.next_token !lex#l);
     done;

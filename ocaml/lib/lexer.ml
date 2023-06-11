@@ -5,10 +5,10 @@ type t = {
     ch: char;
 };;
 
-class ['a] lex_r = fun lexer content ->
+class ['a] lex_r = fun lexer value ->
     object
         method l: t = lexer;
-        method content: 'a = content;
+        method value: 'a = value;
     end
 ;;
 
@@ -106,15 +106,15 @@ let next_token (l: t): Token.t lex_r =
         (* Idenifiers and keywords *)
         | ch when is_letter ch ->
             let lex = read_sequence l ~predicate:is_alphanumeric in
-            let token = match Token.parse_keyword lex#content with
+            let token = match Token.parse_keyword lex#value with
                 | Some(t) -> t
-                | None -> Token.IDENT(lex#content)
+                | None -> Token.IDENT(lex#value)
             in
             new lex_r lex#l token
         (* Integers *)
         | ch when is_number ch ->
             let lex = read_sequence l ~predicate:is_number in
-            new lex_r lex#l (Token.INT(lex#content))
+            new lex_r lex#l (Token.INT(lex#value))
         (* Compound operators *)
         | ch when ch == '>' ->
             compound_or 
