@@ -22,3 +22,11 @@ let create = (l: Lexer.t): t => {
     } 
     |> next_token |> next_token
 } 
+
+let parse_program = (_: t): result(Ast.program, string) => { 
+
+
+    Ok({
+        statements: []
+    })
+}

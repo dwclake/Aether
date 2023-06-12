@@ -1,3 +1,4 @@
+[@deriving (show, eq)]
 type identifier = {
     identifier: string
 };

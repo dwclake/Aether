@@ -1,4 +1,4 @@
 (library
  (name lib)
  (libraries core stdio str)
- (preprocess (pps ppx_deriving.show ppx_deriving.ord)))
+ (preprocess (pps ppx_deriving.std ppx_deriving.show ppx_deriving.ord)))
