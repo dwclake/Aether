@@ -9,7 +9,7 @@ pub const Lexer = struct {
     read_pos: usize = 0,
     ch: u8 = 0,
 
-    pub fn init(input: []const u8) Self {
+    pub fn create(input: []const u8) Self {
         var l = Self{
             .input = input,
         };
@@ -45,7 +45,7 @@ test "next token" {
         .semicolon 
     };
 
-    var lex = Lexer.init(input);
+    var lex = Lexer.create(input);
 
     for (tests) |etok| {
         const tok = lex.next_token();
