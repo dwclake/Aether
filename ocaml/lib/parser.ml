@@ -10,7 +10,7 @@ let next_token (p: t): t =
     {
         l = lex#l;
         cur_t = p.peek_t;
-        peek_t = lex#value;
+        peek_t = lex#tok;
     }
 ;;
 
@@ -20,5 +20,13 @@ let create (l: Lexer.t): t =
         cur_t = Token.EOF;
         peek_t = Token.EOF;
     } 
-    |> next_token |> next_token
+    |> next_token 
+    |> next_token
+;;
+
+let parse_program (_: t): (Ast.program, string) result =
+
+    Ok {
+        statements=[]
+    }
 ;;

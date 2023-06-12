@@ -12,16 +12,16 @@ let rec test_token_seq = (p: Parser.t, i: int) => { fun
         test_token_seq(Parser.next_token(p), i + 1, tail);
     }
 };
-let rec test_statement_seq = (i: int, l:(list(string), list(Ast.statement))) => {
+let rec test_statement_seq = (i: int, l:(list(Ast.identifier), list(Ast.statement))) => {
     switch l {
         | ([], []) => ()
-        | ([eident, ...etail], [state, ...tail]) => {
-            let ident = switch state {
+        | ([eid, ...etl], [st, ...tl]) => {
+            let ident = switch st {
                 | LET(s) => s.name
             };
 
-            check(ti, string_of_int(i), {identifier: eident}, ident);
-            test_statement_seq(i + 1, (etail, tail));
+            check(ti, string_of_int(i), eid, ident);
+            test_statement_seq(i + 1, (etl, tl));
         }
         | _ => ()
     }
@@ -68,10 +68,10 @@ let test_let_statement = () => {
         failwith("Program statements list length is incorrect")
     }
 
-    let tests = [
-        {"x"},
-        {"y"},
-        {"foobar"}
+    let tests: list(Ast.identifier) = [
+        {identifier:"x"},
+        {identifier:"y"},
+        {identifier:"foobar"}
     ];
 
     test_statement_seq(

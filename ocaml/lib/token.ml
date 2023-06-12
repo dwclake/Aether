@@ -131,46 +131,46 @@ let to_string (token: t): string =
 
 let to_char (token: t): char option =
     match token with
-        | LPAREN -> Some('(')
-        | RPAREN -> Some(')')
-        | LBRACK -> Some('[')
-        | RBRACK -> Some(']')
-        | LSQUIRLY -> Some('{')
-        | RSQUIRLY -> Some('}')
+        | LPAREN -> Some '('
+        | RPAREN -> Some ')'
+        | LBRACK -> Some '['
+        | RBRACK -> Some ']'
+        | LSQUIRLY -> Some '{'
+        | RSQUIRLY -> Some '}'
 
-        | ASSIGN -> Some('=')
+        | ASSIGN -> Some '='
 
-        | PLUS -> Some('+')
-        | MINUS -> Some('-')
-        | MODULO -> Some('%')
-        | CARET -> Some('^')
+        | PLUS -> Some '+'
+        | MINUS -> Some '-'
+        | MODULO -> Some '%'
+        | CARET -> Some '^'
 
-        | FORSLASH -> Some('/')
-        | BACKSLASH -> Some('\\')
+        | FORSLASH -> Some '/'
+        | BACKSLASH -> Some '\\'
 
-        | SINGLEQUOTE -> Some('\'')
-        | DOUBLEQUOTE -> Some('\"')
-        | BACKTICK -> Some('`')
+        | SINGLEQUOTE -> Some '\''
+        | DOUBLEQUOTE -> Some '\"'
+        | BACKTICK -> Some '`'
 
-        | GREATER -> Some('>')
-        | LESSER -> Some('<')
+        | GREATER -> Some '>'
+        | LESSER -> Some '<'
         
-        | SEMICOLON -> Some(';')
-        | COLON -> Some(':')
-        | PIPE -> Some('|')
-        | COMMA -> Some(',')
-        | DOT -> Some('.')
+        | SEMICOLON -> Some ';'
+        | COLON -> Some ':'
+        | PIPE -> Some '|'
+        | COMMA -> Some ','
+        | DOT -> Some '.'
         
-        | ASTERISK -> Some('*')
-        | BANG -> Some('!')
-        | QUESTION -> Some('?')
-        | TILDE -> Some('~')
-        | POUND -> Some('#')
-        | AT -> Some('@')
-        | AMP -> Some('&')
-        | DOLLAR -> Some('$')
+        | ASTERISK -> Some '*'
+        | BANG -> Some '!' 
+        | QUESTION -> Some '?'
+        | TILDE -> Some '~'
+        | POUND -> Some '#'
+        | AT -> Some '@'
+        | AMP -> Some '&'
+        | DOLLAR -> Some '$'
         
-        | EOF -> Some('\000')
+        | EOF -> Some '\000'
         | _ -> None
 ;;
 
@@ -221,14 +221,14 @@ let of_char (c: char): t =
 
 let parse_keyword (s: string) =
     match s with
-        | "fn" -> Some(FN)
-        | "let" -> Some(LET)
-        | "bind" -> Some(BIND)
-        | "match" -> Some(MATCH)
-        | "true" -> Some(TRUE)
-        | "false" -> Some(FALSE)
-        | "return" -> Some(RETURN)
-        | "if" -> Some(IF)
-        | "else" -> Some(ELSE)
+        | "fn" -> Some FN
+        | "let" -> Some LET
+        | "bind" -> Some BIND
+        | "match" -> Some MATCH 
+        | "true" -> Some TRUE
+        | "false" -> Some FALSE
+        | "return" -> Some RETURN
+        | "if" -> Some IF
+        | "else" -> Some ELSE
         | _ -> None
 ;;
