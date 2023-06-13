@@ -30,7 +30,7 @@ let create (l: Lexer.t): t =
 ;;
 
 let parse_let_statement (p: t): par_r =
-    match p.peek_t with
+    begin match p.peek_t with
         | IDENT s -> begin
             let open Ast in
 
@@ -55,7 +55,7 @@ let parse_let_statement (p: t): par_r =
                 | _ -> new par_r p (Error "identifier must be followed by an =")
         end
         | _ -> new par_r p (Error "let must be followed by an identifier");
-    
+    end
 ;;
 
 let parse_statement (p: t): par_r =
