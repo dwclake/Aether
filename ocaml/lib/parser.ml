@@ -5,10 +5,16 @@ type t = {
     peek_t: Token.t;
 };;
 
-class par_r = fun parser stmt ->
+type par_r = <
+    p: t;
+    stmt: (Ast.statement, string) result;
+> ;;
+
+(* Operator overload for creating a new par_r *)
+let (++) p stmt: par_r =
     object
-        method p: t = parser;
-        method stmt: (Ast.statement, string) result = stmt;
+        method p = p;
+        method stmt = stmt;
     end
 ;;
 
@@ -47,21 +53,21 @@ let parse_let_statement (p: t): par_r =
                     in
 
                     let p = loop p in
-                    new par_r p (Ok (LET{
+                    (++) p (Ok (LET{
                         name=name; 
                         value=IDENTIFIER name
                     }))
                 end
-                | _ -> new par_r p (Error "identifier must be followed by an =")
+                | _ -> (++) p (Error "identifier must be followed by an =")
         end
-        | _ -> new par_r p (Error "let must be followed by an identifier");
+        | _ -> (++) p (Error "let must be followed by an identifier");
     end
 ;;
 
 let parse_statement (p: t): par_r =
     match p.cur_t with
         | Token.LET -> parse_let_statement p;
-        | _ -> new par_r p (Error "Only supports let statements currently")
+        | _ -> (++) p (Error "Only supports let statements currently")
 ;;
 
 let parse_program (p: t): (Ast.program, string) result =
