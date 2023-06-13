@@ -30,7 +30,28 @@ let create (l: Lexer.t): t =
 ;;
 
 let parse_let_statement (p: t): par_r =
-    new par_r p (Error "Unimplemented")
+    match p.peek_t with
+        | IDENT s -> begin
+            let p = p |> next_token in
+            let name: Ast.identifier = {identifier=s} in
+            match p.peek_t with
+                | ASSIGN -> begin
+                    (*expressions will be parsed here later*)
+                    let rec loop (p: t) =
+                        match p.cur_t with
+                        | Token.SEMICOLON -> p
+                        | _ -> loop (p |> next_token)
+                    in
+                    let p = loop p in
+                    new par_r p (Ok (LET{
+                        name=name; 
+                        value=Ast.IDENTIFIER name
+                    }))
+                end
+                | _ -> new par_r p (Error "Ident must be followed by an =")
+        end
+        | _ -> new par_r p (Error "let must be followed by a Identifier");
+    
 ;;
 
 let parse_statement (p: t): par_r =
