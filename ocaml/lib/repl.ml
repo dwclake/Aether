@@ -17,7 +17,7 @@ let lex_input (input: string): Token.t list =
         lex := (Lexer.next_token !lex#l);
     done;
 
-    !tokens;
+    !tokens
 ;;
 
 let print (token: Token.t) =
