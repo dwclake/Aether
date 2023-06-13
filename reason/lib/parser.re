@@ -5,7 +5,10 @@ type t = {
     peek_t: Token.t
 };
 
-type par_r = {. p: t, stmt: result(Ast.statement, string)};
+type par_r = {. 
+    p: t, 
+    stmt: result(Ast.statement, string)
+};
 
 // Operator overload for creating a par_r object
 let (++) = (p, stmt): par_r => {
