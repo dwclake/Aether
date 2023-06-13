@@ -76,10 +76,10 @@ let parse_program = (p: t): result(Ast.program, string) => {
             | _ => {
                 let par = parse_statement(p);
                 switch par#stmt {
-                    | Ok(s) => loop(par#p |> next_token, stmts @ [s])
+                    | Ok(s) => loop(next_token(par#p), stmts @ [s])
                     | Error(e) => {
                         Stdio.eprintf("%s\n", e);
-                        loop(par#p |> next_token, stmts)
+                        loop(next_token(par#p), stmts)
                     }
                 }
             }
