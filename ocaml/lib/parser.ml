@@ -60,7 +60,7 @@ let parse_let_statement (p: t): par_r =
                 end
                 | _ -> (++) p (Error "identifier must be followed by an =")
         end
-        | _ -> (++) p (Error "let must be followed by an identifier");
+        | _ -> (++) p (Error "let must be followed by an identifier")
     end
 ;;
 
