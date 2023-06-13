@@ -26,9 +26,7 @@ let create (l: Lexer.t): t =
         l;
         cur_t = Token.EOF;
         peek_t = Token.EOF;
-    } 
-    |> next_token 
-    |> next_token
+    } |> next_token |> next_token
 ;;
 
 let parse_let_statement (p: t): par_r =

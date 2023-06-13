@@ -16,8 +16,7 @@ let rec test_token_seq = (l: Lexer.t, ~i= 1) => { fun
 let test_next_token = () => {
     let code = "=+(){},;";
 
-    [
-        Token.ASSIGN,
+    [   Token.ASSIGN,
         Token.PLUS,
         Token.LPAREN,
         Token.RPAREN,
@@ -26,8 +25,7 @@ let test_next_token = () => {
         Token.COMMA,
         Token.SEMICOLON,
         Token.EOF
-    ]
-    |> test_token_seq(Lexer.create(~input=code))
+    ] |> test_token_seq(Lexer.create(~input=code))
 };
 
 
@@ -39,8 +37,7 @@ let test_ident_tokens = () => {
         let result = add(five, ten);
     ";
 
-    [
-        Token.LET,
+    [   Token.LET,
         Token.IDENT("five"),
         Token.ASSIGN,
         Token.INT("5"),
@@ -63,8 +60,7 @@ let test_ident_tokens = () => {
         Token.RPAREN,
         Token.SEMICOLON,
         Token.EOF
-    ]
-    |> test_token_seq(Lexer.create(~input=code))
+    ] |> test_token_seq(Lexer.create(~input=code))
 };
 
 let test_operators = () => {
@@ -76,8 +72,7 @@ let test_operators = () => {
         5 < 10 > 5;
     |};
 
-    [
-        Token.LSQUIRLY,
+    [   Token.LSQUIRLY,
         Token.RSQUIRLY,
         Token.SEMICOLON,
 
@@ -108,8 +103,7 @@ let test_operators = () => {
         Token.INT("5"),
         Token.SEMICOLON,
         Token.EOF
-    ]
-    |> test_token_seq(Lexer.create(~input=code))
+    ] |> test_token_seq(Lexer.create(~input=code))
 };
 
 
@@ -123,8 +117,7 @@ let test_comp_ops = () => {
         y == 1;
     ";
 
-    [
-        Token.LET,
+    [   Token.LET,
         Token.IDENT("x"),
         Token.ASSIGN,
         Token.INT("12"),
@@ -157,8 +150,7 @@ let test_comp_ops = () => {
         Token.INT("1"),
         Token.SEMICOLON,
         Token.EOF
-    ]
-    |> test_token_seq(Lexer.create(~input=code))
+    ] |> test_token_seq(Lexer.create(~input=code))
 };
 
 let test_keywords = () => {
@@ -178,8 +170,7 @@ let test_keywords = () => {
         }
     ";
 
-    [
-        Token.LET,
+    [   Token.LET,
         Token.IDENT("y"),
         Token.ASSIGN,
         Token.TRUE,
@@ -234,8 +225,7 @@ let test_keywords = () => {
         Token.RSQUIRLY,
 
         Token.EOF
-    ]
-    |> test_token_seq(Lexer.create(~input=code))
+    ] |> test_token_seq(Lexer.create(~input=code))
 };
 
 let test_functions = () => {
@@ -245,8 +235,7 @@ let test_functions = () => {
         };
     ";
 
-    [
-        Token.FN,
+    [   Token.FN,
         Token.IDENT("add"),
         Token.LPAREN,
         Token.IDENT("x"),
@@ -265,6 +254,5 @@ let test_functions = () => {
         Token.SEMICOLON,
 
         Token.EOF
-    ]
-    |> test_token_seq(Lexer.create(~input=code))
+    ] |> test_token_seq(Lexer.create(~input=code))
 };

@@ -28,8 +28,7 @@ let test_next_token () =
     let code = "=+(){},;" in
     let p = Parser.create (Lexer.create ~input:code) in
 
-    [
-        Token.ASSIGN;
+    [   Token.ASSIGN;
         Token.PLUS;
         Token.LPAREN;
         Token.RPAREN;
@@ -38,8 +37,7 @@ let test_next_token () =
         Token.COMMA;
         Token.SEMICOLON;
         Token.EOF;
-    ] 
-    |> test_token_seq p
+    ] |> test_token_seq p
 ;;
 
 let test_let_statement () =
@@ -60,12 +58,10 @@ let test_let_statement () =
         then failwith "Program statements list length is incorrect"
     ;
 
-    ([
-        {identifier="x"};
+    ([  {identifier="x"};
         {identifier="y"};
         {identifier="foobar"};
-    ],
+     ],
         program.statements
-    )
-    |> test_statement_seq
+    ) |> test_statement_seq
 ;;

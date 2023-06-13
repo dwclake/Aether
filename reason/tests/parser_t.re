@@ -2,7 +2,6 @@ open Lib
 open Alcotest;
 
 let tt = testable(Token.pp, (a, b) => a == b);
-
 let ti = testable(Ast.pp_identifier, Ast.equal_identifier);
 
 let rec test_token_seq = (p: Parser.t, ~i= 1) => { fun
@@ -12,6 +11,7 @@ let rec test_token_seq = (p: Parser.t, ~i= 1) => { fun
         test_token_seq(Parser.next_token(p), ~i=i + 1, tl);
     }
 };
+
 let rec test_statement_seq = (~i= 1, l:(list(Ast.identifier), list(Ast.statement))) => {
     switch l {
         | ([], []) => ()
@@ -41,8 +41,7 @@ let test_next_token = () => {
         Token.COMMA,
         Token.SEMICOLON,
         Token.EOF
-    ]
-    |> test_token_seq(p)
+    ] |> test_token_seq(p)
 };
 
 let test_let_statement = () => {
@@ -62,12 +61,10 @@ let test_let_statement = () => {
         failwith("Program statements list length is incorrect")
     };
 
-    ([  
-        {identifier:"x"},
+    ([  {identifier:"x"},
         {identifier:"y"},
         {identifier:"foobar"}
      ], 
         program.statements
-    )
-    |> test_statement_seq
+    ) |> test_statement_seq
 }
