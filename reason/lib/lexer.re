@@ -94,7 +94,7 @@ let compound_or = (l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> => {
     
     let rec loop = { fun
         | [] => default 
-        | [h, ...t] => {
+        | [h,...t] => {
             let (ch, tok) = h;
             if(next_ch == ch) {
                 tok

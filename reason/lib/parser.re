@@ -45,7 +45,7 @@ let parse_statement = (p: t): par_r => {
 };
 
 let parse_program = (p: t): result(Ast.program, string) => { 
-    let rec loop = (p: t, stmts: list(Ast.statement)) => {
+    let rec loop = (p: t, stmts) => {
         switch p.cur_t {
             | Token.EOF => stmts
             | _ => {

@@ -6,9 +6,10 @@ let prompt = ">> ";
 
 let lex_input = (input: string): list(Token.t) => {
     let tokens = ref{[]};
-    let lex = ref(
-        Lexer.next_token(Lexer.create(~input))
-    );
+    let lex = 
+        Lexer.create(~input)
+        |> Lexer.next_token
+        |> ref;
 
     while((lex^)#t != Token.EOF) {
         tokens := tokens^ @ [(lex^)#t];
@@ -41,5 +42,6 @@ let rec start = () => {
 
     printf("\n");
     print_toks(tokens);
+
     start()
 }

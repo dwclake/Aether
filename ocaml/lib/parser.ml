@@ -42,7 +42,7 @@ let parse_statement (p: t): par_r =
 ;;
 
 let parse_program (p: t): (Ast.program, string) result =
-    let rec loop (p: t) (stmts): Ast.statement list = begin
+    let rec loop p stmts = begin
         match p.cur_t with
         | Token.EOF -> stmts
         | _ -> (

@@ -3,19 +3,19 @@ open Alcotest
 
 let tt = testable Token.pp Token.equal
 
-let rec test_token_seq (l: Lexer.t) (i: int) = function
+let rec test_token_seq (l: Lexer.t) ?(i = 1) = function
     | [] -> ()
-    | etk::tl ->
+    | (et::tl) ->
         let lex = Lexer.next_token l in
 
-        check tt (string_of_int i) etk lex#tok;
-        test_token_seq lex#l (i + 1) tl;
+        check tt (string_of_int i) et lex#tok;
+        test_token_seq lex#l tl ~i:(i + 1);
 ;;
 
 let test_next_token () =
     let code = "=+(){},;" in
 
-    let tests = [
+    [
         Token.ASSIGN;
         Token.PLUS;
         Token.LPAREN;
@@ -26,11 +26,7 @@ let test_next_token () =
         Token.SEMICOLON;
         Token.EOF
     ] 
-    in
-    test_token_seq
-        (Lexer.create ~input:code)
-        1
-        tests
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 
@@ -43,7 +39,7 @@ let test_ident_tokens () =
     " 
     in
 
-    let tests = [
+    [
         Token.LET;
         Token.IDENT("five");
         Token.ASSIGN;
@@ -68,12 +64,7 @@ let test_ident_tokens () =
         Token.SEMICOLON;
         Token.EOF
     ]
-    in
-
-    test_token_seq
-        (Lexer.create ~input:code)
-        1
-        tests
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 let test_operators () =
@@ -86,7 +77,7 @@ let test_operators () =
     |}
     in
 
-    let tests = [
+    [
         Token.LSQUIRLY;
         Token.RSQUIRLY;
         Token.SEMICOLON;
@@ -118,13 +109,8 @@ let test_operators () =
         Token.INT("5");
         Token.SEMICOLON;
         Token.EOF
-    ]
-    in
-
-    test_token_seq
-        (Lexer.create ~input:code)
-        1
-        tests
+    ] 
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 
@@ -139,7 +125,7 @@ let test_comp_ops () =
     "
     in
 
-    let tests = [
+    [
         Token.LET;
         Token.IDENT("x");
         Token.ASSIGN;
@@ -174,12 +160,7 @@ let test_comp_ops () =
         Token.SEMICOLON;
         Token.EOF
     ]
-    in
-
-    test_token_seq
-        (Lexer.create ~input:code)
-        1
-        tests
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 let test_keywords () =
@@ -200,7 +181,7 @@ let test_keywords () =
     "
     in
 
-    let tests = [
+    [
         Token.LET;
         Token.IDENT("y");
         Token.ASSIGN;
@@ -257,12 +238,7 @@ let test_keywords () =
 
         Token.EOF
     ]
-    in
-
-    test_token_seq
-        (Lexer.create ~input:code)
-        1
-        tests
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 let test_functions () =
@@ -273,7 +249,7 @@ let test_functions () =
     "
     in
 
-    let tests = [
+    [
         Token.FN;
         Token.IDENT("add");
         Token.LPAREN;
@@ -294,10 +270,5 @@ let test_functions () =
 
         Token.EOF
     ]
-    in
-
-    test_token_seq
-        (Lexer.create ~input:code)
-        1
-        tests
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
