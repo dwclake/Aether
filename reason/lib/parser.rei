@@ -5,7 +5,10 @@ type t = {
     peek_t: Token.t
 };
 
-type par_r = {. p: t, stmt: result(Ast.statement, string)};
+type par_r = {. 
+    p: t, 
+    stmt: result(Ast.statement, string)
+};
 
 let create: Lexer.t => t
 let next_token: t => t
