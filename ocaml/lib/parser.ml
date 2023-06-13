@@ -71,10 +71,10 @@ let parse_program (p: t): (Ast.program, string) result =
         | _ ->
             let par = parse_statement p in
             match par#stmt with
-                | Ok s -> loop (par#p |> next_token) (stmts @ [s])
+                | Ok s -> loop (next_token par#p) (stmts @ [s])
                 | Error e ->
                     Stdio.eprintf "%s\n" e;
-                    loop (par#p |> next_token) stmts
+                    loop (next_token par#p) stmts
     in
 
     let statements = loop p [] in
