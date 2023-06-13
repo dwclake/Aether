@@ -7,9 +7,9 @@ type t = {
 
 type par_r = {. p: t, stmt: result(Ast.statement, string)};
 
-let (++) = (parser: t, stmt: result(Ast.statement, string)) => {
+let (++) = (p, stmt): par_r => {
     { as _;
-        pub p = parser;
+        pub p = p;
         pub stmt = stmt;
     }
 };
@@ -52,8 +52,10 @@ let parse_program = (p: t): result(Ast.program, string) => {
                 let par = parse_statement(p);
                 switch par#stmt {
                     | Ok(s) => loop(par#p |> next_token, stmts @ [s])
-                    | Error(e) => Stdio.eprintf("%s\n", e);
-                                  loop(par#p |> next_token, stmts)
+                    | Error(e) => {
+                        Stdio.eprintf("%s\n", e);
+                        loop(par#p |> next_token, stmts)
+                    }
                 }
             }
         }

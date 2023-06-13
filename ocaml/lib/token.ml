@@ -219,7 +219,7 @@ let of_char (c: char): t =
     | _ -> ILLEGAL
 ;;
 
-let parse_keyword (s: string) =
+let try_keyword (s: string) =
     match s with
         | "fn" -> Some FN
         | "let" -> Some LET

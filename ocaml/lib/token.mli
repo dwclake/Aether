@@ -66,4 +66,4 @@ type t =
 val of_char: char -> t
 val to_string: t -> string
 val to_char: t -> char option
-val parse_keyword: string -> t option
+val try_keyword: string -> t option
