@@ -32,25 +32,29 @@ let create (l: Lexer.t): t =
 let parse_let_statement (p: t): par_r =
     match p.peek_t with
         | IDENT s -> begin
-            let p = p |> next_token in
-            let name: Ast.identifier = {identifier=s} in
+            let open Ast in
+
+            let p = next_token p in
+            let name = {identifier=s} in
+
             match p.peek_t with
                 | ASSIGN -> begin
                     (*expressions will be parsed here later*)
                     let rec loop (p: t) =
                         match p.cur_t with
-                        | Token.SEMICOLON -> p
-                        | _ -> loop (p |> next_token)
+                        | SEMICOLON -> p
+                        | _ -> loop (next_token p)
                     in
+
                     let p = loop p in
                     new par_r p (Ok (LET{
                         name=name; 
-                        value=Ast.IDENTIFIER name
+                        value=IDENTIFIER name
                     }))
                 end
-                | _ -> new par_r p (Error "Ident must be followed by an =")
+                | _ -> new par_r p (Error "identifier must be followed by an =")
         end
-        | _ -> new par_r p (Error "let must be followed by a Identifier");
+        | _ -> new par_r p (Error "let must be followed by an identifier");
     
 ;;
 
@@ -61,19 +65,17 @@ let parse_statement (p: t): par_r =
 ;;
 
 let parse_program (p: t): (Ast.program, string) result =
-    let rec loop p stmts = begin
+    let rec loop p stmts =
         match p.cur_t with
         | Token.EOF -> stmts
-        | _ -> (
+        | _ ->
             let par = parse_statement p in
             match par#stmt with
                 | Ok s -> loop (par#p |> next_token) (stmts @ [s])
-                | Error e -> (
+                | Error e ->
                     Stdio.eprintf "%s\n" e;
                     loop (par#p |> next_token) stmts
-                )
-        )
-    end in
+    in
 
     let statements = loop p [] in
     match statements with

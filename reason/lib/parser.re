@@ -32,7 +32,34 @@ let create = (l: Lexer.t): t => {
 };
 
 let parse_let_statement = (p: t): par_r => {
-    p ++ Error("Unimplemented")
+    switch p.peek_t {
+        | IDENT(s) => {
+            open Ast;
+
+            let p = next_token(p);
+            let name = {identifier: s};
+
+            switch p.peek_t {
+                | ASSIGN => {
+                    // expressions will be parsed here later
+                    let rec loop = (p: t) => {
+                        switch p.cur_t {
+                            | SEMICOLON => p
+                            | _ => loop(next_token(p))
+                        }
+                    };
+
+                    let p = loop(p);
+                    (++) (p, Ok(LET{
+                        name,
+                        value: IDENTIFIER(name)
+                    }))
+                }
+                | _ => (++) (p, Error("identifier must be followed by an ="))
+            }
+        } 
+        | _ => (++) (p, Error("let must be followed by an identifier"))
+    }
 };
 
 let parse_statement = (p: t): par_r => {

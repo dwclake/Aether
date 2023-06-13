@@ -113,7 +113,7 @@ let next_token (l: t): <tok: Token.t; ..> lex_r =
 
     match l.ch with
         (* Idenifiers and keywords *)
-        | ch when is_letter ch -> (
+        | ch when is_letter ch -> 
             let lex = read_sequence l ~predicate:is_alphanumeric in
             let token = match Token.try_keyword lex#literal with
                 | Some t -> t
@@ -122,47 +122,46 @@ let next_token (l: t): <tok: Token.t; ..> lex_r =
                 method l = lex#l;
                 method tok = token;
             end
-        )
+        
         (* Integers *)
-        | ch when is_number ch -> (
+        | ch when is_number ch -> 
             let lex = read_sequence l ~predicate:is_number in object
                 method l = lex#l;
                 method tok = Token.INT(lex#literal);
             end
-        )
+        
         (* Compound operators *)
-        | ch when ch == '>' -> (
+        | ch when ch == '>' -> 
             l |> compound_or 
                 ~default:Token.GREATER 
                 ~rules:[('=', Token.GREATEREQ)] 
-        )
-        | ch when ch == '<' -> (
+        
+        | ch when ch == '<' -> 
             l |> compound_or
                 ~default:Token.LESSER 
                 ~rules:[('=', Token.LESSEREQ)]
-        )
-        | ch when ch == '!' -> (
+        
+        | ch when ch == '!' -> 
             l |> compound_or 
                 ~default:Token.BANG 
                 ~rules:[('=', Token.NOTEQ)]
-        )
-        | ch when ch == '-' -> (
+        
+        | ch when ch == '-' ->
             l |> compound_or 
                 ~default:Token.MINUS 
                 ~rules:[('>', Token.SLIMARROW)]
-        )
-        | ch when ch == '=' -> (
+        
+        | ch when ch == '=' -> 
             l |> compound_or 
                 ~default:Token.ASSIGN 
                 ~rules:[
                     ('=', Token.EQUALS);
                     ('>', Token.FATARROW)]
-        )
+        
         (* Individual characters *)
-        | ch -> (
+        | ch -> 
             object
                 method l = advance l;
                 method tok = Token.of_char ch;
             end
-        )
 ;;
