@@ -55,8 +55,7 @@ let test_let_statement () =
     in
 
     if List.length program.statements != 3
-        then failwith "Program statements list length is incorrect"
-    ;
+    then failwith "Program statements list length is incorrect";
 
     ([  {identifier="x"};
         {identifier="y"};
