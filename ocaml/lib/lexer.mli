@@ -1,13 +1,5 @@
 type t
 
-(* class ['a] lex_r:
-    t -> 'a ->
-    object
-        method l: t
-        method value: 'a
-    end
-*)
-
 type ('a) lex_r = <
     l: t;
     ..

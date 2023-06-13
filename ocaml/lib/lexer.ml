@@ -5,13 +5,6 @@ type t = {
     ch: char;
 };;
 
-(* class ['a] lex_r = fun lexer value ->
-    object
-        method l: t = lexer;
-        method value: 'a = value;
-    end
-;; *)
-
 type ('a) lex_r = <
     l: t;
     ..
@@ -74,7 +67,7 @@ let is_alphanumeric = function
     | _ -> false
 ;;
 
-let rec read_sequence ?(s = "") ~predicate (l: t): <literal: string; ..> lex_r (*string lex_r*) =
+let rec read_sequence ?(s = "") ~predicate (l: t): <literal: string; ..> lex_r =
     match l.ch with
         | ch when predicate ch ->
             let literal = s ^ Core.Char.to_string ch in
@@ -84,7 +77,6 @@ let rec read_sequence ?(s = "") ~predicate (l: t): <literal: string; ..> lex_r (
             method l = l;
             method literal = s;
         end
-            (* new lex_r l s *)
 ;;
 
 let compound_or (l: t) ~(default: Token.t) ~(rules): <tok: Token.t; ..> lex_r =
@@ -105,12 +97,10 @@ let compound_or (l: t) ~(default: Token.t) ~(rules): <tok: Token.t; ..> lex_r =
             method l = advance l;
             method tok = tok;
         end
-            (* new lex_r (advance l) tok *)
         | _ -> object
             method l = advance l ~count:2;
             method tok = tok;
         end
-            (* new lex_r (advance l ~count:2) tok *)
 ;;
 
 let next_token (l: t): <tok: Token.t; ..> lex_r =
@@ -127,14 +117,12 @@ let next_token (l: t): <tok: Token.t; ..> lex_r =
                 method l = lex#l;
                 method tok = token;
             end
-            (* new lex_r lex#l token *)
         (* Integers *)
         | ch when is_number ch ->
             let lex = read_sequence l ~predicate:is_number in object
                 method l = lex#l;
                 method tok = Token.INT(lex#literal);
             end
-            (* new lex_r lex#l (Token.INT(lex#value)) *)
         (* Compound operators *)
         | ch when ch == '>' ->
             compound_or 
@@ -168,5 +156,4 @@ let next_token (l: t): <tok: Token.t; ..> lex_r =
             method l = advance l;
             method tok = Token.of_char ch;
         end
-            (* new lex_r (advance l) (Token.of_char ch) *)
 ;;

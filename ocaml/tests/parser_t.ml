@@ -13,10 +13,11 @@ let rec test_token_seq (p: Parser.t) (i: int) = function
 
 let rec test_statement_seq (i: int) (l: (Ast.identifier list * Ast.statement list)) =
     match l with
-    | ([], []) -> ()
-    | (ex::et, s::st) -> (
+    | [], [] -> ()
+    | ex::et, s::st -> (
         let ident = match s with
             | LET s -> s.name
+            (*| _ -> failwith "Statement is not a LET statement"*)
         in
         check ti (string_of_int i) ex ident;
         test_statement_seq (i + 1) (et, st);

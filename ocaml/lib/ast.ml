@@ -16,10 +16,9 @@ and statement =
 and identifier = { 
     identifier : string 
 }
-
 and program = { 
     statements : statement list 
-}
+};;
 
 let token_literal = function
     | PROGRAM _ -> "program"
