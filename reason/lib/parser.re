@@ -7,6 +7,7 @@ type t = {
 
 type par_r = {. p: t, stmt: result(Ast.statement, string)};
 
+// Operator overload for creating a par_r object
 let (++) = (p, stmt): par_r => {
     { as _;
         pub p = p;
