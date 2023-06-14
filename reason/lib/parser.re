@@ -38,7 +38,7 @@ let peek_error = (p: t, t: Token.t): t => {
         Token.show(p.peek_t)
     );
 
-    { ...p, errors: p.errors @ [error]}
+    {...p, errors: p.errors @ [error]}
 };
 
 let parse_let_statement = (p: t): par_r => {
