@@ -1,38 +1,42 @@
 type t = {
     l: Lexer.t,
-
+    errors: list(string),
     cur_t: Token.t,
     peek_t: Token.t
 };
 
-type par_r = {. 
+type par_r = {
     p: t, 
-    stmt: result(Ast.statement, string)
-};
-
-// Operator overload for creating a par_r object
-let (++) = (p, stmt): par_r => {
-    { as _;
-        pub p = p;
-        pub stmt = stmt;
-    }
+    stmt: option(Ast.statement)
 };
 
 let next_token = (p: t): t => {
     let lex = Lexer.next_token(p.l);
     {
+        ...p,
         l: lex#l,
         cur_t: p.peek_t,
-        peek_t: lex#t
+        peek_t: lex#t,
+        
     }
 };
 
 let create = (l: Lexer.t): t => {
     {
         l,
+        errors: [],
         cur_t: Token.EOF,
         peek_t: Token.EOF
     } |> next_token |> next_token
+};
+
+let peek_error = (p: t, t: Token.t): t => {
+    let error = Format.sprintf(
+        "Expected next token to be %s, got %s instead",
+        Token.show(t),
+        Token.show(p.peek_t)
+    );
+    { ...p, errors: p.errors @ [error]}
 };
 
 let parse_let_statement = (p: t): par_r => {
@@ -54,47 +58,43 @@ let parse_let_statement = (p: t): par_r => {
                     };
 
                     let p = loop(p);
-                    (++) (p, Ok(LET{
-                        name,
-                        value: IDENTIFIER(name)
-                    }))
+                    {p, stmt: Some(LET{name, value: IDENTIFIER(name)})}
                 }
-                | _ => (++) (p, Error("identifier must be followed by an ="))
+                | _ => {
+                    let p = peek_error(p, Token.ASSIGN);
+                    {p, stmt: None}
+                }
             }
         } 
-        | _ => (++) (p, Error("let must be followed by an identifier"))
+        | _ => {
+            let p = peek_error(p, Token.IDENT(""));
+            {p, stmt: None}
+        }
     }
 };
 
 let parse_statement = (p: t): par_r => {
     switch p.cur_t {
         | Token.LET => parse_let_statement(p)
-        | _ => (++) (p, Error("Only supports let statements currently"))
+        | _ => {p, stmt: None}
     }
 };
 
-let parse_program = (p: t): result(Ast.program, string) => { 
+let parse_program = (p: t): (t ,Ast.program) => { 
     let rec loop = (p: t, stmts) => {
         switch p.cur_t {
-            | Token.EOF => stmts
+            | Token.EOF => (p, stmts)
             | _ => {
                 let par = parse_statement(p);
-                switch par#stmt {
-                    | Ok(s) => loop(next_token(par#p), stmts @ [s])
-                    | Error(e) => {
-                        Stdio.eprintf("%s\n", e);
-                        loop(next_token(par#p), stmts)
-                    }
+                switch par.stmt {
+                    | Some(s) => loop(next_token(par.p), stmts @ [s])
+                    | None => loop(next_token(par.p), stmts)
                 }
             }
         }
     }
 
-    let statements = loop(p, []);
-    switch statements {
-        | [] => Error("No statements in program")
-        | _ => Ok({
-            statements: statements
-        })
-    }
+    let (p, statements) = loop(p, []);
+    
+    (p, {statements: statements})
 };

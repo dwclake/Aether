@@ -37,10 +37,7 @@ let peek_error (p: t)(t: Token.t): t =
             (Token.show t) 
             (Token.show p.peek_t)
     in
-    {
-        p with
-        errors = p.errors @ [error];
-    }
+    {p with errors = p.errors @ [error]}
 ;;
 
 (*
@@ -116,12 +113,12 @@ let parse_let_statement (p: t): par_r =
                     {p; stmt=(Some (LET{name=name; value=IDENTIFIER name}))}
                 )
                 | _ -> let p = peek_error p (Token.ASSIGN) in
-                        {p; stmt=None}
+                       {p; stmt=None}
         )
         | _ -> let p = peek_error p (Token.IDENT "") in
                {p; stmt=None}
     end
-        ;;
+;;
 
 let parse_statement (p: t): par_r =
     match p.cur_t with

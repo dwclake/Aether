@@ -27,6 +27,25 @@ let rec test_statement_seq = (~i= 1, l:(list(Ast.identifier), list(Ast.statement
     }
 };
 
+let check_parser_errors = (p: Parser.t) => {
+    open List;
+    open Stdio;
+
+    if (length(p.errors) == 0) {
+        eprintf("\nparser had 0 errors")
+    } else {
+        eprintf("\nParser had %d errors", length(p.errors));
+        let rec print = { fun
+            | [] => eprintf("\n\nend of parser error list")
+            | [h,...t] => {
+                eprintf("\n- parser error: %s", h);
+                print(t)
+            }
+        }
+        print(p.errors)
+    }
+};
+
 let test_next_token = () => {
     let code = "=+(){},;";
     let p = Parser.create(Lexer.create(~input=code));
@@ -52,10 +71,8 @@ let test_let_statement = () => {
     ";
     let p = Parser.create(Lexer.create(~input=code));
 
-    let program = switch (Parser.parse_program(p)) {
-        | Ok(prog) => prog
-        | Error(e) => failwith(e) 
-    };
+    let (p, program) = Parser.parse_program(p);
+    check_parser_errors(p);
 
     if(List.length(program.statements) != 3) {
         failwith("Program statements list length is incorrect")
