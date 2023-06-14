@@ -15,6 +15,7 @@ let create ~(input: string) =
         | "" -> '\000'
         | _ -> input.[0]
     in
+
     {
         input;
         pos = 0;
@@ -29,6 +30,7 @@ let advance ?(count = 1) (l: t): t =
              then '\000'
              else String.get l.input rp
     in
+
     {
         l with
         pos = rp;
@@ -42,6 +44,7 @@ let peek (l: t): char =
              then '\000'
              else String.get l.input l.read_pos
     in
+
     ch
 ;;
 

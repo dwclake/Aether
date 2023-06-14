@@ -27,16 +27,18 @@ let create (l: Lexer.t): t =
         errors = [];
         cur_t = Token.EOF;
         peek_t = Token.EOF;
-    } |> next_token |> next_token
+    } 
+    |> next_token |> next_token
 ;;
 
 
 let peek_error (p: t)(t: Token.t): t =
     let error = Format.sprintf 
-            "Expected next token to be %s, got %s instead" 
-            (Token.show t) 
-            (Token.show p.peek_t)
+        "Expected next token to be %s, got %s instead" 
+        (Token.show t) 
+        (Token.show p.peek_t)
     in
+
     {p with errors = p.errors @ [error]}
 ;;
 
