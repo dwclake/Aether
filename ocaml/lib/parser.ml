@@ -6,18 +6,10 @@ type t = {
     peek_t: Token.t;
 };;
 
-type par_r = <
+type par_r = {
     p: t;
     stmt: Ast.statement option;
-> ;;
-
-(* Operator overload for creating a new par_r *)
-let (++) p stmt: par_r =
-    object
-        method p = p;
-        method stmt = stmt;
-    end
-;;
+};;
 
 let next_token (p: t): t =
     let lex = Lexer.next_token p.l in
@@ -121,24 +113,20 @@ let parse_let_statement (p: t): par_r =
                         | _ -> loop (next_token p)
                     in
                     let p = loop p in
-
-                    (++) p (Some (LET{
-                        name=name; 
-                        value=IDENTIFIER name
-                    }))
+                    {p; stmt=(Some (LET{name=name; value=IDENTIFIER name}))}
                 )
                 | _ -> let p = peek_error p (Token.ASSIGN) in
-                       (++) p None
+                        {p; stmt=None}
         )
         | _ -> let p = peek_error p (Token.IDENT "") in
-               (++) p None
+               {p; stmt=None}
     end
-;;
+        ;;
 
 let parse_statement (p: t): par_r =
     match p.cur_t with
         | Token.LET -> parse_let_statement p;
-        | _ -> (++) p None
+        | _ -> {p; stmt=None}
 ;;
 
 let parse_program (p: t): (t * Ast.program) =
@@ -147,9 +135,9 @@ let parse_program (p: t): (t * Ast.program) =
         | Token.EOF -> (p, stmts)
         | _ -> (
             let par = parse_statement p in
-            match par#stmt with
-                | Some s -> loop (next_token par#p) (stmts @ [s])
-                | None -> loop (next_token par#p) stmts
+            match par.stmt with
+                | Some s -> loop (next_token par.p) (stmts @ [s])
+                | None -> loop (next_token par.p) stmts
         )
     in
     let (p, statements) = loop p [] in
