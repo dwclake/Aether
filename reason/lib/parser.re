@@ -12,12 +12,12 @@ type par_r = {
 
 let next_token = (p: t): t => {
     let lex = Lexer.next_token(p.l);
+    
     {
         ...p,
         l: lex#l,
         cur_t: p.peek_t,
         peek_t: lex#t,
-        
     }
 };
 
@@ -27,7 +27,8 @@ let create = (l: Lexer.t): t => {
         errors: [],
         cur_t: Token.EOF,
         peek_t: Token.EOF
-    } |> next_token |> next_token
+    } 
+    |> next_token |> next_token
 };
 
 let peek_error = (p: t, t: Token.t): t => {
@@ -36,6 +37,7 @@ let peek_error = (p: t, t: Token.t): t => {
         Token.show(t),
         Token.show(p.peek_t)
     );
+
     { ...p, errors: p.errors @ [error]}
 };
 

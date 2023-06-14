@@ -45,7 +45,7 @@ let peek = (l: t): char => {
         '\000';
     } else {
         String.get(l.input, l.read_pos);
-    }
+    };
 
     ch
 }
@@ -126,6 +126,7 @@ let next_token = (l: t): lex_r<{.. t: Token.t}> => {
                 | Some(t) => t
                 | None => Token.IDENT(lex#literal)
             };
+
             { as _; 
                 pub l = lex#l; 
                 pub t = token;
@@ -134,6 +135,7 @@ let next_token = (l: t): lex_r<{.. t: Token.t}> => {
         // Integers
         | ch when is_number(ch) => {
             let lex = read_sequence(l, ~predicate=is_number);
+            
             { as _; 
                 pub l = lex#l; 
                 pub t = Token.INT(lex#literal)
