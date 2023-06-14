@@ -159,11 +159,9 @@ let next_token = (l: t): lex_r<{.. t: Token.t}> => {
             ])
         }
         // Individual characters
-        | ch => { as self; 
+        | ch => { as _; 
             pub l = advance(l); 
-            pub t = self#tok;
-            val char = ch;
-            pri tok = Token.of_char(char);
+            pub t = Token.of_char(ch);
         }
     }
 };
