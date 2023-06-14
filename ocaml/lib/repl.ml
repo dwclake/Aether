@@ -26,9 +26,7 @@ let print (token: Token.t) =
 
 let print_toks (tokens: Token.t list): unit =
     printf "{\n";
-
     tokens |> Core.List.iter ~f:print;
-
     printf "}\n"
 ;;
 
@@ -37,7 +35,6 @@ let rec start () =
     printf "\n%s" prompt; flush_out();
 
     let input = In_channel.input_lines In_channel.stdin in
-
     let tokens = List.fold input 
             ~init:"" 
             ~f:(fun x accum -> x ^ accum)

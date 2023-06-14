@@ -22,12 +22,14 @@ and program = {
 
 let token_literal = function
     | PROGRAM _ -> "program"
-    | EXPRESSION e -> 
+    | EXPRESSION e -> (
         begin match e with
             | IDENTIFIER i -> i.identifier 
         end
-    | STATEMENT s ->
+    )
+    | STATEMENT s -> (
         begin match s with
             | LET n -> n.name.identifier
         end
+    )
 ;;

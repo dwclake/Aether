@@ -5,11 +5,12 @@ let tt = testable Token.pp Token.equal
 
 let rec test_token_seq (l: Lexer.t) ?(i = 1) = function
     | [] -> ()
-    | (et::tl) ->
+    | (et::tl) -> (
         let lex = Lexer.next_token l in
 
         check tt (string_of_int i) et lex#tok;
         test_token_seq lex#l tl ~i:(i + 1);
+    )
 ;;
 
 let test_next_token () =
