@@ -42,8 +42,7 @@ let peek_error (p: t)(t: Token.t): t =
     {p with errors = p.errors @ [error]}
 ;;
 
-(*
-let expect_token (p: t)(t: Token.t) = 
+let _expect_token (p: t)(t: Token.t) = 
     let a = Obj.repr(p.peek_t) in
     let b = Obj.repr(t) in
 
@@ -62,38 +61,6 @@ let expect_token (p: t)(t: Token.t) =
     )
 ;;
 
-let parse_let_statement (p: t): par_r =
-    let (p, res) = expect_token p (Token.IDENT "") in
-    
-    if not res then
-        (++) p None
-    else (
-        let open Ast in
-        let name = match p.cur_t with
-            | IDENT s -> {identifier=s}
-            | _ -> {identifier=""}
-        in
-        let (p, res) = expect_token p Token.ASSIGN in
-        
-        if not res then
-            (++) p None
-        else (
-            (*expressions will be parsed here later*)
-            let rec loop (p: t) =
-                match p.cur_t with
-                | SEMICOLON -> p
-                | _ -> loop (next_token p)
-            in
-            let p = loop p in
-
-            (++) p (Some (LET{
-                name=name; 
-                value=IDENTIFIER name
-            }))
-        )
-    )
-;;
-*)
 
 let parse_let_statement (p: t): par_r =
     begin match p.peek_t with
