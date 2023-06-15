@@ -111,6 +111,7 @@ let parse_let_statement (p: t): par_r =
                         | SEMICOLON -> p
                         | _ -> loop (next_token p)
                     in
+
                     let p = loop p in
                     {p; stmt=(Some (LET{name=name; value=IDENTIFIER name}))}
                 )
