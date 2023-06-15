@@ -1,4 +1,5 @@
 (library
- (name lib)
+ (name aether)
  (libraries core stdio str)
  (preprocess (pps ppx_deriving.show ppx_deriving.ord ppx_deriving.eq)))
+(include_subdirs unqualified)

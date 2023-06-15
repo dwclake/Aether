@@ -1,4 +1,4 @@
-open Lib
+open Aether
 open Alcotest
 
 let tt = testable Token.pp Token.equal

@@ -64,18 +64,18 @@ let _expect_token (p: t)(t: Token.t) =
 
 let parse_let_statement (p: t): par_r =
     begin match p.peek_t with
-        | IDENT s -> (
+        | Token.IDENT s -> (
             let open Ast in
 
             let p = next_token p in
             let name = {identifier=s} in
 
             match p.peek_t with
-                | ASSIGN -> (
+                | Token.ASSIGN -> (
                     (*expressions will be parsed here later*)
                     let rec loop (p: t) =
                         match p.cur_t with
-                        | SEMICOLON -> p
+                        | Token.SEMICOLON -> p
                         | _ -> loop (next_token p)
                     in
 
