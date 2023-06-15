@@ -1,11 +1,5 @@
 .merlin
-node_modules/
 _build
 _release
-*.byte
-*.native
-*.install
 .vscode
 .DS_Store
-zig-out
-zig-cache
