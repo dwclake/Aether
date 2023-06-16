@@ -1,0 +1,9 @@
+(executable
+ (name main)
+ (public_name aether)
+ (modules main)
+ (libraries aether core stdio))
+(executable
+ (public_name repl)
+ (modules repl)
+ (libraries aether core stdio))

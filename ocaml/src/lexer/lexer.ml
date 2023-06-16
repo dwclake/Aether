@@ -91,7 +91,7 @@ let compound_or (l: t) ~(default: Token.t) ~(rules): <tok: Token.t; ..> lex_r =
     
     let rec loop = function
         | [] -> default 
-        | h :: t -> (
+        | h::t -> (
             let (ch, tok) = h in
 
             if next_ch == ch 
@@ -164,7 +164,8 @@ let next_token (l: t): <tok: Token.t; ..> lex_r =
                 ~default:Token.ASSIGN 
                 ~rules:[
                     ('=', Token.EQUALS);
-                    ('>', Token.FATARROW)]
+                    ('>', Token.FATARROW)
+                ]
         )
         (* Individual characters *)
         | ch -> (

@@ -1,7 +1,6 @@
 type t = {
     l: Lexer.t;
     errors: string list;
-
     cur_t: Token.t;
     peek_t: Token.t;
 };;
