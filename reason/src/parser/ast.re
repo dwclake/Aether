@@ -1,32 +1,28 @@
 [@deriving (show, eq)]
-type identifier = {
-    identifier: string
-};
-
-type expression = 
-    | IDENTIFIER(identifier);
-
-type statement =
-    | LET {
-        name: identifier,
-        value: expression
-    };
-
-type program = {
-    statements: list(statement)
-};
-
 type node = 
     | PROGRAM(program)
     | EXPRESSION(expression)
-    | STATEMENT(statement);
+    | STATEMENT(statement)
+
+    and expression = 
+        | IDENTIFIER(identifier)
+
+    and statement =
+        | LET {
+            name: identifier,
+            value: expression
+        }
+
+    and identifier = {
+        identifier: string
+    }
+
+    and program = {
+        statements: list(node)
+};
 
 let token_literal = { fun
     | PROGRAM(_) => "program"
-    | EXPRESSION(e) => switch e {
-        | IDENTIFIER(i) => i.identifier
-    } 
-    | STATEMENT(s) => switch s {
-        | LET(n) => n.name.identifier
-    }
+    | EXPRESSION(_) => "expression"
+    | STATEMENT(_) => "statement"
 };

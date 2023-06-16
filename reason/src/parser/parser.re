@@ -7,7 +7,7 @@ type t = {
 
 type par_r = {
     p: t, 
-    stmt: option(Ast.statement)
+    node: option(Ast.node)
 };
 
 let next_token = (p: t): t => {
@@ -60,17 +60,17 @@ let parse_let_statement = (p: t): par_r => {
                     };
 
                     let p = loop(p);
-                    {p, stmt: Some(LET{name, value: IDENTIFIER(name)})}
+                    {p, node: Some(STATEMENT(LET{name, value: IDENTIFIER(name)}))}
                 }
                 | _ => {
                     let p = peek_error(p, Token.ASSIGN);
-                    {p, stmt: None}
+                    {p, node: None}
                 }
             }
         } 
         | _ => {
             let p = peek_error(p, Token.IDENT(""));
-            {p, stmt: None}
+            {p, node: None}
         }
     }
 };
@@ -78,7 +78,7 @@ let parse_let_statement = (p: t): par_r => {
 let parse_statement = (p: t): par_r => {
     switch p.cur_t {
         | Token.LET => parse_let_statement(p)
-        | _ => {p, stmt: None}
+        | _ => {p, node: None}
     }
 };
 
@@ -88,7 +88,7 @@ let parse_program = (p: t): (t ,Ast.program) => {
             | Token.EOF => (p, stmts)
             | _ => {
                 let par = parse_statement(p);
-                switch par.stmt {
+                switch par.node {
                     | Some(s) => loop(next_token(par.p), stmts @ [s])
                     | None => loop(next_token(par.p), stmts)
                 }

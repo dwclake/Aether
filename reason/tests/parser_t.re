@@ -2,7 +2,9 @@ open Aether;
 open Alcotest;
 
 let tt = testable(Token.pp, (a, b) => a == b);
+let ts = testable(Ast.pp_statement, Ast.equal_statement);
 let ti = testable(Ast.pp_identifier, Ast.equal_identifier);
+let tstr = Alcotest.string;
 
 let rec test_token_seq = (p: Parser.t, ~i= 1) => { fun
     | [] => ()
@@ -12,16 +14,24 @@ let rec test_token_seq = (p: Parser.t, ~i= 1) => { fun
     }
 };
 
-let rec test_statement_seq = (~i= 1, l:(list(Ast.identifier), list(Ast.statement))) => {
+let rec test_let_statement_seq = (~i= 1, l:(list(Ast.identifier), list(Ast.node))) => {
     switch l {
         | ([], []) => ()
-        | ([ei,...etl], [st,...tl]) => {
-            let ident = switch st {
-                | LET(s) => s.name
+        | ([eid,...etl], [nd,...tl]) => {
+            let stmt = switch nd {
+                | STATEMENT(s) => s
+                | _ => failwith("Node should be a statement")
+            };
+            let estmt = Ast.LET{name: eid, value: IDENTIFIER(eid)};
+
+            let (ename, sname) = switch (estmt, stmt) {
+                | (LET(e), LET(s)) => (e.name, s.name)
             };
 
-            check(ti, string_of_int(i), ei, ident);
-            test_statement_seq(~i=i + 1, (etl, tl));
+            check(ti, string_of_int(i), ename, sname);
+            check(ts, string_of_int(i), estmt, stmt);
+            check(tstr, string_of_int(i), "statement", Ast.token_literal(nd));
+            test_let_statement_seq(~i=i + 1, (etl, tl));
         }
         | _ => ()
     }
@@ -83,5 +93,5 @@ let test_let_statement = () => {
         {identifier:"foobar"}
      ], 
         program.statements
-    ) |> test_statement_seq
+    ) |> test_let_statement_seq
 }
