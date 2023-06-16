@@ -26,6 +26,7 @@ let rec test_let_statement_seq = (~i= 1, l:(list(Ast.identifier), list(Ast.node)
 
             let (ename, sname) = switch (estmt, stmt) {
                 | (LET(e), LET(s)) => (e.name, s.name)
+                | _ => failwith("Statement should be a let statement")
             };
 
             check(ti, string_of_int(i), ename, sname);
@@ -82,16 +83,59 @@ let test_let_statement = () => {
     let p = Parser.create(Lexer.create(~input=code));
 
     let (p, program) = Parser.parse_program(p);
-    check_parser_errors(p);
+    let () = check_parser_errors(p);
 
-    if(List.length(program.statements) != 3) {
+    if (List.length(program.statements) != 3) {
         failwith("Program statements list length is incorrect")
     };
 
-    ([  {identifier:"x"},
+    ([  
+        {identifier:"x"},
         {identifier:"y"},
         {identifier:"foobar"}
      ], 
         program.statements
-    ) |> test_let_statement_seq
+    ) 
+    |> test_let_statement_seq
+}
+
+let test_return_statement = () => {
+    let code = "
+        return 5;
+        return 10;
+        return 993322;
+    ";
+
+    let l = Lexer.create(~input=code);
+    let p = Parser.create(l);
+
+    let (p, program) = Parser.parse_program(p);
+    let () = check_parser_errors(p);
+
+    if (List.length(program.statements) != 3) {
+        failwith("Program statements list length is incorrect")
+    };
+
+    let rec loop = { fun 
+        | [] => ()
+        | [h,...t] => {
+            switch h {
+                | Ast.STATEMENT(s) => {
+                    switch s {
+                        | Ast.RETURN(_) => loop(t)
+                        | _ as ret => failwith(Format.sprintf(
+                            "Not a return statement, got %s",
+                            Ast.show_statement(ret)
+                        ))
+                    }
+                }
+                | _ as nd => failwith(Format.sprintf(
+                    "Not a statement node, got %s",
+                    Ast.show_node(nd)
+                ))
+            }
+        }
+    };
+
+    let () = loop(program.statements);
 }

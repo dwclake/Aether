@@ -12,6 +12,9 @@ type node =
             name: identifier,
             value: expression
         }
+        | RETURN {
+            value: expression
+        }
 
     and identifier = {
         identifier: string
