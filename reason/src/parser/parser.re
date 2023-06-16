@@ -60,7 +60,9 @@ let parse_let_statement = (p: t): par_r => {
                     };
 
                     let p = loop(p);
-                    {p, node: Some(STATEMENT(LET{name, value: IDENTIFIER(name)}))}
+                    let l = LET({name, value: IDENTIFIER(name)});
+                    
+                    {p, node: Some(STATEMENT(l))}
                 }
                 | _ => {
                     let p = peek_error(p, Token.ASSIGN);
