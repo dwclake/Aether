@@ -6,6 +6,25 @@ let ts = testable(Ast.pp_statement, Ast.equal_statement);
 let ti = testable(Ast.pp_identifier, Ast.equal_identifier);
 let tstr = Alcotest.string;
 
+let check_parser_errors = (p: Parser.t) => {
+    open List;
+    open Stdio;
+
+    if (length(p.errors) == 0) {
+        eprintf("\nparser had 0 errors")
+    } else {
+        eprintf("\nParser had %d errors", length(p.errors));
+        let rec print = { fun
+            | [] => eprintf("\n\nend of parser error list")
+            | [h,...t] => {
+                eprintf("\n- parser error: %s", h);
+                print(t)
+            }
+        }
+        print(p.errors)
+    }
+};
+
 let rec test_token_seq = (p: Parser.t, ~i= 1) => { fun
     | [] => ()
     | [et,...tl] => {
@@ -38,31 +57,11 @@ let rec test_let_statement_seq = (~i= 1, l:(list(Ast.identifier), list(Ast.node)
     }
 };
 
-let check_parser_errors = (p: Parser.t) => {
-    open List;
-    open Stdio;
-
-    if (length(p.errors) == 0) {
-        eprintf("\nparser had 0 errors")
-    } else {
-        eprintf("\nParser had %d errors", length(p.errors));
-        let rec print = { fun
-            | [] => eprintf("\n\nend of parser error list")
-            | [h,...t] => {
-                eprintf("\n- parser error: %s", h);
-                print(t)
-            }
-        }
-        print(p.errors)
-    }
-};
-
 let test_next_token = () => {
     let code = "=+(){},;";
     let p = Parser.create(Lexer.create(~input=code));
 
-    [
-        Token.ASSIGN,
+    [   Token.ASSIGN,
         Token.PLUS,
         Token.LPAREN,
         Token.RPAREN,
@@ -89,8 +88,7 @@ let test_let_statement = () => {
         failwith("Program statements list length is incorrect")
     };
 
-    ([  
-        {identifier:"x"},
+    ([  {identifier:"x"},
         {identifier:"y"},
         {identifier:"foobar"}
      ], 

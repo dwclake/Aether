@@ -12,12 +12,12 @@ let lex_input (input: string): Token.t list =
         |> ref
     in
     while (!lex#tok != Token.EOF) do
-        tokens := !tokens @ [!lex#tok];
+        tokens := [!lex#tok] @ !tokens;
 
         lex := (Lexer.next_token !lex#l);
     done;
 
-    !tokens
+    !tokens |> List.rev
 ;;
 
 let print (token: Token.t) =

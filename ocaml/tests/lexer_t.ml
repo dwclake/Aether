@@ -25,7 +25,8 @@ let test_next_token () =
         Token.COMMA;
         Token.SEMICOLON;
         Token.EOF
-    ] |> test_token_seq (Lexer.create ~input:code)
+    ] 
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 
@@ -61,7 +62,8 @@ let test_ident_tokens () =
         Token.RPAREN;
         Token.SEMICOLON;
         Token.EOF
-    ] |> test_token_seq (Lexer.create ~input:code)
+    ] 
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 let test_operators () =
@@ -105,7 +107,8 @@ let test_operators () =
         Token.INT("5");
         Token.SEMICOLON;
         Token.EOF
-    ] |> test_token_seq (Lexer.create ~input:code)
+    ] 
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 
@@ -153,7 +156,8 @@ let test_comp_ops () =
         Token.INT("1");
         Token.SEMICOLON;
         Token.EOF
-    ] |> test_token_seq (Lexer.create ~input:code)
+    ] 
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 let test_keywords () =
@@ -229,7 +233,8 @@ let test_keywords () =
         Token.RSQUIRLY;
 
         Token.EOF
-    ] |> test_token_seq (Lexer.create ~input:code)
+    ] 
+    |> test_token_seq (Lexer.create ~input:code)
 ;;
 
 let test_functions () =
@@ -259,5 +264,6 @@ let test_functions () =
         Token.SEMICOLON;
 
         Token.EOF
-    ] |> test_token_seq (Lexer.create ~input:code)
+    ] 
+    |> test_token_seq (Lexer.create ~input:code)
 ;;

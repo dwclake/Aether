@@ -16,8 +16,7 @@ let create ~(input: string) =
         | _ -> input.[0]
     in
 
-    {
-        input;
+    {   input;
         pos = 0;
         read_pos = 1;
         ch;
@@ -31,8 +30,7 @@ let advance ?(count = 1) (l: t): t =
              else String.get l.input rp
     in
 
-    {
-        l with
+    {   l with
         pos = rp;
         read_pos = rp + 1;
         ch;

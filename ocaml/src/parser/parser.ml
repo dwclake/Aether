@@ -12,8 +12,7 @@ type par_r = {
 
 let next_token (p: t): t =
     let lex = Lexer.next_token p.l in
-    {
-        l = lex#l;
+    {   l = lex#l;
         errors = p.errors;
         cur_t = p.peek_t;
         peek_t = lex#tok;
@@ -21,8 +20,7 @@ let next_token (p: t): t =
 ;;
 
 let create (l: Lexer.t): t =
-    {
-        l;
+    {   l;
         errors = [];
         cur_t = Token.EOF;
         peek_t = Token.EOF;
@@ -89,9 +87,26 @@ let parse_let_statement (p: t): par_r =
     end
 ;;
 
+let parse_return_statement (p: t): par_r =
+    let p = next_token p in
+    
+    let rec loop (p: t) =
+        match p.cur_t with
+        | Token.SEMICOLON -> p
+        | _ -> loop (next_token p)
+    in
+
+    let p = loop p in
+    let i: Ast.identifier = {identifier=""} in
+    let r = Ast.RETURN{value=IDENTIFIER i} in
+
+    {p; stmt=Some (Ast.STATEMENT r)}
+;;
+
 let parse_statement (p: t): par_r =
     match p.cur_t with
         | Token.LET -> parse_let_statement p;
+        | Token.RETURN -> parse_return_statement p;
         | _ -> {p; stmt=None}
 ;;
 
@@ -102,11 +117,12 @@ let parse_program (p: t): (t * Ast.program) =
         | _ -> (
             let par = parse_statement p in
             match par.stmt with
-                | Some s -> loop (next_token par.p) (stmts @ [s])
+                | Some s -> loop (next_token par.p) ([s] @ stmts)
                 | None -> loop (next_token par.p) stmts
         )
     in
     let (p, statements) = loop p [] in
+    let statements = statements |> List.rev in
 
     (p, {statements=statements})
 ;;

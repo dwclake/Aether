@@ -16,8 +16,7 @@ let create = (~input: string): t => {
         | _ => input.[0]
     };
 
-    {
-        input,
+    {   input,
         pos: 0,
         read_pos: 1,
         ch
@@ -32,8 +31,7 @@ let advance = (~count=1, l: t): t => {
         String.get(l.input, rp);
     };
 
-    {
-        ...l,
+    {   ...l,
         pos: rp,
         read_pos: rp + 1,
         ch,

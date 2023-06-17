@@ -9,27 +9,22 @@ and expression =
 
 and statement =
     | LET of { 
-        name : identifier; 
-        value : expression
+        name: identifier; 
+        value: expression
+    }
+    | RETURN of {
+        value: expression
     }
 
 and identifier = { 
-    identifier : string 
+    identifier: string 
 }
 and program = { 
-    statements : node list 
+    statements: node list 
 };;
 
 let token_literal = function
     | PROGRAM _ -> "program"
-    | EXPRESSION e -> (
-        begin match e with
-            | IDENTIFIER i -> i.identifier 
-        end
-    )
-    | STATEMENT s -> (
-        begin match s with
-            | LET n -> n.name.identifier
-        end
-    )
+    | EXPRESSION _ -> "expression"
+    | STATEMENT _ -> "statement"
 ;;

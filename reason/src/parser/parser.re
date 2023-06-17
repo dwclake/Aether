@@ -13,8 +13,7 @@ type par_r = {
 let next_token = (p: t): t => {
     let lex = Lexer.next_token(p.l);
     
-    {
-        ...p,
+    {   ...p,
         l: lex#l,
         cur_t: p.peek_t,
         peek_t: lex#t,
@@ -22,8 +21,7 @@ let next_token = (p: t): t => {
 };
 
 let create = (l: Lexer.t): t => {
-    {
-        l,
+    {   l,
         errors: [],
         cur_t: Token.EOF,
         peek_t: Token.EOF
@@ -126,7 +124,7 @@ let parse_program = (p: t): (t, Ast.program) => {
             | _ => {
                 let par = parse_statement(p);
                 switch par.node {
-                    | Some(s) => loop(next_token(par.p), stmts @ [s])
+                    | Some(s) => loop(next_token(par.p), [s] @ stmts)
                     | None => loop(next_token(par.p), stmts)
                 }
             }
@@ -134,6 +132,7 @@ let parse_program = (p: t): (t, Ast.program) => {
     }
 
     let (p, statements) = loop(p, []);
+    let statements = statements |> List.rev;
     
     (p, {statements: statements})
 };
