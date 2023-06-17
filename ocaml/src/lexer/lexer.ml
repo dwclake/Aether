@@ -25,10 +25,10 @@ let create ~(input: string) =
 
 let advance ?(count = 1) (l: t): t =
     let rp = l.pos + count in
-    let ch = 
-        if rp >= String.length l.input
-        then '\000'
-        else String.get l.input rp
+    let ch = if rp >= String.length l.input then 
+            '\000'
+        else 
+            String.get l.input rp
     in
 
     {   l with
@@ -39,10 +39,10 @@ let advance ?(count = 1) (l: t): t =
 ;;
 
 let peek (l: t): char =
-    let ch = 
-        if l.read_pos >= String.length l.input 
-        then '\000'
-        else String.get l.input l.read_pos
+    let ch = if l.read_pos >= String.length l.input then 
+            '\000'
+        else 
+            String.get l.input l.read_pos
     in
 
     ch
@@ -92,9 +92,10 @@ let compound_or (l: t) ~(default: Token.t) ~(rules): <tok: Token.t; ..> lex_r =
         | h::t ->
             let (ch, tok) = h in
 
-            if next_ch == ch 
-            then tok
-            else loop t
+            if next_ch == ch then 
+                tok
+            else 
+                loop t
     in
     let tok = loop rules in
 
@@ -121,7 +122,8 @@ let next_token (l: t): <tok: Token.t; ..> lex_r =
             let token = match Token.try_keyword lex#literal with
                 | Some t -> t
                 | None -> Token.IDENT(lex#literal)
-            in 
+            in
+
             object
                 method l = lex#l;
                 method tok = token;
@@ -129,6 +131,7 @@ let next_token (l: t): <tok: Token.t; ..> lex_r =
         (* Integers *)
         | ch when is_number ch ->
             let lex = read_sequence l ~predicate:is_number in 
+            
             object
                 method l = lex#l;
                 method tok = Token.INT(lex#literal);

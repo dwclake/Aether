@@ -125,13 +125,15 @@ let test_return_statement () =
                         failwith (
                             Format.sprintf
                             "Not a return statement, got %s"
-                            (Ast.show_statement stmt))
+                            (Ast.show_statement stmt)
+                        )
             end
             | _ as nd ->
                 failwith (
                     Format.sprintf
                     "Not a statement node, got %s"
-                    (Ast.show_node nd))
+                    (Ast.show_node nd)
+                )
     in
     loop program.statements
 ;;

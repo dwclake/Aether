@@ -49,6 +49,7 @@ let _expect_token (p: t)(t: Token.t) =
         | (false, false) -> a == b
         | _ -> false
     in
+
     if res then
         let p = next_token p in
         (p, true)
@@ -66,7 +67,7 @@ let parse_let_statement (p: t): par_r =
             let name = {identifier=s} in
 
             match p.peek_t with
-                | Token.ASSIGN -> (
+                | Token.ASSIGN ->
                     (*expressions will be parsed here later*)
                     let rec loop (p: t) =
                         match p.cur_t with
@@ -76,8 +77,8 @@ let parse_let_statement (p: t): par_r =
 
                     let p = loop p in
                     let l = Ast.LET{name; value=IDENTIFIER name} in
+
                     {p; stmt=(Some (Ast.STATEMENT l))}
-                )
                 | _ -> 
                     let p = peek_error p (Token.ASSIGN) in
                     {p; stmt=None}
@@ -120,6 +121,7 @@ let parse_program (p: t): (t * Ast.program) =
                     | Some s -> loop (next_token par.p) ([s] @ stmts)
                     | None -> loop (next_token par.p) stmts
     in
+
     let (p, statements) = loop p [] in
     let statements = statements |> List.rev in
 
