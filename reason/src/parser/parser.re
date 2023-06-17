@@ -61,8 +61,10 @@ let _expect_token = (p: t, t: Token.t) => {
 let parse_let_statement = (p: t): par_r => {
     switch p.peek_t {
         | Token.IDENT(s) => {
+            open Ast;
+
             let p = next_token(p);
-            let name: Ast.identifier = {identifier: s};
+            let name = {identifier: s};
 
             switch p.peek_t {
                 | Token.ASSIGN => {
