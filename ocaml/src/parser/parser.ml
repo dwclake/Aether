@@ -12,6 +12,7 @@ type par_r = {
 
 let next_token (p: t): t =
     let lex = Lexer.next_token p.l in
+
     {   l = lex#l;
         errors = p.errors;
         cur_t = p.peek_t;
@@ -97,8 +98,8 @@ let parse_return_statement (p: t): par_r =
     in
 
     let p = loop p in
-    let i: Ast.identifier = {identifier=""} in
-    let r = Ast.RETURN{value=IDENTIFIER i} in
+    let i = Ast.IDENTIFIER{identifier=""} in
+    let r = Ast.RETURN{value=i} in
 
     {p; stmt=Some (Ast.STATEMENT r)}
 ;;
