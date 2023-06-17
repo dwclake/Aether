@@ -95,7 +95,7 @@ let parse_statement (p: t): par_r =
         | _ -> {p; stmt=None}
 ;;
 
-let parse_program (p: t): (t * Ast.node) =
+let parse_program (p: t): (t * Ast.program) =
     let rec loop p stmts =
         match p.cur_t with
         | Token.EOF -> (p, stmts)
@@ -108,5 +108,5 @@ let parse_program (p: t): (t * Ast.node) =
     in
     let (p, statements) = loop p [] in
 
-    (p, Ast.PROGRAM{statements=statements})
+    (p, {statements=statements})
 ;;
