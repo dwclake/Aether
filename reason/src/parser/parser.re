@@ -77,7 +77,7 @@ let parse_let_statement = (p: t): par_r => {
                     };
 
                     let p = skip(p);
-                    let l = Ast.LET({name, value: Ast.IDENTIFIER(name)});
+                    let l = Ast.LET{name, value: Ast.IDENTIFIER(name)};
                     
                     {p, node: Some(Ast.STATEMENT(l))}
                 }
@@ -106,7 +106,7 @@ let parse_return_statement = (p: t): par_r => {
 
     let p = skip(p);
     let i = Ast.IDENTIFIER{identifier: ""};
-    let r = Ast.RETURN({value: i});
+    let r = Ast.RETURN{value: i};
 
     {p, node: Some(Ast.STATEMENT(r))}
 }
@@ -119,7 +119,7 @@ let parse_statement = (p: t): par_r => {
     }
 };
 
-let parse_program = (p: t): (t ,Ast.program) => { 
+let parse_program = (p: t): (t, Ast.program) => { 
     let rec loop = (p: t, stmts) => {
         switch p.cur_t {
             | Token.EOF => (p, stmts)
