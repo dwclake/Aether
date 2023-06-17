@@ -24,25 +24,32 @@ let print (token: Token.t) =
     printf "\t%s\n" (Token.show token)
 ;;
 
-let print_toks (tokens: Token.t list): unit =
+let print_toks (tokens: Token.t list): unit = 
     printf "{\n";
     tokens |> Core.List.iter ~f:print;
-    printf "}\n"
+    printf "}\n";
 ;;
 
 let rec start () =
     let open Core in
-    printf "\n%s" prompt; flush_out();
+    let () = 
+        printf "\n%s" prompt; 
+        flush_out();
+    in
 
     let input = In_channel.input_lines In_channel.stdin in
-    let tokens = List.fold input 
+    let tokens = 
+        List.fold 
+            input 
             ~init:"" 
             ~f:(fun x accum -> x ^ accum)
         |> lex_input
     in
 
-    printf "\n";
-    print_toks tokens;
+    let () = 
+        printf "\n";
+        print_toks tokens;
+    in
 
     start()
 ;;

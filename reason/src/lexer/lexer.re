@@ -25,10 +25,10 @@ let create = (~input: string): t => {
 
 let advance = (~count=1, l: t): t => {
     let rp = l.pos + count;
-    let ch = if(rp >= String.length(l.input)) {
-        '\000';
-    } else {
-        String.get(l.input, rp);
+    let ch = if (rp >= String.length(l.input)) {
+            '\000';
+        } else {
+            String.get(l.input, rp);
     };
 
     {   ...l,
@@ -39,20 +39,20 @@ let advance = (~count=1, l: t): t => {
 };
 
 let peek = (l: t): char => {
-    let ch = if(l.read_pos >= String.length(l.input)) {
-        '\000';
-    } else {
-        String.get(l.input, l.read_pos);
+    let ch = if (l.read_pos >= String.length(l.input)) {
+            '\000';
+        } else {
+            String.get(l.input, l.read_pos);
     };
 
     ch
-}
+};
 
 let rec skip_whitespace = (l: t) => {
     switch l.ch {
         | ' ' | '\t' | '\n' | '\r' => skip_whitespace(advance(l))
         | _ => l
-    };
+    }
 };
 
 let is_letter = { fun
@@ -84,7 +84,7 @@ let rec read_sequence = (~s="", ~predicate, l: t): lex_r<{.. literal: string}> =
             pub l = l; 
             pub literal = s;
         }
-    };
+    }
 };
 
 let compound_or = (l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> => {
@@ -94,13 +94,14 @@ let compound_or = (l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> => {
         | [] => default 
         | [h,...t] => {
             let (ch, tok) = h;
+
             if(next_ch == ch) {
                 tok
             } else {
                 loop(t);
             }
         }
-    }
+    };
 
     let tok = loop(rules);
 
@@ -111,7 +112,7 @@ let compound_or = (l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> => {
             pub t = tok;
         }
     }
-}
+};
 
 let next_token = (l: t): lex_r<{.. t: Token.t}> => {
     let l = skip_whitespace(l);

@@ -47,7 +47,7 @@ let _expect_token = (p: t, t: Token.t) => {
         | (true, true) => Obj.tag(a) == Obj.tag(b)
         | (false, false) => a == b
         | _ => false
-        };
+    };
 
     if (res) {
         let p = next_token(p);
@@ -107,7 +107,7 @@ let parse_return_statement = (p: t): par_r => {
     let r = Ast.RETURN{value: i};
 
     {p, node: Some(Ast.STATEMENT(r))}
-}
+};
 
 let parse_statement = (p: t): par_r => {
     switch p.cur_t {
@@ -129,7 +129,7 @@ let parse_program = (p: t): (t, Ast.program) => {
                 }
             }
         }
-    }
+    };
 
     let (p, statements) = loop(p, []);
     let statements = statements |> List.rev;

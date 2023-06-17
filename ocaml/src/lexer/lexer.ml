@@ -25,9 +25,10 @@ let create ~(input: string) =
 
 let advance ?(count = 1) (l: t): t =
     let rp = l.pos + count in
-    let ch = if rp >= String.length l.input
-             then '\000'
-             else String.get l.input rp
+    let ch = 
+        if rp >= String.length l.input
+        then '\000'
+        else String.get l.input rp
     in
 
     {   l with
@@ -38,9 +39,10 @@ let advance ?(count = 1) (l: t): t =
 ;;
 
 let peek (l: t): char =
-    let ch = if l.read_pos >= String.length l.input 
-             then '\000'
-             else String.get l.input l.read_pos
+    let ch = 
+        if l.read_pos >= String.length l.input 
+        then '\000'
+        else String.get l.input l.read_pos
     in
 
     ch
@@ -70,18 +72,16 @@ let is_alphanumeric = function
 
 let rec read_sequence ?(s = "") ~predicate (l: t): <literal: string; ..> lex_r =
     match l.ch with
-        | ch when predicate ch -> (
+        | ch when predicate ch ->
             let literal = s ^ Core.Char.to_string ch in
             let l = advance l in
 
             read_sequence l ~predicate ~s:literal
-        )
-        | _ -> (
+        | _ ->
             object
                 method l = l;
                 method literal = s;
             end
-        )
 ;;
 
 let compound_or (l: t) ~(default: Token.t) ~(rules): <tok: Token.t; ..> lex_r =
@@ -89,29 +89,26 @@ let compound_or (l: t) ~(default: Token.t) ~(rules): <tok: Token.t; ..> lex_r =
     
     let rec loop = function
         | [] -> default 
-        | h::t -> (
+        | h::t ->
             let (ch, tok) = h in
 
             if next_ch == ch 
             then tok
             else loop t
-        )
     in
     let tok = loop rules in
 
     match tok with
-        | tok when tok == default -> (
-            object
-                method l = advance l;
-                method tok = tok;
-            end
-        )
-        | _ -> (
-            object
-                method l = advance l ~count:2;
-                method tok = tok;
-            end
-        )
+    | tok when tok == default ->
+        object
+            method l = advance l;
+            method tok = tok;
+        end
+    | _ ->
+        object
+            method l = advance l ~count:2;
+            method tok = tok;
+        end
 ;;
 
 let next_token (l: t): <tok: Token.t; ..> lex_r =
@@ -119,57 +116,51 @@ let next_token (l: t): <tok: Token.t; ..> lex_r =
 
     match l.ch with
         (* Idenifiers and keywords *)
-        | ch when is_letter ch -> (
+        | ch when is_letter ch ->
             let lex = read_sequence l ~predicate:is_alphanumeric in
             let token = match Token.try_keyword lex#literal with
                 | Some t -> t
                 | None -> Token.IDENT(lex#literal)
-            in object
+            in 
+            object
                 method l = lex#l;
                 method tok = token;
             end
-        )
         (* Integers *)
-        | ch when is_number ch -> (
-            let lex = read_sequence l ~predicate:is_number in object
+        | ch when is_number ch ->
+            let lex = read_sequence l ~predicate:is_number in 
+            object
                 method l = lex#l;
                 method tok = Token.INT(lex#literal);
             end
-        )
         (* Compound operators *)
-        | ch when ch == '>' -> (
+        | ch when ch == '>' ->
             l |> compound_or 
                 ~default:Token.GREATER 
                 ~rules:[('=', Token.GREATEREQ)] 
-        )
-        | ch when ch == '<' -> (
+        | ch when ch == '<' ->
             l |> compound_or
                 ~default:Token.LESSER 
                 ~rules:[('=', Token.LESSEREQ)]
-        )
-        | ch when ch == '!' -> (
+        | ch when ch == '!' ->
             l |> compound_or 
                 ~default:Token.BANG 
                 ~rules:[('=', Token.NOTEQ)]
-        )
-        | ch when ch == '-' -> (
+        | ch when ch == '-' ->
             l |> compound_or 
                 ~default:Token.MINUS 
                 ~rules:[('>', Token.SLIMARROW)]
-        )
-        | ch when ch == '=' -> (
+        | ch when ch == '=' ->
             l |> compound_or 
                 ~default:Token.ASSIGN 
                 ~rules:[
                     ('=', Token.EQUALS);
                     ('>', Token.FATARROW)
                 ]
-        )
         (* Individual characters *)
-        | ch -> (
+        | ch ->
             object
                 method l = advance l;
                 method tok = Token.of_char ch;
             end
-        )
 ;;

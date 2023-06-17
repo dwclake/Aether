@@ -20,7 +20,7 @@ let check_parser_errors = (p: Parser.t) => {
                 eprintf("\n- parser error: %s", h);
                 print(t)
             }
-        }
+        };
         print(p.errors)
     }
 };
@@ -136,4 +136,4 @@ let test_return_statement = () => {
     };
 
     let () = loop(program.statements);
-}
+};

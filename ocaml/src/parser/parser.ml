@@ -49,18 +49,16 @@ let _expect_token (p: t)(t: Token.t) =
         | (false, false) -> a == b
         | _ -> false
     in
-    if res then (
+    if res then
         let p = next_token p in
         (p, true)
-    )
-    else (
+    else 
         let p = peek_error p t in
         (p, false)
-    )
 ;;
 
 let parse_let_statement (p: t): par_r =
-    begin match p.peek_t with
+    match p.peek_t with
         | Token.IDENT s -> (
             let open Ast in
 
@@ -72,20 +70,21 @@ let parse_let_statement (p: t): par_r =
                     (*expressions will be parsed here later*)
                     let rec loop (p: t) =
                         match p.cur_t with
-                        | Token.SEMICOLON -> p
-                        | _ -> loop (next_token p)
+                            | Token.SEMICOLON -> p
+                            | _ -> loop (next_token p)
                     in
 
                     let p = loop p in
                     let l = Ast.LET{name; value=IDENTIFIER name} in
                     {p; stmt=(Some (Ast.STATEMENT l))}
                 )
-                | _ -> let p = peek_error p (Token.ASSIGN) in
-                       {p; stmt=None}
+                | _ -> 
+                    let p = peek_error p (Token.ASSIGN) in
+                    {p; stmt=None}
         )
-        | _ -> let p = peek_error p (Token.IDENT "") in
-               {p; stmt=None}
-    end
+        | _ -> 
+            let p = peek_error p (Token.IDENT "") in
+            {p; stmt=None}
 ;;
 
 let parse_return_statement (p: t): par_r =
@@ -93,8 +92,8 @@ let parse_return_statement (p: t): par_r =
     
     let rec loop (p: t) =
         match p.cur_t with
-        | Token.SEMICOLON -> p
-        | _ -> loop (next_token p)
+            | Token.SEMICOLON -> p
+            | _ -> loop (next_token p)
     in
 
     let p = loop p in
@@ -114,13 +113,12 @@ let parse_statement (p: t): par_r =
 let parse_program (p: t): (t * Ast.program) =
     let rec loop p stmts =
         match p.cur_t with
-        | Token.EOF -> (p, stmts)
-        | _ -> (
-            let par = parse_statement p in
-            match par.stmt with
-                | Some s -> loop (next_token par.p) ([s] @ stmts)
-                | None -> loop (next_token par.p) stmts
-        )
+            | Token.EOF -> (p, stmts)
+            | _ ->
+                let par = parse_statement p in
+                match par.stmt with
+                    | Some s -> loop (next_token par.p) ([s] @ stmts)
+                    | None -> loop (next_token par.p) stmts
     in
     let (p, statements) = loop p [] in
     let statements = statements |> List.rev in

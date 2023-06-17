@@ -18,30 +18,36 @@ let lex_input = (input: string): list(Token.t) => {
     }
 
     tokens^ |> List.rev
-}
+};
 
 let print = (token: Token.t) => {
     printf("\t%s\n", Token.show(token));
-}
+};
 
 let print_toks = (tokens: list(Token.t)): unit => {
     printf("{\n");
     tokens |> Core.List.iter(~f=print);
     printf("}\n")
-}
+};
 
 let rec start = () => {
     open Core;
 
-    printf("\n%s", prompt); flush_out();
+    let () = {
+        printf("\n%s", prompt); 
+        flush_out();
+    };
 
     let input = In_channel.input_lines(In_channel.stdin);
 
-    let tokens = List.fold(input, ~init="", ~f=((x, accum) => x ++ accum)) 
+    let tokens = 
+        List.fold(input, ~init="", ~f=((x, accum) => x ++ accum)) 
         |> lex_input;
 
-    printf("\n");
-    print_toks(tokens);
+    let () = {
+        printf("\n");
+        print_toks(tokens);
+    };
 
     start()
-}
+};
