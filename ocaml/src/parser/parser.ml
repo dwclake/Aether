@@ -7,7 +7,7 @@ type t = {
 
 type par_r = {
     p: t;
-    stmt: Ast.statement option;
+    stmt: Ast.node option;
 };;
 
 let next_token (p: t): t =
@@ -78,7 +78,8 @@ let parse_let_statement (p: t): par_r =
                     in
 
                     let p = loop p in
-                    {p; stmt=(Some (LET{name=name; value=IDENTIFIER name}))}
+                    let l = Ast.LET{name; value=IDENTIFIER name} in
+                    {p; stmt=(Some (Ast.STATEMENT l))}
                 )
                 | _ -> let p = peek_error p (Token.ASSIGN) in
                        {p; stmt=None}

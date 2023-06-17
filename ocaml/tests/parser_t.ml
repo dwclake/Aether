@@ -3,6 +3,7 @@ open Alcotest
 
 let tt = testable Token.pp Token.equal
 let ti = testable Ast.pp_identifier Ast.equal_identifier
+let ts = testable Ast.pp_statement Ast.equal_statement
 
 let check_parser_errors (p: Parser.t) =
     let open List in

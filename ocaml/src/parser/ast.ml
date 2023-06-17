@@ -17,7 +17,7 @@ and identifier = {
     identifier : string 
 }
 and program = { 
-    statements : statement list 
+    statements : node list 
 };;
 
 let token_literal = function
