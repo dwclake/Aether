@@ -235,13 +235,15 @@ let test_keywords() = {
 
 let test_functions() = {
     let code = "
-        fn add (x, y) -> int {
+        let add = fn(x, y) -> int {
             x + y
         };
     ";
 
-    [   Token.FN,
+    [   Token.LET,
         Token.IDENT("add"),
+        Token.ASSIGN,
+        Token.FN,
         Token.LPAREN,
         Token.IDENT("x"),
         Token.COMMA,
