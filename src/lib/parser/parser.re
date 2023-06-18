@@ -23,8 +23,8 @@ let next_token(p: t): t = {
 let create(l: Lexer.t): t = {
     {   l,
         errors: [],
-        cur_t: Token.EOF,
-        peek_t: Token.EOF
+        cur_t: Token.Eof,
+        peek_t: Token.Eof
     } 
     |> next_token |> next_token
 };
@@ -60,35 +60,35 @@ let _expect_token(p: t, t: Token.t) = {
 
 let parse_let_statement(p: t): par_r = {
     switch p.peek_t {
-        | Token.IDENT(s) => {
+        | Token.Ident(s) => {
             open Ast;
 
             let p = next_token(p);
             let name = {identifier: s};
 
             switch p.peek_t {
-                | Token.ASSIGN => {
+                | Token.Assign => {
                     // expressions will be parsed here later
                     let rec skip = (p: t) => {
                         switch p.cur_t {
-                            | Token.SEMICOLON => p
+                            | Token.Semicolon => p
                             | _ => skip(next_token(p))
                         }
                     };
 
                     let p = skip(p);
-                    let l = Ast.LET{name, value: Ast.IDENTIFIER(name)};
+                    let l = Ast.Let{name, value: Ast.Identifier(name)};
                     
-                    {p, node: Some(Ast.STATEMENT(l))}
+                    {p, node: Some(Ast.Statement(l))}
                 }
                 | _ => {
-                    let p = peek_error(p, Token.ASSIGN);
+                    let p = peek_error(p, Token.Assign);
                     {p, node: None}
                 }
             }
         } 
         | _ => {
-            let p = peek_error(p, Token.IDENT(""));
+            let p = peek_error(p, Token.Ident(""));
             {p, node: None}
         }
     }
@@ -99,22 +99,22 @@ let parse_return_statement(p: t): par_r = {
 
     let rec skip = (p: t) => {
         switch p.cur_t {
-            | Token.SEMICOLON => p
+            | Token.Semicolon => p
             | _ => skip(next_token(p))
         }
     };
 
     let p = skip(p);
-    let i = Ast.IDENTIFIER{identifier: ""};
-    let r = Ast.RETURN{value: i};
+    let i = Ast.Identifier{identifier: ""};
+    let r = Ast.Return{value: i};
 
-    {p, node: Some(Ast.STATEMENT(r))}
+    {p, node: Some(Ast.Statement(r))}
 };
 
 let parse_statement(p: t): par_r = {
     switch p.cur_t {
-        | Token.LET => parse_let_statement(p)
-        | Token.RETURN => parse_return_statement(p)
+        | Token.Let => parse_let_statement(p)
+        | Token.Return => parse_return_statement(p)
         | _ => {p, node: None}
     }
 };
@@ -122,7 +122,7 @@ let parse_statement(p: t): par_r = {
 let parse_program(p: t): (t, Ast.program) = { 
     let rec loop = (p: t, stmts) => {
         switch p.cur_t {
-            | Token.EOF => (p, stmts)
+            | Token.Eof => (p, stmts)
             | _ => {
                 let par = parse_statement(p);
                 switch par.node {

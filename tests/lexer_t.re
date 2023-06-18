@@ -16,15 +16,15 @@ let rec test_token_seq(l: Lexer.t, ~i= 1) = { fun
 let test_next_token() = {
     let code = "=+(){},;";
 
-    [   Token.ASSIGN,
-        Token.PLUS,
-        Token.LPAREN,
-        Token.RPAREN,
-        Token.LSQUIRLY,
-        Token.RSQUIRLY,
-        Token.COMMA,
-        Token.SEMICOLON,
-        Token.EOF
+    [   Token.Assign,
+        Token.Plus,
+        Token.Lparen,
+        Token.Rparen,
+        Token.Lsquirly,
+        Token.Rsquirly,
+        Token.Comma,
+        Token.Semicolon,
+        Token.Eof
     ] 
     |> test_token_seq(Lexer.create(~input=code))
 };
@@ -38,29 +38,29 @@ let test_ident_tokens() = {
         let result = add(five, ten);
     ";
 
-    [   Token.LET,
-        Token.IDENT("five"),
-        Token.ASSIGN,
-        Token.INT("5"),
-        Token.SEMICOLON,
+    [   Token.Let,
+        Token.Ident("five"),
+        Token.Assign,
+        Token.Int("5"),
+        Token.Semicolon,
 
-        Token.LET,
-        Token.IDENT("ten"),
-        Token.ASSIGN,
-        Token.INT("10"),
-        Token.SEMICOLON,
+        Token.Let,
+        Token.Ident("ten"),
+        Token.Assign,
+        Token.Int("10"),
+        Token.Semicolon,
 
-        Token.LET,
-        Token.IDENT("result"),
-        Token.ASSIGN,
-        Token.IDENT("add"),
-        Token.LPAREN,
-        Token.IDENT("five"),
-        Token.COMMA,
-        Token.IDENT("ten"),
-        Token.RPAREN,
-        Token.SEMICOLON,
-        Token.EOF
+        Token.Let,
+        Token.Ident("result"),
+        Token.Assign,
+        Token.Ident("add"),
+        Token.Lparen,
+        Token.Ident("five"),
+        Token.Comma,
+        Token.Ident("ten"),
+        Token.Rparen,
+        Token.Semicolon,
+        Token.Eof
     ] 
     |> test_token_seq(Lexer.create(~input=code))
 };
@@ -74,37 +74,37 @@ let test_operators() = {
         5 < 10 > 5;
     |};
 
-    [   Token.LSQUIRLY,
-        Token.RSQUIRLY,
-        Token.SEMICOLON,
+    [   Token.Lsquirly,
+        Token.Rsquirly,
+        Token.Semicolon,
 
-        Token.LBRACK,
-        Token.RBRACK,
-        Token.DOLLAR,
-        Token.BANG,
-        Token.MINUS,
-        Token.FORSLASH,
-        Token.ASTERISK,
-        Token.INT("5"),
-        Token.BACKSLASH,
-        Token.TILDE,
-        Token.BACKTICK,
-        Token.QUESTION,
-        Token.SINGLEQUOTE,
-        Token.DOUBLEQUOTE,
-        Token.MODULO,
-        Token.AT,
-        Token.CARET,
-        Token.POUND,
-        Token.SEMICOLON,
+        Token.Lbracket,
+        Token.Rbracket,
+        Token.Dollar,
+        Token.Bang,
+        Token.Minus,
+        Token.Forwardslash,
+        Token.Asterisk,
+        Token.Int("5"),
+        Token.Backslash,
+        Token.Tilde,
+        Token.Backtick,
+        Token.Question,
+        Token.SingleQuote,
+        Token.DoubleQuote,
+        Token.Modulo,
+        Token.At,
+        Token.Caret,
+        Token.Pound,
+        Token.Semicolon,
 
-        Token.INT("5"),
-        Token.LESSER,
-        Token.INT("10"),
-        Token.GREATER,
-        Token.INT("5"),
-        Token.SEMICOLON,
-        Token.EOF
+        Token.Int("5"),
+        Token.Lesser,
+        Token.Int("10"),
+        Token.Greater,
+        Token.Int("5"),
+        Token.Semicolon,
+        Token.Eof
     ] 
     |> test_token_seq(Lexer.create(~input=code))
 };
@@ -120,39 +120,39 @@ let test_comp_ops() = {
         y == 1;
     ";
 
-    [   Token.LET,
-        Token.IDENT("x"),
-        Token.ASSIGN,
-        Token.INT("12"),
-        Token.SEMICOLON,
+    [   Token.Let,
+        Token.Ident("x"),
+        Token.Assign,
+        Token.Int("12"),
+        Token.Semicolon,
 
-        Token.LET,
-        Token.IDENT("y"),
-        Token.ASSIGN,
-        Token.INT("1"),
-        Token.FATARROW,
-        Token.SEMICOLON,
+        Token.Let,
+        Token.Ident("y"),
+        Token.Assign,
+        Token.Int("1"),
+        Token.FatArrow,
+        Token.Semicolon,
 
-        Token.INT("5"),
-        Token.LESSEREQ,
-        Token.INT("10"),
-        Token.SEMICOLON,
+        Token.Int("5"),
+        Token.LesserEq,
+        Token.Int("10"),
+        Token.Semicolon,
 
-        Token.IDENT("x"),
-        Token.GREATEREQ,
-        Token.INT("2"),
-        Token.SEMICOLON,
+        Token.Ident("x"),
+        Token.GreaterEq,
+        Token.Int("2"),
+        Token.Semicolon,
 
-        Token.IDENT("y"),
-        Token.NOTEQ,
-        Token.IDENT("x"),
-        Token.SEMICOLON,
+        Token.Ident("y"),
+        Token.NotEq,
+        Token.Ident("x"),
+        Token.Semicolon,
 
-        Token.IDENT("y"),
-        Token.EQUALS,
-        Token.INT("1"),
-        Token.SEMICOLON,
-        Token.EOF
+        Token.Ident("y"),
+        Token.EqualTo,
+        Token.Int("1"),
+        Token.Semicolon,
+        Token.Eof
     ] 
     |> test_token_seq(Lexer.create(~input=code))
 };
@@ -174,93 +174,93 @@ let test_keywords() = {
         }
     ";
 
-    [   Token.LET,
-        Token.IDENT("y"),
-        Token.ASSIGN,
-        Token.TRUE,
-        Token.SEMICOLON,
+    [   Token.Let,
+        Token.Ident("y"),
+        Token.Assign,
+        Token.True,
+        Token.Semicolon,
 
-        Token.BIND,
-        Token.IDENT("x"),
-        Token.ASSIGN,
-        Token.MATCH,
-        Token.IDENT("y"),
-        Token.LSQUIRLY,
+        Token.Bind,
+        Token.Ident("x"),
+        Token.Assign,
+        Token.Match,
+        Token.Ident("y"),
+        Token.Lsquirly,
 
-        Token.PIPE,
-        Token.TRUE,
-        Token.FATARROW,
-        Token.INT("20"),
+        Token.Pipe,
+        Token.True,
+        Token.FatArrow,
+        Token.Int("20"),
 
-        Token.PIPE,
-        Token.FALSE,
-        Token.FATARROW,
-        Token.INT("10"),
+        Token.Pipe,
+        Token.False,
+        Token.FatArrow,
+        Token.Int("10"),
 
-        Token.RSQUIRLY,
-        Token.SEMICOLON,
+        Token.Rsquirly,
+        Token.Semicolon,
 
-        Token.IF,
-        Token.IDENT("x"),
-        Token.GREATER,
-        Token.INT("5"),
-        Token.LSQUIRLY,
+        Token.If,
+        Token.Ident("x"),
+        Token.Greater,
+        Token.Int("5"),
+        Token.Lsquirly,
 
-        Token.RETURN,
-        Token.INT("2"),
-        Token.SEMICOLON,
+        Token.Return,
+        Token.Int("2"),
+        Token.Semicolon,
 
-        Token.RSQUIRLY,
-        Token.ELSE,
-        Token.IF,
-        Token.IDENT("x"),
-        Token.LESSER,
-        Token.INT("5"),
-        Token.LSQUIRLY,
+        Token.Rsquirly,
+        Token.Else,
+        Token.If,
+        Token.Ident("x"),
+        Token.Lesser,
+        Token.Int("5"),
+        Token.Lsquirly,
 
-        Token.INT("1"),
+        Token.Int("1"),
 
-        Token.RSQUIRLY,
-        Token.ELSE,
-        Token.LSQUIRLY,
+        Token.Rsquirly,
+        Token.Else,
+        Token.Lsquirly,
 
-        Token.INT("0"),
+        Token.Int("0"),
         
-        Token.RSQUIRLY,
+        Token.Rsquirly,
 
-        Token.EOF
+        Token.Eof
     ] 
     |> test_token_seq(Lexer.create(~input=code))
 };
 
 let test_functions() = {
     let code = "
-        let add = fn(x, y) -> int {
+        let add = fn(x, y) -> Int {
             x + y
         };
     ";
 
-    [   Token.LET,
-        Token.IDENT("add"),
-        Token.ASSIGN,
-        Token.FN,
-        Token.LPAREN,
-        Token.IDENT("x"),
-        Token.COMMA,
-        Token.IDENT("y"),
-        Token.RPAREN,
-        Token.SLIMARROW,
-        Token.IDENT("int"),
-        Token.LSQUIRLY,
+    [   Token.Let,
+        Token.Ident("add"),
+        Token.Assign,
+        Token.Fn,
+        Token.Lparen,
+        Token.Ident("x"),
+        Token.Comma,
+        Token.Ident("y"),
+        Token.Rparen,
+        Token.SlimArrow,
+        Token.Ident("Int"),
+        Token.Lsquirly,
 
-        Token.IDENT("x"),
-        Token.PLUS,
-        Token.IDENT("y"),
+        Token.Ident("x"),
+        Token.Plus,
+        Token.Ident("y"),
 
-        Token.RSQUIRLY,
-        Token.SEMICOLON,
+        Token.Rsquirly,
+        Token.Semicolon,
 
-        Token.EOF
+        Token.Eof
     ] 
     |> test_token_seq(Lexer.create(~input=code))
 };

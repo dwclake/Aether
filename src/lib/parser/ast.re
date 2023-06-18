@@ -1,18 +1,18 @@
 [@deriving (show, eq)]
 type node = 
-    | PROGRAM(program)
-    | EXPRESSION(expression)
-    | STATEMENT(statement)
+    | Program(program)
+    | Expression(expression)
+    | Statement(statement)
 
     and expression = 
-        | IDENTIFIER(identifier)
+        | Identifier(identifier)
 
     and statement =
-        | LET {
+        | Let {
             name: identifier,
             value: expression
         }
-        | RETURN {
+        | Return {
             value: expression
         }
 
@@ -25,7 +25,7 @@ type node =
 };
 
 let token_literal = { fun
-    | PROGRAM(_) => "program"
-    | EXPRESSION(_) => "expression"
-    | STATEMENT(_) => "statement"
+    | Program(_) => "program"
+    | Expression(_) => "expression"
+    | Statement(_) => "statement"
 };

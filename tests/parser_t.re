@@ -37,13 +37,13 @@ let rec test_let_statement_seq(~i=1, l:(list(Ast.identifier), list(Ast.node))) =
         | ([], []) => ()
         | ([eid,...etl], [nd,...tl]) => {
             let stmt = switch nd {
-                | STATEMENT(s) => s
+                | Statement(s) => s
                 | _ => failwith("Node should be a statement")
             };
-            let estmt = Ast.LET{name: eid, value: IDENTIFIER(eid)};
+            let estmt = Ast.Let{name: eid, value: Identifier(eid)};
 
             let (ename, sname) = switch (estmt, stmt) {
-                | (LET(e), LET(s)) => (e.name, s.name)
+                | (Let(e), Let(s)) => (e.name, s.name)
                 | _ => failwith("Statement should be a let statement")
             };
 
@@ -60,15 +60,15 @@ let test_next_token() = {
     let code = "=+(){},;";
     let p = Parser.create(Lexer.create(~input=code));
 
-    [   Token.ASSIGN,
-        Token.PLUS,
-        Token.LPAREN,
-        Token.RPAREN,
-        Token.LSQUIRLY,
-        Token.RSQUIRLY,
-        Token.COMMA,
-        Token.SEMICOLON,
-        Token.EOF
+    [   Token.Assign,
+        Token.Plus,
+        Token.Lparen,
+        Token.Rparen,
+        Token.Lsquirly,
+        Token.Rsquirly,
+        Token.Comma,
+        Token.Semicolon,
+        Token.Eof
     ] |> test_token_seq(p)
 };
 
@@ -117,9 +117,9 @@ let test_return_statement() = {
         | [] => ()
         | [h,...t] => {
             switch h {
-                | Ast.STATEMENT(s) => {
+                | Ast.Statement(s) => {
                     switch s {
-                        | Ast.RETURN(_) => loop(t)
+                        | Ast.Return(_) => loop(t)
                         | _ as ret => failwith(Format.sprintf(
                             "Not a return statement, got %s",
                             Ast.show_statement(ret)

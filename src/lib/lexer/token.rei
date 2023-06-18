@@ -1,67 +1,67 @@
 [@deriving (show, eq)]
 type t =
-    | IDENT(string)
-    | INT(string)
+    | Ident(string)
+    | Int(string)
 
-    | FN
-    | LET
-    | BIND
-    | MATCH
-    | TRUE
-    | FALSE
-    | RETURN
-    | IF
-    | ELSE
+    | Fn
+    | Let
+    | Bind
+    | Match
+    | True
+    | False
+    | Return
+    | If
+    | Else
 
-    | LPAREN
-    | RPAREN
-    | LBRACK
-    | RBRACK
-    | LSQUIRLY
-    | RSQUIRLY
+    | Lparen
+    | Rparen
+    | Lbracket
+    | Rbracket
+    | Lsquirly
+    | Rsquirly
 
-    | ASSIGN
-    | SLIMARROW
-    | FATARROW
+    | Assign
+    | SlimArrow
+    | FatArrow
 
-    | EQUALS
-    | NOTEQ
+    | EqualTo
+    | NotEq
 
-    | PLUS
-    | MINUS
-    | MODULO
-    | CARET
+    | Plus
+    | Minus
+    | Modulo
+    | Caret
 
-    | FORSLASH
-    | BACKSLASH
+    | Forwardslash
+    | Backslash
 
-    | SINGLEQUOTE
-    | DOUBLEQUOTE
-    | BACKTICK
+    | SingleQuote
+    | DoubleQuote
+    | Backtick
 
-    | GREATER
-    | LESSER
+    | Greater
+    | Lesser
 
-    | GREATEREQ
-    | LESSEREQ
+    | GreaterEq
+    | LesserEq
 
-    | SEMICOLON
+    | Semicolon
     | COLON
-    | PIPE
-    | COMMA
+    | Pipe
+    | Comma
     | DOT
 
-    | ASTERISK
-    | BANG
-    | QUESTION
-    | TILDE
-    | POUND
-    | AT
-    | AMP
-    | DOLLAR
+    | Asterisk
+    | Bang
+    | Question
+    | Tilde
+    | Pound
+    | At
+    | Amp
+    | Dollar
 
     | ILLEGAL
-    | EOF;
+    | Eof;
 
 let of_char: char => t;
 let to_string: t => string;

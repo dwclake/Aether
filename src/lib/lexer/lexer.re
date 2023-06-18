@@ -123,7 +123,7 @@ let next_token(l: t): lex_r<{.. t: Token.t}> = {
             let lex = read_sequence(l, ~predicate=is_alphanumeric);
             let token = switch (Token.parse_keyword(lex#lit)) {
                 | Some(t) => t
-                | None => Token.IDENT(lex#lit)
+                | None => Token.Ident(lex#lit)
             };
 
             { as _; 
@@ -137,26 +137,26 @@ let next_token(l: t): lex_r<{.. t: Token.t}> = {
             
             { as _; 
                 pub l = lex#l; 
-                pub t = Token.INT(lex#lit)
+                pub t = Token.Int(lex#lit)
             }
         }
         // Compound operators
         | ch when ch == '>' => {
-            compound_or(l, ~default=Token.GREATER, ~rules=[('=', Token.GREATEREQ)])
+            compound_or(l, ~default=Token.Greater, ~rules=[('=', Token.GreaterEq)])
         }
         | ch when ch == '<' => {
-            compound_or(l, ~default=Token.LESSER, ~rules=[('=', Token.LESSEREQ)])
+            compound_or(l, ~default=Token.Lesser, ~rules=[('=', Token.LesserEq)])
         }
         | ch when ch == '!' => {
-            compound_or(l, ~default=Token.BANG, ~rules=[('=', Token.NOTEQ)])
+            compound_or(l, ~default=Token.Bang, ~rules=[('=', Token.NotEq)])
         }
         | ch when ch == '-' => {
-            compound_or(l, ~default=Token.MINUS, ~rules=[('>', Token.SLIMARROW)])
+            compound_or(l, ~default=Token.Minus, ~rules=[('>', Token.SlimArrow)])
         }
         | ch when ch == '=' => {
-            compound_or(l, ~default=Token.ASSIGN, ~rules=[
-                ('=', Token.EQUALS),
-                ('>', Token.FATARROW)
+            compound_or(l, ~default=Token.Assign, ~rules=[
+                ('=', Token.EqualTo),
+                ('>', Token.FatArrow)
             ])
         }
         // Individual characters

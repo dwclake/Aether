@@ -1,223 +1,223 @@
 [@deriving (show, eq)]
 type t = 
-    | IDENT(string)
-    | INT(string)
+    | Ident(string)
+    | Int(string)
 
-    | FN
-    | LET
-    | BIND
-    | MATCH
-    | TRUE
-    | FALSE
-    | RETURN
-    | IF
-    | ELSE
+    | Fn
+    | Let
+    | Bind
+    | Match
+    | True
+    | False
+    | Return
+    | If
+    | Else
 
-    | LPAREN
-    | RPAREN
-    | LBRACK
-    | RBRACK
-    | LSQUIRLY
-    | RSQUIRLY
+    | Lparen
+    | Rparen
+    | Lbracket
+    | Rbracket
+    | Lsquirly
+    | Rsquirly
 
-    | ASSIGN
-    | SLIMARROW
-    | FATARROW
+    | Assign
+    | SlimArrow
+    | FatArrow
 
-    | EQUALS
-    | NOTEQ
+    | EqualTo
+    | NotEq
 
-    | PLUS
-    | MINUS
-    | MODULO
-    | CARET
+    | Plus
+    | Minus
+    | Modulo
+    | Caret
 
-    | FORSLASH
-    | BACKSLASH
+    | Forwardslash
+    | Backslash
 
-    | SINGLEQUOTE
-    | DOUBLEQUOTE
-    | BACKTICK
+    | SingleQuote
+    | DoubleQuote
+    | Backtick
 
-    | GREATER
-    | LESSER
+    | Greater
+    | Lesser
 
-    | GREATEREQ
-    | LESSEREQ
+    | GreaterEq
+    | LesserEq
 
-    | SEMICOLON
+    | Semicolon
     | COLON
-    | PIPE
-    | COMMA
+    | Pipe
+    | Comma
     | DOT
 
-    | ASTERISK
-    | BANG
-    | QUESTION
-    | TILDE
-    | POUND
-    | AT
-    | AMP
-    | DOLLAR
+    | Asterisk
+    | Bang
+    | Question
+    | Tilde
+    | Pound
+    | At
+    | Amp
+    | Dollar
 
     | ILLEGAL
-    | EOF;
+    | Eof;
 
 let to_string(token: t): string = {
     switch token {
-        | IDENT(id) => id
-        | INT(x) => x
+        | Ident(id) => id
+        | Int(x) => x
 
-        | FN => "fn"
-        | LET => "let"
-        | BIND => "bind"
-        | MATCH => "match"
-        | TRUE => "true"
-        | FALSE => "false"
-        | RETURN => "return"
-        | IF => "if"
-        | ELSE => "else"
+        | Fn => "fn"
+        | Let => "let"
+        | Bind => "bind"
+        | Match => "match"
+        | True => "true"
+        | False => "false"
+        | Return => "return"
+        | If => "if"
+        | Else => "else"
 
-        | LPAREN => "("
-        | RPAREN => ")"
-        | LBRACK => "["
-        | RBRACK => "]"
-        | LSQUIRLY => "{"
-        | RSQUIRLY => "}"
+        | Lparen => "("
+        | Rparen => ")"
+        | Lbracket => "["
+        | Rbracket => "]"
+        | Lsquirly => "{"
+        | Rsquirly => "}"
 
-        | ASSIGN => "="
-        | FATARROW => "=>"
-        | SLIMARROW => "->"
+        | Assign => "="
+        | FatArrow => "=>"
+        | SlimArrow => "->"
 
-        | EQUALS => "=="
-        | NOTEQ => "!="
+        | EqualTo => "=="
+        | NotEq => "!="
 
-        | PLUS => "+"
-        | MINUS => "-"
-        | MODULO => "%"
-        | CARET => "^"
+        | Plus => "+"
+        | Minus => "-"
+        | Modulo => "%"
+        | Caret => "^"
 
-        | FORSLASH => "/"
-        | BACKSLASH => "\\"
+        | Forwardslash => "/"
+        | Backslash => "\\"
 
-        | SINGLEQUOTE => "'"
-        | DOUBLEQUOTE => "\""
-        | BACKTICK => "`"
+        | SingleQuote => "'"
+        | DoubleQuote => "\""
+        | Backtick => "`"
 
-        | GREATER => ">"
-        | LESSER => "<"
+        | Greater => ">"
+        | Lesser => "<"
         
-        | GREATEREQ => ">="
-        | LESSEREQ => "<="
+        | GreaterEq => ">="
+        | LesserEq => "<="
 
-        | SEMICOLON => ";"
+        | Semicolon => ";"
         | COLON => ":"
-        | PIPE => "|"
-        | COMMA => ","
+        | Pipe => "|"
+        | Comma => ","
         | DOT => "."
         
-        | ASTERISK => "*"
-        | BANG => "!"
-        | QUESTION => "?"
-        | TILDE => "~"
-        | POUND => "#"
-        | AT => "@"
-        | AMP => "&"
-        | DOLLAR => "$"
+        | Asterisk => "*"
+        | Bang => "!"
+        | Question => "?"
+        | Tilde => "~"
+        | Pound => "#"
+        | At => "@"
+        | Amp => "&"
+        | Dollar => "$"
 
         | ILLEGAL => "illegal"
-        | EOF => "eof"
+        | Eof => "eof"
     }
 }
 
 let to_char(token: t): option(char) = {
     switch token {
-        | LPAREN => Some('(')
-        | RPAREN => Some(')')
-        | LBRACK => Some('[')
-        | RBRACK => Some(']')
-        | LSQUIRLY => Some('{')
-        | RSQUIRLY => Some('}')
+        | Lparen => Some('(')
+        | Rparen => Some(')')
+        | Lbracket => Some('[')
+        | Rbracket => Some(']')
+        | Lsquirly => Some('{')
+        | Rsquirly => Some('}')
 
-        | ASSIGN => Some('=')
+        | Assign => Some('=')
 
-        | PLUS => Some('+')
-        | MINUS => Some('-')
-        | MODULO => Some('%')
-        | CARET => Some('^')
+        | Plus => Some('+')
+        | Minus => Some('-')
+        | Modulo => Some('%')
+        | Caret => Some('^')
 
-        | FORSLASH => Some('/')
-        | BACKSLASH => Some('\\')
+        | Forwardslash => Some('/')
+        | Backslash => Some('\\')
 
-        | SINGLEQUOTE => Some('\'')
-        | DOUBLEQUOTE => Some('\"')
-        | BACKTICK => Some('`')
+        | SingleQuote => Some('\'')
+        | DoubleQuote => Some('\"')
+        | Backtick => Some('`')
 
-        | GREATER => Some('>')
-        | LESSER => Some('<')
+        | Greater => Some('>')
+        | Lesser => Some('<')
         
-        | SEMICOLON => Some(';')
+        | Semicolon => Some(';')
         | COLON => Some(':')
-        | PIPE => Some('|')
-        | COMMA => Some(',')
+        | Pipe => Some('|')
+        | Comma => Some(',')
         | DOT => Some('.')
         
-        | ASTERISK => Some('*')
-        | BANG => Some('!')
-        | QUESTION => Some('?')
-        | TILDE => Some('~')
-        | POUND => Some('#')
-        | AT => Some('@')
-        | AMP => Some('&')
-        | DOLLAR => Some('$')
+        | Asterisk => Some('*')
+        | Bang => Some('!')
+        | Question => Some('?')
+        | Tilde => Some('~')
+        | Pound => Some('#')
+        | At => Some('@')
+        | Amp => Some('&')
+        | Dollar => Some('$')
         
-        | EOF => Some('\000')
+        | Eof => Some('\000')
         | _ => None
     }
 }
 
 let of_char(c: char): t = {
     switch c {
-    | '(' => LPAREN
-    | ')' => RPAREN
-    | '[' => LBRACK
-    | ']' => RBRACK
-    | '{' => LSQUIRLY
-    | '}' => RSQUIRLY
+    | '(' => Lparen
+    | ')' => Rparen
+    | '[' => Lbracket
+    | ']' => Rbracket
+    | '{' => Lsquirly
+    | '}' => Rsquirly
 
-    | '=' => ASSIGN
+    | '=' => Assign
 
-    | '+' => PLUS
-    | '-' => MINUS
-    | '%' => MODULO
-    | '^' => CARET
+    | '+' => Plus
+    | '-' => Minus
+    | '%' => Modulo
+    | '^' => Caret
 
-    | '/' => FORSLASH
-    | '\\' => BACKSLASH
+    | '/' => Forwardslash
+    | '\\' => Backslash
 
-    | '\'' => SINGLEQUOTE
-    | '\"' => DOUBLEQUOTE
-    | '`' => BACKTICK
+    | '\'' => SingleQuote
+    | '\"' => DoubleQuote
+    | '`' => Backtick
 
-    | '>' => GREATER
-    | '<' => LESSER
+    | '>' => Greater
+    | '<' => Lesser
     
-    | ';' => SEMICOLON
+    | ';' => Semicolon
     | ':' => COLON
-    | '|' => PIPE
-    | ',' => COMMA
+    | '|' => Pipe
+    | ',' => Comma
     | '.' => DOT
     
-    | '*' => ASTERISK
-    | '!' => BANG
-    | '?' => QUESTION
-    | '~' => TILDE
-    | '#' => POUND
-    | '@' => AT
-    | '&' => AMP
-    | '$' => DOLLAR
+    | '*' => Asterisk
+    | '!' => Bang
+    | '?' => Question
+    | '~' => Tilde
+    | '#' => Pound
+    | '@' => At
+    | '&' => Amp
+    | '$' => Dollar
     
-    | '\000' => EOF
+    | '\000' => Eof
     | _ => ILLEGAL
     }
 
@@ -225,15 +225,15 @@ let of_char(c: char): t = {
 
 let parse_keyword(s: string) = {
     switch s {
-        | "fn" => Some(FN)
-        | "let" => Some(LET)
-        | "bind" => Some(BIND)
-        | "match" => Some(MATCH)
-        | "true" => Some(TRUE)
-        | "false" => Some(FALSE)
-        | "return" => Some(RETURN)
-        | "if" => Some(IF)
-        | "else" => Some(ELSE)
+        | "fn" => Some(Fn)
+        | "let" => Some(Let)
+        | "bind" => Some(Bind)
+        | "match" => Some(Match)
+        | "true" => Some(True)
+        | "false" => Some(False)
+        | "return" => Some(Return)
+        | "if" => Some(If)
+        | "else" => Some(Else)
         | _ => None
     }
 }

@@ -11,7 +11,7 @@ let lex_input(input: string): list(Token.t) = {
         |> Lexer.next_token
         |> ref;
 
-    while((lex^)#t != Token.EOF) {
+    while((lex^)#t != Token.Eof) {
         tokens := [(lex^)#t] @ tokens^;
 
         lex := Lexer.next_token((lex^)#l);
