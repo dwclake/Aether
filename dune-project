@@ -11,7 +11,7 @@
           (alcotest(= :1.7.0)) 
           (core(= :0.16.0)) 
           (ppx_deriving(= :5.2.1))
-          (reason(= :3.8.2))
+          (reason(= :3.9.0))
           (domainlibs(= :0.5.0))
           (stdio(= :0.16.0))
 ))
