@@ -2,7 +2,7 @@
  (name main)
  (public_name aether)
  (modules main)
- (libraries aether core stdio))
+ (libraries aether core stdio domainslib))
 (executable
  (public_name repl)
  (modules repl)
