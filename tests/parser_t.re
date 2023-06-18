@@ -11,7 +11,7 @@ let check_parser_errors = (p: Parser.t) => {
     open Stdio;
 
     if (length(p.errors) == 0) {
-        eprintf("\nparser had 0 errors")
+        ()
     } else {
         eprintf("\nParser had %d errors", length(p.errors));
         let rec print = { fun
@@ -29,7 +29,7 @@ let rec test_token_seq = (p: Parser.t, ~i= 1) => { fun
     | [] => ()
     | [et,...tl] => {
         check(tt, string_of_int(i), et, p.cur_t);
-        test_token_seq(Parser.next_token(p), ~i=i + 1, tl);
+        test_token_seq(Parser.next_token(p), ~i=i + 1, tl)
     }
 };
 
@@ -51,9 +51,9 @@ let rec test_let_statement_seq = (~i= 1, l:(list(Ast.identifier), list(Ast.node)
             check(ti, string_of_int(i), ename, sname);
             check(ts, string_of_int(i), estmt, stmt);
             check(tstr, string_of_int(i), "statement", Ast.token_literal(nd));
-            test_let_statement_seq(~i=i + 1, (etl, tl));
+            test_let_statement_seq(~i=i + 1, (etl, tl))
         }
-        | _ => ()
+        | _ => failwith("Lists must be of the same size")
     }
 };
 
@@ -135,5 +135,5 @@ let test_return_statement = () => {
         }
     };
 
-    let () = loop(program.statements);
+    loop(program.statements)
 };

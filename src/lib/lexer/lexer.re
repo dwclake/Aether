@@ -48,7 +48,7 @@ let peek = (l: t): char => {
     ch
 };
 
-let rec skip_whitespace = (l: t) => {
+let rec skip_whitespace = (l: t): t => {
     switch l.ch {
         | ' ' | '\t' | '\n' | '\r' => skip_whitespace(advance(l))
         | _ => l

@@ -12,4 +12,5 @@
           (core(= :0.15.1)) 
           (ppx_deriving(= :5.2.1))
           (reason(= :3.8.2))
+          (domainlibs(= :0.5.0))
 ))
