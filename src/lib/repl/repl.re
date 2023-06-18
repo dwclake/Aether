@@ -1,10 +1,10 @@
 open Stdio;
 
-let flush_out = () => Out_channel.flush(Out_channel.stdout);
+let flush_out() = Out_channel.flush(Out_channel.stdout);
 
 let prompt = ">> ";
 
-let lex_input = (input: string): list(Token.t) => {
+let lex_input(input: string): list(Token.t) = {
     let tokens = ref{[]};
     let lex = 
         Lexer.create(~input)
@@ -20,23 +20,21 @@ let lex_input = (input: string): list(Token.t) => {
     tokens^ |> List.rev
 };
 
-let print = (token: Token.t) => {
+let print(token: Token.t): unit = {
     printf("\t%s\n", Token.show(token));
 };
 
-let print_toks = (tokens: list(Token.t)): unit => {
+let print_toks(tokens: list(Token.t)): unit = {
     printf("{\n");
     tokens |> Core.List.iter(~f=print);
-    printf("}\n")
+    printf("}\n");
 };
 
-let rec start = () => {
+let rec start(): unit = {
     open Core;
 
-    let () = {
-        printf("\n%s", prompt); 
-        flush_out();
-    };
+    printf("\n%s", prompt); 
+    flush_out();
 
     let input = In_channel.input_lines(In_channel.stdin);
 
@@ -44,10 +42,9 @@ let rec start = () => {
         List.fold(input, ~init="", ~f=((x, accum) => x ++ accum)) 
         |> lex_input;
 
-    let () = {
-        printf("\n");
-        print_toks(tokens);
-    };
+    
+    printf("\n");
+    print_toks(tokens);
 
     start()
 };

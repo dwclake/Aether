@@ -63,7 +63,7 @@ type t =
     | ILLEGAL
     | EOF;
 
-let to_string = (token: t): string => {
+let to_string(token: t): string = {
     switch token {
         | IDENT(id) => id
         | INT(x) => x
@@ -130,7 +130,7 @@ let to_string = (token: t): string => {
     }
 }
 
-let to_char = (token: t): option(char) => {
+let to_char(token: t): option(char) = {
     switch token {
         | LPAREN => Some('(')
         | RPAREN => Some(')')
@@ -176,7 +176,7 @@ let to_char = (token: t): option(char) => {
     }
 }
 
-let of_char = (c: char): t => {
+let of_char(c: char): t = {
     switch c {
     | '(' => LPAREN
     | ')' => RPAREN
@@ -223,7 +223,7 @@ let of_char = (c: char): t => {
 
 }
 
-let parse_keyword = (s: string) => {
+let parse_keyword(s: string) = {
     switch s {
         | "fn" => Some(FN)
         | "let" => Some(LET)

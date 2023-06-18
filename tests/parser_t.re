@@ -6,7 +6,7 @@ let ts = testable(Ast.pp_statement, Ast.equal_statement);
 let ti = testable(Ast.pp_identifier, Ast.equal_identifier);
 let tstr = Alcotest.string;
 
-let check_parser_errors = (p: Parser.t) => {
+let check_parser_errors(p: Parser.t) = {
     open List;
     open Stdio;
 
@@ -25,7 +25,7 @@ let check_parser_errors = (p: Parser.t) => {
     }
 };
 
-let rec test_token_seq = (p: Parser.t, ~i= 1) => { fun
+let rec test_token_seq(p: Parser.t, ~i= 1) = { fun
     | [] => ()
     | [et,...tl] => {
         check(tt, string_of_int(i), et, p.cur_t);
@@ -33,7 +33,7 @@ let rec test_token_seq = (p: Parser.t, ~i= 1) => { fun
     }
 };
 
-let rec test_let_statement_seq = (~i= 1, l:(list(Ast.identifier), list(Ast.node))) => {
+let rec test_let_statement_seq(~i=1, l:(list(Ast.identifier), list(Ast.node))) = {
     switch l {
         | ([], []) => ()
         | ([eid,...etl], [nd,...tl]) => {
@@ -57,7 +57,7 @@ let rec test_let_statement_seq = (~i= 1, l:(list(Ast.identifier), list(Ast.node)
     }
 };
 
-let test_next_token = () => {
+let test_next_token() = {
     let code = "=+(){},;";
     let p = Parser.create(Lexer.create(~input=code));
 
@@ -73,7 +73,7 @@ let test_next_token = () => {
     ] |> test_token_seq(p)
 };
 
-let test_let_statement = () => {
+let test_let_statement() = {
     let code = "
         let x = 5;
         let y = 10;
@@ -82,7 +82,7 @@ let test_let_statement = () => {
     let p = Parser.create(Lexer.create(~input=code));
 
     let (p, program) = Parser.parse_program(p);
-    let () = check_parser_errors(p);
+    check_parser_errors(p);
 
     if (List.length(program.statements) != 3) {
         failwith("Program statements list length is incorrect")
@@ -97,7 +97,7 @@ let test_let_statement = () => {
     |> test_let_statement_seq
 }
 
-let test_return_statement = () => {
+let test_return_statement() = {
     let code = "
         return 5;
         return 10;
@@ -108,7 +108,7 @@ let test_return_statement = () => {
     let p = Parser.create(l);
 
     let (p, program) = Parser.parse_program(p);
-    let () = check_parser_errors(p);
+    check_parser_errors(p);
 
     if (List.length(program.statements) != 3) {
         failwith("Program statements list length is incorrect")

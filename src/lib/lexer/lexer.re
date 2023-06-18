@@ -10,7 +10,7 @@ type lex_r<'a> = {
     l: t
 } as 'a;
 
-let create = (~input: string): t => {
+let create(~input: string): t = {
     let ch = switch input {
         | "" => '\000'
         | _ => input.[0]
@@ -23,7 +23,7 @@ let create = (~input: string): t => {
     }
 };
 
-let advance = (~count=1, l: t): t => {
+let advance(~count=1, l: t): t = {
     let rp = l.pos + count;
     let ch = if (rp >= String.length(l.input)) {
             '\000';
@@ -38,7 +38,7 @@ let advance = (~count=1, l: t): t => {
     }
 };
 
-let peek = (l: t): char => {
+let peek(l: t): char = {
     let ch = if (l.read_pos >= String.length(l.input)) {
             '\000';
         } else {
@@ -48,7 +48,7 @@ let peek = (l: t): char => {
     ch
 };
 
-let rec skip_whitespace = (l: t): t => {
+let rec skip_whitespace(l: t): t = {
     switch l.ch {
         | ' ' | '\t' | '\n' | '\r' => skip_whitespace(advance(l))
         | _ => l
@@ -71,7 +71,7 @@ let is_alphanumeric = { fun
     | _ => false
 };
 
-let rec read_sequence = (~s="", ~predicate, l: t): lex_r<{.. literal: string}> => {
+let rec read_sequence(~s="", ~predicate, l: t): lex_r<{.. lit: string}> = {
     switch l.ch {
         | ch when predicate(ch) => {
             read_sequence(
@@ -82,12 +82,12 @@ let rec read_sequence = (~s="", ~predicate, l: t): lex_r<{.. literal: string}> =
         }
         | _ => { as _; 
             pub l = l; 
-            pub literal = s;
+            pub lit = s;
         }
     }
 };
 
-let compound_or = (l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> => {
+let compound_or(l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> = {
     let next_ch = peek(l);
     
     let rec loop = { fun
@@ -114,16 +114,16 @@ let compound_or = (l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> => {
     }
 };
 
-let next_token = (l: t): lex_r<{.. t: Token.t}> => {
+let next_token(l: t): lex_r<{.. t: Token.t}> = {
     let l = skip_whitespace(l);
 
     switch l.ch {
         // Idenifiers and keywords
         | ch when is_letter(ch) => {
             let lex = read_sequence(l, ~predicate=is_alphanumeric);
-            let token = switch (Token.parse_keyword(lex#literal)) {
+            let token = switch (Token.parse_keyword(lex#lit)) {
                 | Some(t) => t
-                | None => Token.IDENT(lex#literal)
+                | None => Token.IDENT(lex#lit)
             };
 
             { as _; 
@@ -137,7 +137,7 @@ let next_token = (l: t): lex_r<{.. t: Token.t}> => {
             
             { as _; 
                 pub l = lex#l; 
-                pub t = Token.INT(lex#literal)
+                pub t = Token.INT(lex#lit)
             }
         }
         // Compound operators

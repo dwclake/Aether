@@ -16,4 +16,4 @@ let suite = [
         ])
 ];
 
-let () = run("Interpreter", suite);
+run("Interpreter", suite);

@@ -1,6 +1,6 @@
 module Task = Domainslib.Task;
 
-let rec fib = (n) => {
+let rec fib(n) = {
     if (n < 2) {
         1
     } else {
@@ -8,7 +8,7 @@ let rec fib = (n) => {
     }
 }
 
-let rec fib_par = (pool, n) => {
+let rec fib_par(pool, n) = {
     if (n > 20) {
         let a = Task.async(pool, ( _ => fib_par(pool, n - 1)));
         let b = Task.async(pool, ( _ => fib_par(pool, n - 2)));
@@ -27,7 +27,7 @@ let n = try (int_of_string(Sys.argv[2])) {
     | _ => 1
 };
 
-let main () = {
+let main(): unit = {
     let pool = Task.setup_pool(~num_domains=(num_domains - 1))();
     let res = Task.run(pool, _ => fib_par(pool, n));
 
@@ -35,4 +35,4 @@ let main () = {
     Stdio.printf("\nfib(%d) = %d\n", n, res);
 };
 
-let () = main();
+main();

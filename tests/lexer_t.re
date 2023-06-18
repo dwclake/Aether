@@ -3,7 +3,7 @@ open Alcotest;
 
 let tt = testable(Token.pp, (a, b) => a == b);
 
-let rec test_token_seq = (l: Lexer.t, ~i= 1) => { fun
+let rec test_token_seq(l: Lexer.t, ~i= 1) = { fun
     | [] => ()
     | [etok, ...tail] => {
         let lex = Lexer.next_token(l);
@@ -13,7 +13,7 @@ let rec test_token_seq = (l: Lexer.t, ~i= 1) => { fun
     }
 };
 
-let test_next_token = () => {
+let test_next_token() = {
     let code = "=+(){},;";
 
     [   Token.ASSIGN,
@@ -30,7 +30,7 @@ let test_next_token = () => {
 };
 
 
-let test_ident_tokens = () => {
+let test_ident_tokens() = {
     let code = "
         let five = 5;
         let ten = 10;
@@ -65,7 +65,7 @@ let test_ident_tokens = () => {
     |> test_token_seq(Lexer.create(~input=code))
 };
 
-let test_operators = () => {
+let test_operators() = {
     let code = {|
         {};
         
@@ -110,7 +110,7 @@ let test_operators = () => {
 };
 
 
-let test_comp_ops = () => {
+let test_comp_ops() = {
     let code = "
         let x = 12;
         let y = 1 =>;
@@ -157,7 +157,7 @@ let test_comp_ops = () => {
     |> test_token_seq(Lexer.create(~input=code))
 };
 
-let test_keywords = () => {
+let test_keywords() = {
     let code = "
         let y = true;
         bind x = match y {
@@ -233,7 +233,7 @@ let test_keywords = () => {
     |> test_token_seq(Lexer.create(~input=code))
 };
 
-let test_functions = () => {
+let test_functions() = {
     let code = "
         fn add (x, y) -> int {
             x + y

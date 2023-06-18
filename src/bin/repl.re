@@ -1,6 +1,6 @@
 // Ctrl+d on a empty line to end input
-let main () = {
+let main(): unit = {
     Aether.Repl.start();
 };
 
-let () = main();
+main();

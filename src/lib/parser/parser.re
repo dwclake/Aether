@@ -10,7 +10,7 @@ type par_r = {
     node: option(Ast.node)
 };
 
-let next_token = (p: t): t => {
+let next_token(p: t): t = {
     let lex = Lexer.next_token(p.l);
     
     {   ...p,
@@ -20,7 +20,7 @@ let next_token = (p: t): t => {
     }
 };
 
-let create = (l: Lexer.t): t => {
+let create(l: Lexer.t): t = {
     {   l,
         errors: [],
         cur_t: Token.EOF,
@@ -29,7 +29,7 @@ let create = (l: Lexer.t): t => {
     |> next_token |> next_token
 };
 
-let peek_error = (p: t, t: Token.t): t => {
+let peek_error(p: t, t: Token.t): t = {
     let error = Format.sprintf(
         "Expected next token to be %s, got %s instead",
         Token.show(t),
@@ -39,7 +39,7 @@ let peek_error = (p: t, t: Token.t): t => {
     {...p, errors: p.errors @ [error]}
 };
 
-let _expect_token = (p: t, t: Token.t) => { 
+let _expect_token(p: t, t: Token.t) = { 
     let a = Obj.repr(p.peek_t);
     let b = Obj.repr(t);
 
@@ -58,7 +58,7 @@ let _expect_token = (p: t, t: Token.t) => {
     }
 };
 
-let parse_let_statement = (p: t): par_r => {
+let parse_let_statement(p: t): par_r = {
     switch p.peek_t {
         | Token.IDENT(s) => {
             open Ast;
@@ -94,7 +94,7 @@ let parse_let_statement = (p: t): par_r => {
     }
 };
 
-let parse_return_statement = (p: t): par_r => {
+let parse_return_statement(p: t): par_r = {
     let p = next_token(p);
 
     let rec skip = (p: t) => {
@@ -111,7 +111,7 @@ let parse_return_statement = (p: t): par_r => {
     {p, node: Some(Ast.STATEMENT(r))}
 };
 
-let parse_statement = (p: t): par_r => {
+let parse_statement(p: t): par_r = {
     switch p.cur_t {
         | Token.LET => parse_let_statement(p)
         | Token.RETURN => parse_return_statement(p)
@@ -119,7 +119,7 @@ let parse_statement = (p: t): par_r => {
     }
 };
 
-let parse_program = (p: t): (t, Ast.program) => { 
+let parse_program(p: t): (t, Ast.program) = { 
     let rec loop = (p: t, stmts) => {
         switch p.cur_t {
             | Token.EOF => (p, stmts)
