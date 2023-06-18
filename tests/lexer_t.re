@@ -1,7 +1,7 @@
 open Aether;
 open Alcotest;
 
-let tt = testable(Token.pp, (a, b) => a == b);
+let tt = testable(Token.pp, Token.equal);
 
 let rec test_token_seq(l: Lexer.t, ~i= 1) = { fun
     | [] => ()

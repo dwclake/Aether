@@ -1,10 +1,9 @@
 open Aether;
 open Alcotest;
 
-let tt = testable(Token.pp, (a, b) => a == b);
+let tt = testable(Token.pp, Token.equal);
 let ts = testable(Ast.pp_statement, Ast.equal_statement);
 let ti = testable(Ast.pp_identifier, Ast.equal_identifier);
-let tstr = Alcotest.string;
 
 let check_parser_errors(p: Parser.t) = {
     open List;
@@ -50,7 +49,7 @@ let rec test_let_statement_seq(~i=1, l:(list(Ast.identifier), list(Ast.node))) =
 
             check(ti, string_of_int(i), ename, sname);
             check(ts, string_of_int(i), estmt, stmt);
-            check(tstr, string_of_int(i), "statement", Ast.token_literal(nd));
+            check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(nd));
             test_let_statement_seq(~i=i + 1, (etl, tl))
         }
         | _ => failwith("Lists must be of the same size")
