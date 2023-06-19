@@ -10,8 +10,8 @@ let rec fib(n) = {
 
 let rec fib_par(pool, n) = {
     if (n > 20) {
-        let a = Task.async(pool, ( _ => fib_par(pool, n - 1)));
-        let b = Task.async(pool, ( _ => fib_par(pool, n - 2)));
+        let a = Task.async(pool, _ => fib_par(pool, n - 1));
+        let b = Task.async(pool, _ => fib_par(pool, n - 2));
 
         Task.await(pool, a) + Task.await(pool, b)
     } else {

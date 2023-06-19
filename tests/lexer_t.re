@@ -14,7 +14,7 @@ let rec test_token_seq(l: Lexer.t, ~i= 1) = { fun
 };
 
 let test_next_token() = {
-    let code = "=+(){},;";
+    let input = "=+(){},;";
 
     [   Token.Assign,
         Token.Plus,
@@ -26,12 +26,12 @@ let test_next_token() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input=code))
+    |> test_token_seq(Lexer.create(~input))
 };
 
 
 let test_ident_tokens() = {
-    let code = "
+    let input = "
         let five = 5;
         let ten = 10;
 
@@ -62,11 +62,11 @@ let test_ident_tokens() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input=code))
+    |> test_token_seq(Lexer.create(~input))
 };
 
 let test_operators() = {
-    let code = {|
+    let input = {|
         {};
         
         []$!-/*5\~`?'"%@^#;
@@ -106,12 +106,12 @@ let test_operators() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input=code))
+    |> test_token_seq(Lexer.create(~input))
 };
 
 
 let test_comp_ops() = {
-    let code = "
+    let input = "
         let x = 12;
         let y = 1 =>;
         5 <= 10;
@@ -154,11 +154,11 @@ let test_comp_ops() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input=code))
+    |> test_token_seq(Lexer.create(~input))
 };
 
 let test_keywords() = {
-    let code = "
+    let input = "
         let y = true;
         bind x = match y {
             | true => 20
@@ -230,11 +230,11 @@ let test_keywords() = {
 
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input=code))
+    |> test_token_seq(Lexer.create(~input))
 };
 
 let test_functions() = {
-    let code = "
+    let input = "
         let add = fn(x, y) -> Int {
             x + y
         };
@@ -262,5 +262,5 @@ let test_functions() = {
 
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input=code))
+    |> test_token_seq(Lexer.create(~input))
 };

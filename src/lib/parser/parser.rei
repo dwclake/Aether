@@ -1,8 +1,10 @@
+[@deriving (show, eq)]
+type option_t = option(Token.t);
+
 type t = {
     l: Lexer.t,
-    errors: list(string),
-    cur_t: Token.t,
-    peek_t: Token.t
+    current: option_t,
+    peek: option_t
 };
 
 let create: Lexer.t => t

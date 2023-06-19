@@ -3,7 +3,8 @@
   (modules aether_t)
   (libraries aether alcotest
              lexer_t
-             parser_t))
+             parser_t
+             ast_t))
 (library
   (name lexer_t)
   (modules lexer_t)
@@ -12,4 +13,9 @@
 (library
   (name parser_t)
   (modules parser_t)
+  (libraries aether core alcotest))
+
+(library
+  (name ast_t)
+  (modules ast_t)
   (libraries aether alcotest))

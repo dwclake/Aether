@@ -1,140 +1,178 @@
+[@deriving (show, eq)]
+type option_t = option(Token.t);
+
 type t = {
     l: Lexer.t,
-    errors: list(string),
-    cur_t: Token.t,
-    peek_t: Token.t
+    current: option_t,
+    peek: option_t,
 };
 
-type par_r = {
-    p: t, 
-    node: option(Ast.node)
-};
+[@deriving (show, ord)]
+type precedence = 
+    [ `Lowest
+    | `Equals
+    | `LessGreater
+    | `Sum
+    | `Product
+    | `Prefix
+    | `Call
+    | `Index
+];
 
 let next_token(p: t): t = {
     let lex = Lexer.next_token(p.l);
     
-    {   ...p,
-        l: lex#l,
-        cur_t: p.peek_t,
-        peek_t: lex#t,
+    {   l: lex#l,
+        current: p.peek,
+        peek: Some(lex#t),
     }
 };
 
 let create(l: Lexer.t): t = {
     {   l,
-        errors: [],
-        cur_t: Token.Eof,
-        peek_t: Token.Eof
+        current: None,
+        peek: None,
     } 
     |> next_token |> next_token
 };
 
-let peek_error(p: t, t: Token.t): t = {
-    let error = Format.sprintf(
-        "Expected next token to be %s, got %s instead",
+let peek_error(p: t, t: Token.t) = {
+    Format.sprintf(
+        "Expected next token to be %s, got=%s",
         Token.show(t),
-        Token.show(p.peek_t)
-    );
-
-    {...p, errors: p.errors @ [error]}
+        Token.show(p.peek |> Option.get)
+    )
 };
 
-let _expect_token(p: t, t: Token.t) = { 
-    let a = Obj.repr(p.peek_t);
-    let b = Obj.repr(t);
+let get_infix_fn(p: t) = {
+    switch p.peek {
+        | Some(Plus)
+        | Some(Minus)
+        | Some(Forwardslash)
+        | Some(Asterisk)
+        | Some(EqualTo)
+        | Some(NotEq)
+        | Some(Lesser)
+        | Some(Greater)
+        | Some(LesserEq)
+        | Some(GreaterEq) => Some(())
+        | Some(Lparen) => Some(())
+        | Some(Lbracket) => Some(())
+        | _ => None
+    }    
+};
 
-    let res = switch (Obj.is_block(a), Obj.is_block(b)) {
-        | (true, true) => Obj.tag(a) == Obj.tag(b)
-        | (false, false) => a == b
-        | _ => false
-    };
-
-    if (res) {
-        let p = next_token(p);
-        (p, true)
-    } else {
-        let p = peek_error(p, t);
-        (p, false)
+let parse_expression(p: t, pr: precedence) = {
+    switch p.current {
+        | Some(t) => {
+            switch t {
+                | Token.Ident(i) => {
+                    let id = Ast.Identifier{identifier: i};
+                    let p = next_token(p);
+                    (p, Ok(id))
+                }
+                | _ => (next_token(p), Error("Not a expression"))
+            }
+        }
+        | None => (next_token(p), Error("Missing token"))
     }
 };
 
-let parse_let_statement(p: t): par_r = {
-    switch p.peek_t {
-        | Token.Ident(s) => {
+let parse_let_statement(p: t) = {
+    switch p.peek {
+        | Some(Token.Ident(s)) => {
             open Ast;
 
             let p = next_token(p);
             let name = {identifier: s};
 
-            switch p.peek_t {
-                | Token.Assign => {
-                    // expressions will be parsed here later
-                    let rec skip = (p: t) => {
-                        switch p.cur_t {
-                            | Token.Semicolon => p
-                            | _ => skip(next_token(p))
-                        }
-                    };
+            switch p.peek {
+                | Some(Token.Assign) => {
+                    let (p, value) = parse_expression(p, `Lowest);
 
-                    let p = skip(p);
-                    let l = Ast.Let{name, value: Ast.Identifier(name)};
-                    
-                    {p, node: Some(Ast.Statement(l))}
+                    switch value {
+                        | Ok(v) => {
+                            let l = Ast.Let{name, value: v};
+
+                            (p, Ok(l))
+                        }
+                        | Error(e) => (p, Error(e))
+                    }
+
                 }
                 | _ => {
-                    let p = peek_error(p, Token.Assign);
-                    {p, node: None}
+                    let message = peek_error(p, Token.Assign);
+                    (p, Error(message))
                 }
             }
         } 
         | _ => {
-            let p = peek_error(p, Token.Ident(""));
-            {p, node: None}
+            let message = peek_error(p, Token.Ident(""));
+            (p, Error(message))
         }
     }
 };
 
-let parse_return_statement(p: t): par_r = {
+let parse_return_statement(p: t) = {
     let p = next_token(p);
 
-    let rec skip = (p: t) => {
-        switch p.cur_t {
-            | Token.Semicolon => p
-            | _ => skip(next_token(p))
+    let (p, value) = parse_expression(p, `Lowest);
+
+    switch value {
+        | Ok(_) => {
+            let i = Ast.Identifier{identifier: ""};
+
+            (p, Ok(Ast.Return{value: i}))
         }
-    };
+        | Error(_) => {
+            let i = Ast.Identifier{identifier: ""};
 
-    let p = skip(p);
-    let i = Ast.Identifier{identifier: ""};
-    let r = Ast.Return{value: i};
-
-    {p, node: Some(Ast.Statement(r))}
+            (p, Ok(Ast.Return{value: i}))
+            //(p, Error(e))
+        }
+    }
 };
 
-let parse_statement(p: t): par_r = {
-    switch p.cur_t {
-        | Token.Let => parse_let_statement(p)
-        | Token.Return => parse_return_statement(p)
-        | _ => {p, node: None}
+let parse_expression_statement(p: t) = {
+    let (p, expr) = parse_expression(p, `Lowest);
+
+    let p = if (p.peek == Some(Token.Semicolon)) {
+        next_token(p)
+    } else {
+        p
+    }
+
+    switch expr {
+        | Ok(ex) => (p, Ok(Ast.ExpressionStatement{value: ex}))
+        | Error(e) => (p, Error(e))
+    }
+}
+
+let parse_statement(p: t) = {
+    switch p.current {
+        | Some(Token.Let) => parse_let_statement(p)
+        | Some(Token.Return) => parse_return_statement(p)
+        | _ => parse_expression_statement(p)
     }
 };
 
 let parse_program(p: t): (t, Ast.program) = { 
-    let rec loop = (p: t, stmts) => {
-        switch p.cur_t {
-            | Token.Eof => (p, stmts)
+    let rec loop = (p: t, stmts, errs) => {
+        switch p.current {
+            | Some(Token.Eof) => (p, stmts, errs)
             | _ => {
-                let par = parse_statement(p);
-                switch par.node {
-                    | Some(s) => loop(next_token(par.p), [s] @ stmts)
-                    | None => loop(next_token(par.p), stmts)
+                let (par, stmt) = parse_statement(p);
+                switch stmt {
+                    | Ok(s) => loop(next_token(par), [s] @ stmts, errs)
+                    | Error(e) => loop(next_token(par), stmts, [e] @ errs)
                 }
             }
         }
     };
+    let (p, statements, errors) = loop(p, [], []);
 
-    let (p, statements) = loop(p, []);
+    let errors = errors |> List.rev;
     let statements = statements |> List.rev;
     
-    (p, {statements: statements})
+    (p, {statements, errors})
 };

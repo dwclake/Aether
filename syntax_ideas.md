@@ -22,6 +22,10 @@ fn add(a, ?b) { // ? marks optional parameters
     };
 };
 
+fn() { // Anonymous function dec
+    {*code*}
+}
+
 fn div(a: int, b: int) -> !int { // ! marks a function which returns either ok(of the type after !) or error
     if b == 0 {
         return err("cannot divide by zero")
