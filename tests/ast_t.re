@@ -11,10 +11,6 @@ let test_string() = {
         ],
         errors: []
     }; 
-
-    if (Ast.string(~program) != "let myVar = anotherVar;") {
-        failf("program.string() wrong. got=%s",
-           Ast.string(~program)
-        );
-    }
+    
+    check(Alcotest.string, "1", "let myVar = anotherVar;", Ast.string(~program))
 }

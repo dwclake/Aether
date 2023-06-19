@@ -56,7 +56,7 @@ let rec test_let_statement_seq(~i=1, l:(list(Ast.identifier), list(Ast.statement
     }
 };
 
-let test_next_token() = {
+let test_next_token(): unit = {
     let input = "=+(){},;";
 
     let l = Lexer.create(~input);
@@ -74,7 +74,7 @@ let test_next_token() = {
     ] |> test_token_seq(p)
 };
 
-let test_let_statement() = {
+let test_let_statement(): unit = {
     let input = "
         let x = 5;
         let y = 10;
@@ -88,8 +88,7 @@ let test_let_statement() = {
     check_parser_errors(program.errors);
 
     if (List.length(program.statements) != 3) {
-        failf("statements length is incorrect, got=%d",
-            List.length(program.statements))
+        failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
     ([  {identifier:"x"},
@@ -101,7 +100,7 @@ let test_let_statement() = {
     |> test_let_statement_seq
 }
 
-let test_return_statement() = {
+let test_return_statement(): unit = {
     let input = "
         return 5;
         return 10;
@@ -115,8 +114,7 @@ let test_return_statement() = {
     check_parser_errors(program.errors);
 
     if (List.length(program.statements) != 3) {
-        failf("statements length is incorrect, got=%d",
-            List.length(program.statements))
+        failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
     let rec loop = { fun 
@@ -124,7 +122,7 @@ let test_return_statement() = {
         | [s,...t] => {
             switch s {
                 | Ast.Return(_) => loop(t)
-                | _ as stmt => failf("Not a return statement, got %s",
+                | _ as stmt => failf("Not a return statement, got %s", 
                     Ast.show_statement(stmt)
                 )
             }
@@ -134,7 +132,7 @@ let test_return_statement() = {
     loop(program.statements)
 };
 
-let test_identifier_expression() = {
+let test_identifier_expression(): unit = {
     let input = "
         foobar;
     ";
@@ -147,8 +145,7 @@ let test_identifier_expression() = {
 
 
     if (List.length(program.statements) != 1) {
-        failf("statements length is incorrect, got=%d",
-            List.length(program.statements))
+        failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
     let stmt = Core.List.nth(program.statements, 0);
@@ -164,11 +161,7 @@ let test_identifier_expression() = {
     
     switch ident {
         | Some(i) => {
-            if (i.identifier != "foobar") {
-                failf("ident value not %s. got=%s",
-                      "foobar",
-                      i.identifier)
-            }
+            check(Alcotest.string, "1", "foobar", i.identifier)
         }
         | _ => failwith("Missing identifier")
     }
