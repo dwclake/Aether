@@ -118,10 +118,8 @@ let parse_return_statement(p: t) = {
     let (p, value) = parse_expression(p, `Lowest);
 
     switch value {
-        | Ok(_) => {
-            let i = Ast.Identifier{identifier: ""};
-
-            (p, Ok(Ast.Return{value: i}))
+        | Ok(v) => {
+            (p, Ok(Ast.Return{value: v}))
         }
         | Error(_) => {
             let i = Ast.Identifier{identifier: ""};
