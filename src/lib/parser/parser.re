@@ -98,7 +98,6 @@ let parse_let_statement(p: t) = {
                         }
                         | Error(e) => (p, Error(e))
                     }
-
                 }
                 | _ => {
                     let message = peek_error(p, Token.Assign);
