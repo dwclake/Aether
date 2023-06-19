@@ -5,14 +5,14 @@ let tt = testable(Parser.pp_option_t, Parser.equal_option_t);
 let ts = testable(Ast.pp_statement, Ast.equal_statement);
 let ti = testable(Ast.pp_identifier, Ast.equal_identifier);
 
-let check_parser_errors(l: list(string)) = {
+let check_parser_errors(li: list(string)) = {
     open List;
     open Stdio;
 
-    if (length(l) == 0) {
+    if (length(li) == 0) {
         ()
     } else {
-        eprintf("Parser had %d errors", length(l));
+        eprintf("Parser had %d errors", length(li));
         let rec print = { fun
             | [] => {
                 eprintf("\n"); 
@@ -23,23 +23,23 @@ let check_parser_errors(l: list(string)) = {
                 print(t)
             }
         };
-        print(l)
+        print(li)
     }
 };
 
-let rec test_token_seq(p: Parser.t, ~i=1) = { fun
+let rec test_token_seq(parser: Parser.t, ~i=1) = { fun
     | [] => ()
-    | [et,...tl] => {
-        check(tt, string_of_int(i), et, p.current);
-        test_token_seq(Parser.next_token(p), ~i=i + 1, tl)
+    | [etok,...tail] => {
+        check(tt, string_of_int(i), etok, parser.current);
+        test_token_seq(Parser.next_token(parser), ~i=i + 1, tail)
     }
 };
 
-let rec test_let_statement_seq(~i=1, l:(list(Ast.identifier), list(Ast.statement))) = {
-    switch l {
+let rec test_let_statement_seq(~i=1, lists:(list(Ast.identifier), list(Ast.statement))) = {
+    switch lists {
         | ([], []) => ()
-        | ([eid,...etl], [stmt,...tl]) => {
-            let estmt = Ast.Let{name: eid, value: Identifier(eid)};
+        | ([eident,...etail], [stmt,...tail]) => {
+            let estmt = Ast.Let{name: eident, value: Identifier(eident)};
 
             let (ename, sname) = switch (estmt, stmt) {
                 | (Let(e), Let(s)) => (e.name, s.name)
@@ -50,7 +50,7 @@ let rec test_let_statement_seq(~i=1, l:(list(Ast.identifier), list(Ast.statement
             check(ts, string_of_int(i), estmt, stmt);
             check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(stmt)));
 
-            test_let_statement_seq(~i=i + 1, (etl, tl))
+            test_let_statement_seq(~i=i + 1, (etail, tail))
         }
         | _ => failwith("Lists must be of the same size")
     }
@@ -59,8 +59,8 @@ let rec test_let_statement_seq(~i=1, l:(list(Ast.identifier), list(Ast.statement
 let test_next_token(): unit = {
     let input = "=+(){},;";
 
-    let l = Lexer.create(~input);
-    let p = Parser.create(l);
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
 
     [   Some(Token.Assign),
         Some(Token.Plus),
@@ -71,7 +71,7 @@ let test_next_token(): unit = {
         Some(Token.Comma),
         Some(Token.Semicolon),
         Some(Token.Eof)
-    ] |> test_token_seq(p)
+    ] |> test_token_seq(parser)
 };
 
 let test_let_statement(): unit = {
@@ -81,10 +81,10 @@ let test_let_statement(): unit = {
         let foobar = 838383;
     ";
 
-    let l = Lexer.create(~input);
-    let p = Parser.create(l);
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
 
-    let (_, program) = Parser.parse_program(p);
+    let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
     if (List.length(program.statements) != 3) {
@@ -107,10 +107,10 @@ let test_return_statement(): unit = {
         return 993322;
     ";
 
-    let l = Lexer.create(~input);
-    let p = Parser.create(l);
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
 
-    let (_, program) = Parser.parse_program(p);
+    let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
     if (List.length(program.statements) != 3) {
@@ -122,9 +122,7 @@ let test_return_statement(): unit = {
         | [s,...t] => {
             switch s {
                 | Ast.Return(_) => loop(t)
-                | _ as stmt => failf("Not a return statement, got %s", 
-                    Ast.show_statement(stmt)
-                )
+                | _ as stmt => failf("Not a return statement, got %s", Ast.show_statement(stmt))
             }
         }
     };
@@ -137,10 +135,10 @@ let test_identifier_expression(): unit = {
         foobar;
     ";
 
-    let l = Lexer.create(~input);
-    let p = Parser.create(l);
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
 
-    let (_, program) = Parser.parse_program(p);
+    let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
 
@@ -151,8 +149,8 @@ let test_identifier_expression(): unit = {
     let stmt = Core.List.nth(program.statements, 0);
 
     let ident = switch stmt {
-        | Some(ExpressionStatement(e)) => {
-            switch (e.value) {
+        | Some(ExpressionStatement(expr)) => {
+            switch (expr.value) {
                 | Identifier(i) => Some(i)
             }
         }

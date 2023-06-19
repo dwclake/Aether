@@ -39,42 +39,27 @@ let string(~program: program) = {
         | [] => acc
         | [h,...t] => {
             let literal = switch h {
-                | Let(s) => {
-                    let value = switch s.value {
+                | Let(stmt) => {
+                    let value = switch stmt.value {
                         | Identifier(i) => i.identifier
                     };
-
-                    Format.sprintf(
-                        "let %s = %s;",
-                        s.name.identifier,
-                        value
-                    )
+                    Format.sprintf("let %s = %s;", stmt.name.identifier ,value)
                 }
-                | Return(s) => {
-                    let value = switch s.value {
+                | Return(stmt) => {
+                    let value = switch stmt.value {
                         | Identifier(i) => i.identifier
                     };
-
-                    Format.sprintf(
-                        "return %s;",
-                        value
-                    )
+                    Format.sprintf("return %s;", value)
                 }
-                | ExpressionStatement(s) => {
-                    let value = switch s.value {
+                | ExpressionStatement(stmt) => {
+                    let value = switch stmt.value {
                         | Identifier(i) => i.identifier
                     };
-
-                    Format.sprintf(
-                        "%s;",
-                        value
-                    )
+                    Format.sprintf("%s;", value)
                 }
             };
-
             loop(~acc=(acc ++ literal), t)
         }
     };
-
     loop(program.statements)
 };

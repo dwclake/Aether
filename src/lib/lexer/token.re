@@ -176,8 +176,8 @@ let to_char(token: t): option(char) = {
     }
 }
 
-let of_char(c: char): t = {
-    switch c {
+let of_char(ch: char): t = {
+    switch ch {
     | '(' => Lparen
     | ')' => Rparen
     | '[' => Lbracket
@@ -223,8 +223,8 @@ let of_char(c: char): t = {
 
 }
 
-let parse_keyword(s: string) = {
-    switch s {
+let parse_keyword(literal: string) = {
+    switch literal {
         | "fn" => Some(Fn)
         | "let" => Some(Let)
         | "bind" => Some(Bind)

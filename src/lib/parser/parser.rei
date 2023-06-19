@@ -14,7 +14,7 @@ type precedence =
 ];
 
 type t = {
-    l: Lexer.t,
+    lexer: Lexer.t,
     current: option_t,
     peek: option_t
 };

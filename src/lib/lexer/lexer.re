@@ -7,7 +7,7 @@ type t = {
 
 type lex_r<'a> = {
     ..
-    l: t
+    lexer: t
 } as 'a;
 
 let create(~input: string): t = {
@@ -23,35 +23,35 @@ let create(~input: string): t = {
     }
 };
 
-let advance(~count=1, l: t): t = {
-    let rp = l.pos + count;
-    let ch = if (rp >= String.length(l.input)) {
+let advance(~count=1, lexer: t): t = {
+    let readp = lexer.pos + count;
+    let ch = if (readp >= String.length(lexer.input)) {
             '\000';
         } else {
-            String.get(l.input, rp);
+            String.get(lexer.input, readp);
     };
 
-    {   ...l,
-        pos: rp,
-        read_pos: rp + 1,
+    {   ...lexer,
+        pos: readp,
+        read_pos: readp + 1,
         ch,
     }
 };
 
-let peek(l: t): char = {
-    let ch = if (l.read_pos >= String.length(l.input)) {
+let peek(lexer: t): char = {
+    let ch = if (lexer.read_pos >= String.length(lexer.input)) {
             '\000';
         } else {
-            String.get(l.input, l.read_pos);
+            String.get(lexer.input, lexer.read_pos);
     };
 
     ch
 };
 
-let rec skip_whitespace(l: t): t = {
-    switch l.ch {
-        | ' ' | '\t' | '\n' | '\r' => skip_whitespace(advance(l))
-        | _ => l
+let rec skip_whitespace(lexer: t): t = {
+    switch lexer.ch {
+        | ' ' | '\t' | '\n' | '\r' => skip_whitespace(advance(lexer))
+        | _ => lexer
     }
 };
 
@@ -71,24 +71,24 @@ let is_alphanumeric = { fun
     | _ => false
 };
 
-let rec read_sequence(~s="", ~predicate, l: t): lex_r<{.. lit: string}> = {
-    switch l.ch {
+let rec read_sequence(~acc="", ~predicate, lexer: t): lex_r<{.. literal: string}> = {
+    switch lexer.ch {
         | ch when predicate(ch) => {
             read_sequence(
-                advance(l), 
+                advance(lexer), 
                 ~predicate,  
-                ~s=s ++ Core.Char.to_string(ch)
+                ~acc=acc ++ Core.Char.to_string(ch)
             );
         }
         | _ => { as _; 
-            pub l = l; 
-            pub lit = s;
+            pub lexer = lexer; 
+            pub literal = acc;
         }
     }
 };
 
-let compound_or(l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> = {
-    let next_ch = peek(l);
+let compound_or(lexer: t, ~default: Token.t, ~rules): lex_r<{.. token: Token.t}> = {
+    let next_ch = peek(lexer);
     
     let rec loop = { fun
         | [] => default 
@@ -102,67 +102,69 @@ let compound_or(l: t, ~default: Token.t, ~rules): lex_r<{.. t: Token.t}> = {
             }
         }
     };
-
     let tok = loop(rules);
 
     switch tok {
-        | tok when tok == default => {as _; pub l = advance(l); pub t = tok;}
+        | tok when tok == default => { as _; 
+            pub lexer = advance(lexer); 
+            pub token = tok;
+        }
         | _ => { as _; 
-            pub l = advance(l, ~count=2); 
-            pub t = tok;
+            pub lexer = advance(lexer, ~count=2); 
+            pub token = tok;
         }
     }
 };
 
-let next_token(l: t): lex_r<{.. t: Token.t}> = {
-    let l = skip_whitespace(l);
+let next_token(lexer: t): lex_r<{.. token: Token.t}> = {
+    let lexer = skip_whitespace(lexer);
 
-    switch l.ch {
+    switch lexer.ch {
         // Idenifiers and keywords
         | ch when is_letter(ch) => {
-            let lex = read_sequence(l, ~predicate=is_alphanumeric);
-            let token = switch (Token.parse_keyword(lex#lit)) {
-                | Some(t) => t
-                | None => Token.Ident(lex#lit)
+            let lex = read_sequence(lexer, ~predicate=is_alphanumeric);
+            let token = switch (Token.parse_keyword(lex#literal)) {
+                | Some(token) => token
+                | None => Token.Ident(lex#literal)
             };
 
             { as _; 
-                pub l = lex#l; 
-                pub t = token;
+                pub lexer = lex#lexer; 
+                pub token = token;
             }
         }
         // Integers
         | ch when is_number(ch) => {
-            let lex = read_sequence(l, ~predicate=is_number);
+            let lex = read_sequence(lexer, ~predicate=is_number);
             
             { as _; 
-                pub l = lex#l; 
-                pub t = Token.Int(lex#lit)
+                pub lexer = lex#lexer; 
+                pub token = Token.Int(lex#literal)
             }
         }
         // Compound operators
         | ch when ch == '>' => {
-            compound_or(l, ~default=Token.Greater, ~rules=[('=', Token.GreaterEq)])
+            compound_or(lexer, ~default=Token.Greater, ~rules=[('=', Token.GreaterEq)])
         }
         | ch when ch == '<' => {
-            compound_or(l, ~default=Token.Lesser, ~rules=[('=', Token.LesserEq)])
+            compound_or(lexer, ~default=Token.Lesser, ~rules=[('=', Token.LesserEq)])
         }
         | ch when ch == '!' => {
-            compound_or(l, ~default=Token.Bang, ~rules=[('=', Token.NotEq)])
+            compound_or(lexer, ~default=Token.Bang, ~rules=[('=', Token.NotEq)])
         }
         | ch when ch == '-' => {
-            compound_or(l, ~default=Token.Minus, ~rules=[('>', Token.SlimArrow)])
+            compound_or(lexer, ~default=Token.Minus, ~rules=[('>', Token.SlimArrow)])
         }
         | ch when ch == '=' => {
-            compound_or(l, ~default=Token.Assign, ~rules=[
+            compound_or(lexer, ~default=Token.Assign, ~rules=[
                 ('=', Token.EqualTo),
                 ('>', Token.FatArrow)
             ])
         }
         // Individual characters
         | ch => { as _;
-            pub l = advance(l); 
-            pub t = Token.of_char(ch);
+            pub lexer = advance(lexer); 
+            pub token = Token.of_char(ch);
         }
     }
 };

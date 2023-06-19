@@ -11,10 +11,10 @@ let lex_input(input: string): list(Token.t) = {
         |> Lexer.next_token
         |> ref;
 
-    while((lex^)#t != Token.Eof) {
-        tokens := [(lex^)#t] @ tokens^;
+    while((lex^)#token != Token.Eof) {
+        tokens := [(lex^)#token] @ tokens^;
 
-        lex := Lexer.next_token((lex^)#l);
+        lex := Lexer.next_token((lex^)#lexer);
     }
 
     tokens^ |> List.rev
