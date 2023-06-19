@@ -36,7 +36,7 @@ let create(lexer: Lexer.t): t = {
     |> next_token |> next_token
 };
 
-let peek_error(parser: t, token: Token.t) = {
+let peek_error(parser: t, token: Token.t): string = {
     Format.sprintf(
         "Expected next token to be %s, got=%s",
         Token.show(token),

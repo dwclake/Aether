@@ -29,28 +29,28 @@ let check_parser_errors(li: list(string)) = {
 
 let rec test_token_seq(parser: Parser.t, ~i=1) = { fun
     | [] => ()
-    | [etok,...tail] => {
-        check(tt, string_of_int(i), etok, parser.current);
-        test_token_seq(Parser.next_token(parser), ~i=i + 1, tail)
+    | [h,...t] => {
+        check(tt, string_of_int(i), h, parser.current);
+        test_token_seq(Parser.next_token(parser), ~i=i + 1, t)
     }
 };
 
 let rec test_let_statement_seq(~i=1, lists:(list(Ast.identifier), list(Ast.statement))) = {
     switch lists {
         | ([], []) => ()
-        | ([eident,...etail], [stmt,...tail]) => {
-            let estmt = Ast.Let{name: eident, value: Identifier(eident)};
+        | ([ei,...et], [s,...t]) => {
+            let estmt = Ast.Let{name: ei, value: Identifier(ei)};
 
-            let (ename, sname) = switch (estmt, stmt) {
-                | (Let(e), Let(s)) => (e.name, s.name)
+            let (ename, sname) = switch (estmt, s) {
+                | (Let(expr), Let(stmt)) => (expr.name, stmt.name)
                 | _ => failwith("Statement should be a let statement")
             };
 
             check(ti, string_of_int(i), ename, sname);
-            check(ts, string_of_int(i), estmt, stmt);
-            check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(stmt)));
+            check(ts, string_of_int(i), estmt, s);
+            check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
 
-            test_let_statement_seq(~i=i + 1, (etail, tail))
+            test_let_statement_seq(~i=i + 1, (et, t))
         }
         | _ => failwith("Lists must be of the same size")
     }
@@ -151,15 +151,15 @@ let test_identifier_expression(): unit = {
     let ident = switch stmt {
         | Some(ExpressionStatement(expr)) => {
             switch (expr.value) {
-                | Identifier(i) => Some(i)
+                | Identifier(ident) => Some(ident)
             }
         }
         | _ => None
     };
     
     switch ident {
-        | Some(i) => {
-            check(Alcotest.string, "1", "foobar", i.identifier)
+        | Some(ident) => {
+            check(Alcotest.string, "1", "foobar", ident.identifier)
         }
         | _ => failwith("Missing identifier")
     }
