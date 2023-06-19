@@ -44,7 +44,7 @@ let peek_error(p: t, t: Token.t) = {
     )
 };
 
-let get_infix_fn(p: t) = {
+let _get_infix_fn(p: t) = {
     switch p.peek {
         | Some(Plus)
         | Some(Minus)
@@ -62,7 +62,7 @@ let get_infix_fn(p: t) = {
     }    
 };
 
-let parse_expression(p: t, pr: precedence) = {
+let parse_expression(p: t, _: precedence) = {
     switch p.current {
         | Some(t) => {
             switch t {
