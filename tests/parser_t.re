@@ -3,8 +3,6 @@ open Alcotest;
 
 let tt = testable(Parser.pp_option_t, Parser.equal_option_t);
 let ts = testable(Ast.pp_statement, Ast.equal_statement);
-let ti = testable(Ast.pp_identifier, Ast.equal_identifier);
-let te = testable(Ast.pp_expression, Ast.equal_expression);
 
 let check_parser_errors(li: list(string)) = {
     open List;
@@ -40,16 +38,7 @@ let rec test_let_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.statem
     switch lists {
         | ([], []) => ()
         | ([es,...et], [s,...t]) => {
-            let (ename, name, evalue, value) = switch (es, s) {
-                | (Let({name: ename, value: evalue}), Let({name, value})) => {
-                    (ename, name, evalue, value)
-                }
-                | _ => failwith("Statement should be a let statement")
-            };
-
-            check(ti, string_of_int(i), ename, name);
             check(ts, string_of_int(i), es, s);
-            check(te, string_of_int(i), evalue, value);
             check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
 
             test_let_statement_seq(~i=i + 1, (et, t))
@@ -62,13 +51,7 @@ let rec test_return_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.sta
     switch lists {
         | ([], []) => ()
         | ([es,...et], [s,...t]) => {
-            let (evalue, value) = switch (es, s) {
-                | (Return({value: evalue}), Return({value})) => (evalue, value)
-                | _ => failwith("Statement should be a return statement")
-            };
-
             check(ts, string_of_int(i), es, s);
-            check(te, string_of_int(i), evalue, value);
             check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
 
             test_return_statement_seq(~i=i + 1, (et, t))
