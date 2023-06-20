@@ -41,8 +41,7 @@ let rec test_let_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.statem
         | ([], []) => ()
         | ([es,...et], [s,...t]) => {
             let (ename, name, evalue, value) = switch (es, s) {
-                | (Let({name: ename, value: evalue}), 
-                   Let({name, value})) => {
+                | (Let({name: ename, value: evalue}), Let({name, value})) => {
                     (ename, name, evalue, value)
                 }
                 | _ => failwith("Statement should be a let statement")
@@ -64,7 +63,7 @@ let rec test_return_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.sta
         | ([], []) => ()
         | ([es,...et], [s,...t]) => {
             let (evalue, value) = switch (es, s) {
-                | (Return(eexpr), Return(expr)) => (eexpr.value, expr.value)
+                | (Return({value: evalue}), Return({value})) => (evalue, value)
                 | _ => failwith("Statement should be a return statement")
             };
 
