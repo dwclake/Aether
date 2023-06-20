@@ -6,6 +6,7 @@ type node =
 
     and expression = 
         | Identifier(identifier)
+        | Integer(integer)
 
     and statement =
         | Let {
@@ -21,6 +22,10 @@ type node =
 
     and identifier = {
         identifier: string
+    }
+
+    and integer = {
+        value: string
     }
 
     and program = {
@@ -42,18 +47,21 @@ let string(~program: program) = {
                 | Let(stmt) => {
                     let value = switch stmt.value {
                         | Identifier(i) => i.identifier
+                        | Integer(i) => i.value
                     };
                     Format.sprintf("let %s = %s;", stmt.name.identifier ,value)
                 }
                 | Return(stmt) => {
                     let value = switch stmt.value {
                         | Identifier(i) => i.identifier
+                        | Integer(i) => i.value
                     };
                     Format.sprintf("return %s;", value)
                 }
                 | ExpressionStatement(stmt) => {
                     let value = switch stmt.value {
                         | Identifier(i) => i.identifier
+                        | Integer(i) => i.value
                     };
                     Format.sprintf("%s;", value)
                 }

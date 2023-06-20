@@ -4,6 +4,7 @@ open Alcotest;
 let tt = testable(Parser.pp_option_t, Parser.equal_option_t);
 let ts = testable(Ast.pp_statement, Ast.equal_statement);
 let ti = testable(Ast.pp_identifier, Ast.equal_identifier);
+let te = testable(Ast.pp_expression, Ast.equal_expression);
 
 let check_parser_errors(li: list(string)) = {
     open List;
@@ -35,22 +36,43 @@ let rec test_token_seq(parser: Parser.t, ~i=1) = { fun
     }
 };
 
-let rec test_let_statement_seq(~i=1, lists:(list(Ast.identifier), list(Ast.statement))) = {
+let rec test_let_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.statement))) = {
     switch lists {
         | ([], []) => ()
-        | ([ei,...et], [s,...t]) => {
-            let estmt = Ast.Let{name: ei, value: Identifier(ei)};
-
-            let (ename, sname) = switch (estmt, s) {
-                | (Let(expr), Let(stmt)) => (expr.name, stmt.name)
+        | ([es,...et], [s,...t]) => {
+            let (ename, name, evalue, value) = switch (es, s) {
+                | (Let({name: ename, value: evalue}), 
+                   Let({name, value})) => {
+                    (ename, name, evalue, value)
+                }
                 | _ => failwith("Statement should be a let statement")
             };
 
-            check(ti, string_of_int(i), ename, sname);
-            check(ts, string_of_int(i), estmt, s);
+            check(ti, string_of_int(i), ename, name);
+            check(ts, string_of_int(i), es, s);
+            check(te, string_of_int(i), evalue, value);
             check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
 
             test_let_statement_seq(~i=i + 1, (et, t))
+        }
+        | _ => failwith("Lists must be of the same size")
+    }
+};
+
+let rec test_return_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.statement))) = {
+    switch lists {
+        | ([], []) => ()
+        | ([es,...et], [s,...t]) => {
+            let (evalue, value) = switch (es, s) {
+                | (Return(eexpr), Return(expr)) => (eexpr.value, expr.value)
+                | _ => failwith("Statement should be a return statement")
+            };
+
+            check(ts, string_of_int(i), es, s);
+            check(te, string_of_int(i), evalue, value);
+            check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
+
+            test_return_statement_seq(~i=i + 1, (et, t))
         }
         | _ => failwith("Lists must be of the same size")
     }
@@ -91,9 +113,9 @@ let test_let_statement(): unit = {
         failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
-    ([  {identifier:"x"},
-        {identifier:"y"},
-        {identifier:"foobar"}
+    ([  Ast.Let{name: {identifier: "x"}, value: Ast.Integer{value: "5"}},
+        Ast.Let{name: {identifier: "y"}, value: Ast.Integer{value: "10"}},
+        Ast.Let{name: {identifier: "foobar"}, value: Ast.Integer{value: "838383"}}
      ], 
         program.statements
     ) 
@@ -117,17 +139,13 @@ let test_return_statement(): unit = {
         failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
-    let rec loop = { fun 
-        | [] => ()
-        | [s,...t] => {
-            switch s {
-                | Ast.Return(_) => loop(t)
-                | _ as stmt => failf("Not a return statement, got %s", Ast.show_statement(stmt))
-            }
-        }
-    };
-
-    loop(program.statements)
+    ([  Ast.Return{value: Ast.Integer{value: "5"}},
+        Ast.Return{value: Ast.Integer{value: "10"}},
+        Ast.Return{value: Ast.Integer{value: "993322"}}
+     ], 
+        program.statements
+    ) 
+    |> test_return_statement_seq
 };
 
 let test_identifier_expression(): unit = {
@@ -149,18 +167,55 @@ let test_identifier_expression(): unit = {
     let stmt = Core.List.nth(program.statements, 0);
 
     let ident = switch stmt {
-        | Some(ExpressionStatement(expr)) => {
-            switch (expr.value) {
+        | Some(ExpressionStatement{value}) => {
+            switch (value) {
                 | Identifier(ident) => Some(ident)
+                | _ => None
             }
         }
         | _ => None
     };
     
     switch ident {
-        | Some(ident) => {
-            check(Alcotest.string, "1", "foobar", ident.identifier)
+        | Some({identifier}) => {
+            check(Alcotest.string, "1", "foobar", identifier)
         }
         | _ => failwith("Missing identifier")
+    }
+};
+
+let test_integer_expression(): unit = {
+    let input = "
+        5;
+    ";
+
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
+
+    let (_, program) = Parser.parse_program(parser);
+    check_parser_errors(program.errors);
+
+
+    if (List.length(program.statements) != 1) {
+        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    };
+
+    let stmt = Core.List.nth(program.statements, 0);
+
+    let value = switch stmt {
+        | Some(Ast.ExpressionStatement{value}) => {
+            switch (value) {
+                | Integer(value) => Some(value)
+                | _ => None
+            }
+        }
+        | _ => None
+    };
+    
+    switch value {
+        | Some({value}) => {
+            check(Alcotest.string, "1", "5", value)
+        }
+        | _ => failwith("Missing value")
     }
 };

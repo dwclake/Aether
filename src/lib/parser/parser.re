@@ -62,37 +62,53 @@ let _get_infix_fn(parser: t) = {
     }    
 };
 
-let parse_expression(parser: t, _: precedence) = {
-    switch parser.current {
+type check_token = 
+    [ `Current
+    | `Peek
+];
+
+let parse_expression(parser: t, _: precedence, ct: check_token) = {
+    let checked_token = switch ct {
+        | `Current => parser.current
+        | `Peek => parser.peek
+    };
+    let parser = switch ct {
+        | `Current => parser
+        | `Peek => next_token(parser)
+    };
+
+    switch checked_token {
         | Some(token) => {
             switch token {
                 | Token.Ident(ident) => {
                     let id = Ast.Identifier{identifier: ident};
-                    let parser = next_token(parser);
                     (parser, Ok(id))
                 }
-                | _ => (next_token(parser), Error("Not a expression"))
+                | Token.Int(value) => {
+                    let integer = Ast.Integer{value: value};
+                    (parser, Ok(integer))
+                }
+                | _ => (parser, Error("Not a expression"))
             }
         }
-        | None => (next_token(parser), Error("Missing token"))
+        | None => (parser, Error("Missing token"))
     }
 };
 
 let parse_let_statement(parser: t) = {
     switch parser.peek {
-        | Some(Token.Ident(stmt)) => {
-            open Ast;
-
+        | Some(Token.Ident(identifier)) => {
             let parser = next_token(parser);
-            let name = {identifier: stmt};
+            let name: Ast.identifier = {identifier: identifier};
 
             switch parser.peek {
                 | Some(Token.Assign) => {
-                    let (parser, value) = parse_expression(parser, `Lowest);
+                    let parser = next_token(parser);
+                    let (parser, value) = parse_expression(parser, `Lowest, `Peek);
 
                     switch value {
                         | Ok(value) => {
-                            let lexer = Ast.Let{name, value: value};
+                            let lexer = Ast.Let{name, value};
                             (parser, Ok(lexer))
                         }
                         | Error(message) => (parser, Error(message))
@@ -113,27 +129,25 @@ let parse_let_statement(parser: t) = {
 
 let parse_return_statement(parser: t) = {
     let parser = next_token(parser);
-    let (parser, value) = parse_expression(parser, `Lowest);
+    let (parser, value) = parse_expression(parser, `Lowest, `Current);
 
     switch value {
         | Ok(value) => {
             (parser, Ok(Ast.Return{value: value}))
         }
-        | Error(_) => {
-            let ident = Ast.Identifier{identifier: ""};
-            (parser, Ok(Ast.Return{value: ident}))
-            //(parser, Error(message))
+        | Error(message) => {
+            (parser, Error(message))
         }
     }
 };
 
 let parse_expression_statement(parser: t) = {
-    let (parser, expr) = parse_expression(parser, `Lowest);
+    let (parser, expr) = parse_expression(parser, `Lowest, `Current);
 
     let parser = if(parser.peek == Some(Token.Semicolon)) {next_token(parser)} else {parser};
 
     switch expr {
-        | Ok(expr) => (parser, Ok(Ast.ExpressionStatement{value: expr}))
+        | Ok(value) => (parser, Ok(Ast.ExpressionStatement{value: value}))
         | Error(message) => (parser, Error(message))
     }
 }
