@@ -25,7 +25,7 @@ type node =
     }
 
     and integer = {
-        value: string
+        value: int
     }
 
     and program = {
@@ -47,21 +47,21 @@ let string(~program: program) = {
                 | Let(stmt) => {
                     let value = switch stmt.value {
                         | Identifier(i) => i.identifier
-                        | Integer(i) => i.value
+                        | Integer(i) => string_of_int(i.value)
                     };
                     Format.sprintf("let %s = %s;", stmt.name.identifier ,value)
                 }
                 | Return(stmt) => {
                     let value = switch stmt.value {
                         | Identifier(i) => i.identifier
-                        | Integer(i) => i.value
+                        | Integer(i) => string_of_int(i.value)
                     };
                     Format.sprintf("return %s;", value)
                 }
                 | ExpressionStatement(stmt) => {
                     let value = switch stmt.value {
                         | Identifier(i) => i.identifier
-                        | Integer(i) => i.value
+                        | Integer(i) => string_of_int(i.value)
                     };
                     Format.sprintf("%s;", value)
                 }

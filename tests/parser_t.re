@@ -95,9 +95,9 @@ let test_let_statement(): unit = {
         failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
-    ([  Ast.Let{name: {identifier: "x"}, value: Ast.Integer{value: "5"}},
-        Ast.Let{name: {identifier: "y"}, value: Ast.Integer{value: "10"}},
-        Ast.Let{name: {identifier: "foobar"}, value: Ast.Integer{value: "838383"}}
+    ([  Ast.Let{name: {identifier: "x"}, value: Ast.Integer{value: 5}},
+        Ast.Let{name: {identifier: "y"}, value: Ast.Integer{value: 10}},
+        Ast.Let{name: {identifier: "foobar"}, value: Ast.Integer{value: 838383}}
      ], 
         program.statements
     ) 
@@ -121,9 +121,9 @@ let test_return_statement(): unit = {
         failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
-    ([  Ast.Return{value: Ast.Integer{value: "5"}},
-        Ast.Return{value: Ast.Integer{value: "10"}},
-        Ast.Return{value: Ast.Integer{value: "993322"}}
+    ([  Ast.Return{value: Ast.Integer{value: 5}},
+        Ast.Return{value: Ast.Integer{value: 10}},
+        Ast.Return{value: Ast.Integer{value: 993322}}
      ], 
         program.statements
     ) 
@@ -196,7 +196,7 @@ let test_integer_expression(): unit = {
     
     switch value {
         | Some({value}) => {
-            check(Alcotest.string, "1", "5", value)
+            check(Alcotest.int, "1", 5, value)
         }
         | _ => failwith("Missing value")
     }

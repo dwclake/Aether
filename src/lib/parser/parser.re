@@ -85,7 +85,7 @@ let parse_expression(parser: t, _: precedence, ct: check_token) = {
                     (parser, Ok(id))
                 }
                 | Token.Int(value) => {
-                    let integer = Ast.Integer{value: value};
+                    let integer = Ast.Integer{value: int_of_string(value)};
                     (parser, Ok(integer))
                 }
                 | _ => (parser, Error("Not a expression"))
