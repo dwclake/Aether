@@ -42,7 +42,7 @@ match arr {
 
 fn rec fib(x) {
     match x {
-        | a: a > 2 => 0
+        | a: a > 2 => 0 // guard clauses follow var name and colon
         | 1 => 1
         | _ => fib(x - 1) + fib(x - 2)
     }
