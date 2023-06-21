@@ -48,10 +48,11 @@ fn rec fib(x) {
     }
 };
 
-fn twice(f, x) {
+fn twice(~f, x) { // ~ marks named parameters
     return f(f(x));
 }
 
-twice(fib, 2);
+twice(f: fib, 2); // named parameters must be specified with the name followed by :
+twice(2, f); // if argument name matches named parameter can just use argument name, named arguments can go in any order
 
 ```
