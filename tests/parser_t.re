@@ -34,14 +34,14 @@ let rec test_token_seq(parser: Parser.t, ~i=1) = { fun
     }
 };
 
-let rec test_let_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.statement))) = {
+let rec test_binding_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.statement))) = {
     switch lists {
         | ([], []) => ()
         | ([es,...et], [s,...t]) => {
             check(ts, string_of_int(i), es, s);
             check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
 
-            test_let_statement_seq(~i=i + 1, (et, t))
+            test_binding_statement_seq(~i=i + 1, (et, t))
         }
         | _ => failwith("Lists must be of the same size")
     }
@@ -78,10 +78,10 @@ let test_next_token(): unit = {
     ] |> test_token_seq(parser)
 };
 
-let test_let_statement(): unit = {
+let test_binding_statement(): unit = {
     let input = "
         let x = 5;
-        let y = 10;
+        const y = 10;
         let foobar = 838383;
     ";
 
@@ -96,12 +96,12 @@ let test_let_statement(): unit = {
     };
 
     ([  Ast.Let{name: "x", value: Ast.Integer(5)},
-        Ast.Let{name: "y", value: Ast.Integer(10)},
+        Ast.Const{name: "y", value: Ast.Integer(10)},
         Ast.Let{name: "foobar", value: Ast.Integer(838383)}
      ], 
         program.statements
     ) 
-    |> test_let_statement_seq
+    |> test_binding_statement_seq
 }
 
 let test_return_statement(): unit = {

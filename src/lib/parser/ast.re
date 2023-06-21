@@ -14,6 +14,10 @@ type node =
             name: identifier,
             value: expression
         }
+        | Const {
+            name: identifier,
+            value: expression
+        }
         | Return {
             value: expression
         }
@@ -42,6 +46,14 @@ let string(~program: program) = {
         | [h,...t] => {
             let literal = switch h {
                 | Let(stmt) => {
+                    let value = switch stmt.value {
+                        | Identifier(i) => i
+                        | Integer(i) => string_of_int(i)
+                        | Float(f) => string_of_float(f)
+                    };
+                    Format.sprintf("let %s = %s;", stmt.name ,value)
+                }
+                | Const(stmt) => {
                     let value = switch stmt.value {
                         | Identifier(i) => i
                         | Integer(i) => string_of_int(i)

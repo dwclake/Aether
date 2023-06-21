@@ -6,7 +6,8 @@ type t =
 
     | Fn
     | Let
-    | Bind
+    | Const
+    | Mut
     | Match
     | True
     | False

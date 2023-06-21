@@ -1,6 +1,7 @@
 ```
-bind pi = 3.14; // A immutable binding
-let name = "test"; // A mutable binding
+const pi = 3.14; // A constant binding
+let name = "test"; // A immutable binding
+let mut greeting = "Hello, world!";
 
 let arr = [1, 2, 3, 4]; // An array
 arr[0] // -> 1

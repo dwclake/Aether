@@ -6,7 +6,8 @@ type t =
 
     | Fn
     | Let
-    | Bind
+    | Const
+    | Mut
     | Match
     | True
     | False
@@ -72,7 +73,8 @@ let to_string(token: t): string = {
 
         | Fn => "fn"
         | Let => "let"
-        | Bind => "bind"
+        | Const => "const"
+        | Mut => "mut"
         | Match => "match"
         | True => "true"
         | False => "false"
@@ -229,7 +231,8 @@ let parse_keyword(literal: string) = {
     switch literal {
         | "fn" => Some(Fn)
         | "let" => Some(Let)
-        | "bind" => Some(Bind)
+        | "const" => Some(Const)
+        | "mut" => Some(Mut)
         | "match" => Some(Match)
         | "true" => Some(True)
         | "false" => Some(False)

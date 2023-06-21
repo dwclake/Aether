@@ -1,18 +1,6 @@
 [@deriving (show, eq)]
 type option_t = option(Token.t);
 
-[@deriving (show, ord)]
-type precedence = 
-    [ `Lowest
-    | `Equals
-    | `LessGreater
-    | `Sum
-    | `Product
-    | `Prefix
-    | `Call
-    | `Index
-];
-
 type t = {
     lexer: Lexer.t,
     current: option_t,

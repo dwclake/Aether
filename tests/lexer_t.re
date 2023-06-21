@@ -161,8 +161,8 @@ let test_comp_ops() = {
 
 let test_keywords() = {
     let input = "
-        let y = true;
-        bind x = match y {
+        let mut y = true;
+        const x = match y {
             | true => 20
             | false => 10
         };
@@ -177,12 +177,13 @@ let test_keywords() = {
     ";
 
     [   Token.Let,
+        Token.Mut,
         Token.Ident("y"),
         Token.Assign,
         Token.True,
         Token.Semicolon,
 
-        Token.Bind,
+        Token.Const,
         Token.Ident("x"),
         Token.Assign,
         Token.Match,
