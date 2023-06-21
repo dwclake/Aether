@@ -69,7 +69,7 @@ let test_operators() = {
     let input = {|
         {};
         
-        []$!-/*5\~`?'"%@^#;
+        []:.$!-/*5\~`?'"%@^#;
 
         5 < 10 > 5;
     |};
@@ -80,6 +80,8 @@ let test_operators() = {
 
         Token.Lbracket,
         Token.Rbracket,
+        Token.Colon,
+        Token.Dot,
         Token.Dollar,
         Token.Bang,
         Token.Minus,

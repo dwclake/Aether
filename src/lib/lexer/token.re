@@ -47,10 +47,10 @@ type t =
     | LesserEq
 
     | Semicolon
-    | COLON
+    | Colon
     | Pipe
     | Comma
-    | DOT
+    | Dot
 
     | Asterisk
     | Bang
@@ -61,7 +61,7 @@ type t =
     | Amp
     | Dollar
 
-    | ILLEGAL
+    | Illegal
     | Eof;
 
 let to_string(token: t): string = {
@@ -113,10 +113,10 @@ let to_string(token: t): string = {
         | LesserEq => "<="
 
         | Semicolon => ";"
-        | COLON => ":"
+        | Colon => ":"
         | Pipe => "|"
         | Comma => ","
-        | DOT => "."
+        | Dot => "."
         
         | Asterisk => "*"
         | Bang => "!"
@@ -127,7 +127,7 @@ let to_string(token: t): string = {
         | Amp => "&"
         | Dollar => "$"
 
-        | ILLEGAL => "illegal"
+        | Illegal => "illegal"
         | Eof => "eof"
     }
 }
@@ -159,10 +159,10 @@ let to_char(token: t): option(char) = {
         | Lesser => Some('<')
         
         | Semicolon => Some(';')
-        | COLON => Some(':')
+        | Colon => Some(':')
         | Pipe => Some('|')
         | Comma => Some(',')
-        | DOT => Some('.')
+        | Dot => Some('.')
         
         | Asterisk => Some('*')
         | Bang => Some('!')
@@ -205,10 +205,10 @@ let of_char(ch: char): t = {
     | '<' => Lesser
     
     | ';' => Semicolon
-    | ':' => COLON
+    | ':' => Colon
     | '|' => Pipe
     | ',' => Comma
-    | '.' => DOT
+    | '.' => Dot
     
     | '*' => Asterisk
     | '!' => Bang
@@ -220,7 +220,7 @@ let of_char(ch: char): t = {
     | '$' => Dollar
     
     | '\000' => Eof
-    | _ => ILLEGAL
+    | _ => Illegal
     }
 
 }

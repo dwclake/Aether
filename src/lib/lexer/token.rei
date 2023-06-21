@@ -47,10 +47,10 @@ type t =
     | LesserEq
 
     | Semicolon
-    | COLON
+    | Colon
     | Pipe
     | Comma
-    | DOT
+    | Dot
 
     | Asterisk
     | Bang
@@ -61,7 +61,7 @@ type t =
     | Amp
     | Dollar
 
-    | ILLEGAL
+    | Illegal
     | Eof;
 
 let of_char: char => t;
