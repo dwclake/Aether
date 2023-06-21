@@ -14,7 +14,8 @@ let suite = [
             test_case("Let statement", `Quick, Parser_t.test_let_statement),
             test_case("Return statement", `Quick, Parser_t.test_return_statement),
             test_case("Identifier expression statement", `Quick, Parser_t.test_identifier_expression),
-            test_case("Integer expression statement", `Quick, Parser_t.test_integer_expression)
+            test_case("Integer expression statement", `Quick, Parser_t.test_integer_expression),
+            test_case("Float expression statement", `Quick, Parser_t.test_float_expression)
         ]),
     ("Ast",[
             test_case("Test string", `Quick, Ast_t.test_string)

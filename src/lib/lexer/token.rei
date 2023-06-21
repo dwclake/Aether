@@ -2,6 +2,7 @@
 type t =
     | Ident(string)
     | Int(string)
+    | Float(string)
 
     | Fn
     | Let

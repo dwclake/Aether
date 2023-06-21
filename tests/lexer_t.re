@@ -33,7 +33,7 @@ let test_next_token() = {
 let test_ident_tokens() = {
     let input = "
         let five = 5;
-        let ten = 10;
+        let ten = 10.0;
 
         let result = add(five, ten);
     ";
@@ -47,7 +47,7 @@ let test_ident_tokens() = {
         Token.Let,
         Token.Ident("ten"),
         Token.Assign,
-        Token.Int("10"),
+        Token.Float("10.0"),
         Token.Semicolon,
 
         Token.Let,

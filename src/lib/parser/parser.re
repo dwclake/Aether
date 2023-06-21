@@ -8,8 +8,8 @@ type t = {
 };
 
 [@deriving (show, ord)]
-type precedence = 
-    [ `Lowest
+type precedence = [ 
+    | `Lowest
     | `Equals
     | `LessGreater
     | `Sum
@@ -62,8 +62,8 @@ let _get_infix_fn(parser: t) = {
     }    
 };
 
-type check_token = 
-    [ `Current
+type check_token = [ 
+    | `Current
     | `Peek
 ];
 
@@ -80,13 +80,27 @@ let parse_expression(parser: t, _: precedence, ct: check_token) = {
     switch checked_token {
         | Some(token) => {
             switch token {
-                | Token.Ident(ident) => {
-                    let id = Ast.Identifier{identifier: ident};
+                | Token.Ident(identifier) => {
+                    let id = Ast.Identifier(identifier);
                     (parser, Ok(id))
                 }
                 | Token.Int(value) => {
-                    let integer = Ast.Integer{value: int_of_string(value)};
-                    (parser, Ok(integer))
+                    switch (int_of_string_opt(value)) {
+                        | Some(value) => (parser, Ok(Ast.Integer(value)))
+                        | None => (parser, Error(Format.sprintf(
+                            "Unable to convert %s to int", 
+                            value
+                        )))
+                    }
+                }
+                | Token.Float(value) => {
+                    switch (float_of_string_opt(value)) {
+                        | Some(value) => (parser, Ok(Ast.Float(value)))
+                        | None => (parser, Error(Format.sprintf(
+                            "Unable to convert %s to float", 
+                            value
+                        )))
+                    }
                 }
                 | _ => (parser, Error("Not a expression"))
             }
@@ -99,14 +113,14 @@ let parse_let_statement(parser: t) = {
     switch parser.peek {
         | Some(Token.Ident(identifier)) => {
             let parser = next_token(parser);
-            let name: Ast.identifier = {identifier: identifier};
+            let name: Ast.identifier = {identifier};
 
             switch parser.peek {
                 | Some(Token.Assign) => {
                     let parser = next_token(parser);
-                    let (parser, value) = parse_expression(parser, `Lowest, `Peek);
+                    let (parser, expr) = parse_expression(parser, `Lowest, `Peek);
 
-                    switch value {
+                    switch expr {
                         | Ok(value) => {
                             let lexer = Ast.Let{name, value};
                             (parser, Ok(lexer))
@@ -121,7 +135,7 @@ let parse_let_statement(parser: t) = {
             }
         } 
         | _ => {
-            let message = peek_error(parser, Token.Ident(""));
+            let message = peek_error(parser, Token.Ident("\000"));
             (parser, Error(message))
         }
     }
@@ -129,9 +143,9 @@ let parse_let_statement(parser: t) = {
 
 let parse_return_statement(parser: t) = {
     let parser = next_token(parser);
-    let (parser, value) = parse_expression(parser, `Lowest, `Current);
+    let (parser, expr) = parse_expression(parser, `Lowest, `Current);
 
-    switch value {
+    switch expr {
         | Ok(value) => {
             (parser, Ok(Ast.Return{value: value}))
         }

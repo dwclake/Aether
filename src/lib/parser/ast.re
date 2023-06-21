@@ -7,6 +7,7 @@ type node =
     and expression = 
         | Identifier(identifier)
         | Integer(integer)
+        | Float(floating)
 
     and statement =
         | Let {
@@ -19,14 +20,10 @@ type node =
         | ExpressionStatement {
             value: expression
         }
-
-    and identifier = {
-        identifier: string
-    }
-
-    and integer = {
-        value: int
-    }
+    
+    and integer = int
+    and identifier = string
+    and floating = float
 
     and program = {
         statements: list(statement),
@@ -46,22 +43,25 @@ let string(~program: program) = {
             let literal = switch h {
                 | Let(stmt) => {
                     let value = switch stmt.value {
-                        | Identifier(i) => i.identifier
-                        | Integer(i) => string_of_int(i.value)
+                        | Identifier(i) => i
+                        | Integer(i) => string_of_int(i)
+                        | Float(f) => string_of_float(f)
                     };
-                    Format.sprintf("let %s = %s;", stmt.name.identifier ,value)
+                    Format.sprintf("let %s = %s;", stmt.name ,value)
                 }
                 | Return(stmt) => {
                     let value = switch stmt.value {
-                        | Identifier(i) => i.identifier
-                        | Integer(i) => string_of_int(i.value)
+                        | Identifier(i) => i
+                        | Integer(i) => string_of_int(i)
+                        | Float(f) => string_of_float(f)
                     };
                     Format.sprintf("return %s;", value)
                 }
                 | ExpressionStatement(stmt) => {
                     let value = switch stmt.value {
-                        | Identifier(i) => i.identifier
-                        | Integer(i) => string_of_int(i.value)
+                        | Identifier(i) => i
+                        | Integer(i) => string_of_int(i)
+                        | Float(f) => string_of_float(f)
                     };
                     Format.sprintf("%s;", value)
                 }

@@ -60,14 +60,19 @@ let is_letter = { fun
     | _ => false
 };
 
-let is_number = { fun
+let is_integer = { fun
     | '0'..'9' => true
     | _ => false
 };
 
+let is_number = { fun 
+    | '0'..'9' | '.' => true
+    | _ => false
+}
+
 let is_alphanumeric = { fun
     | ch when is_letter(ch) => true
-    | ch when is_number(ch) => true
+    | ch when is_integer(ch) => true
     | _ => false
 };
 
@@ -134,12 +139,17 @@ let next_token(lexer: t): lex_r<{.. token: Token.t}> = {
             }
         }
         // Integers
-        | ch when is_number(ch) => {
+        | ch when is_integer(ch) => {
             let lex = read_sequence(lexer, ~predicate=is_number);
+            let token = if (String.exists(ch => ch == '.', lex#literal)) {
+                Token.Float(lex#literal)
+            } else {
+                Token.Int(lex#literal)
+            };
             
             { as _; 
                 pub lexer = lex#lexer; 
-                pub token = Token.Int(lex#literal)
+                pub token = token;
             }
         }
         // Compound operators

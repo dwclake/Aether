@@ -2,6 +2,7 @@
 type t = 
     | Ident(string)
     | Int(string)
+    | Float(string)
 
     | Fn
     | Let
@@ -67,6 +68,7 @@ let to_string(token: t): string = {
     switch token {
         | Ident(id) => id
         | Int(x) => x
+        | Float(x) => x
 
         | Fn => "fn"
         | Let => "let"

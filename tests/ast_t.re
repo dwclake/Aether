@@ -5,8 +5,8 @@ let test_string() = {
     let program: Ast.program = {
         statements: [
             Ast.Let{
-                name: {identifier: "myVar"},
-                value: Ast.Identifier{identifier: "anotherVar"}
+                name: "myVar",
+                value: Ast.Identifier("anotherVar")
             },
         ],
         errors: []

@@ -95,9 +95,9 @@ let test_let_statement(): unit = {
         failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
-    ([  Ast.Let{name: {identifier: "x"}, value: Ast.Integer{value: 5}},
-        Ast.Let{name: {identifier: "y"}, value: Ast.Integer{value: 10}},
-        Ast.Let{name: {identifier: "foobar"}, value: Ast.Integer{value: 838383}}
+    ([  Ast.Let{name: "x", value: Ast.Integer(5)},
+        Ast.Let{name: "y", value: Ast.Integer(10)},
+        Ast.Let{name: "foobar", value: Ast.Integer(838383)}
      ], 
         program.statements
     ) 
@@ -121,9 +121,9 @@ let test_return_statement(): unit = {
         failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
-    ([  Ast.Return{value: Ast.Integer{value: 5}},
-        Ast.Return{value: Ast.Integer{value: 10}},
-        Ast.Return{value: Ast.Integer{value: 993322}}
+    ([  Ast.Return{value: Ast.Integer(5)},
+        Ast.Return{value: Ast.Integer(10)},
+        Ast.Return{value: Ast.Integer(993322)}
      ], 
         program.statements
     ) 
@@ -159,7 +159,7 @@ let test_identifier_expression(): unit = {
     };
     
     switch ident {
-        | Some({identifier}) => {
+        | Some(identifier) => {
             check(Alcotest.string, "1", "foobar", identifier)
         }
         | _ => failwith("Missing identifier")
@@ -195,8 +195,44 @@ let test_integer_expression(): unit = {
     };
     
     switch value {
-        | Some({value}) => {
+        | Some(value) => {
             check(Alcotest.int, "1", 5, value)
+        }
+        | _ => failwith("Missing value")
+    }
+};
+
+let test_float_expression(): unit = {
+    let input = "
+        5.4;
+    ";
+
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
+
+    let (_, program) = Parser.parse_program(parser);
+    check_parser_errors(program.errors);
+
+
+    if (List.length(program.statements) != 1) {
+        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    };
+
+    let stmt = Core.List.nth(program.statements, 0);
+
+    let value = switch stmt {
+        | Some(Ast.ExpressionStatement{value}) => {
+            switch (value) {
+                | Float(value) => Some(value)
+                | _ => None
+            }
+        }
+        | _ => None
+    };
+    
+    switch value {
+        | Some(value) => {
+            check(Alcotest.float(0.001), "1", 5.4, value)
         }
         | _ => failwith("Missing value")
     }
