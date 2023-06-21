@@ -34,7 +34,7 @@ let rec test_token_seq(parser: Parser.t, ~i=1) = { fun
     }
 };
 
-let rec test_binding_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.statement))) = {
+let rec test_binding_statement_seq(~i=1, lists: (list(Ast.statement), list(Ast.statement))) = {
     switch lists {
         | ([], []) => ()
         | ([es,...et], [s,...t]) => {
@@ -47,7 +47,7 @@ let rec test_binding_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.st
     }
 };
 
-let rec test_return_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.statement))) = {
+let rec test_return_statement_seq(~i=1, lists: (list(Ast.statement), list(Ast.statement))) = {
     switch lists {
         | ([], []) => ()
         | ([es,...et], [s,...t]) => {
@@ -55,6 +55,19 @@ let rec test_return_statement_seq(~i=1, lists:(list(Ast.statement), list(Ast.sta
             check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
 
             test_return_statement_seq(~i=i + 1, (et, t))
+        }
+        | _ => failwith("Lists must be of the same size")
+    }
+};
+
+let rec test_expression_statement_seq(~i=1, lists: (list(Ast.statement), list(Ast.statement))) = {
+    switch lists {
+        | ([], []) => ()
+        | ([es,...et], [s,...t]) => {
+            check(ts, string_of_int(i), es, s);
+            check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
+
+            test_expression_statement_seq(~i=i + 1, (et, t))
         }
         | _ => failwith("Lists must be of the same size")
     }
@@ -146,24 +159,11 @@ let test_identifier_expression(): unit = {
         failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
-    let stmt = Core.List.nth(program.statements, 0);
-
-    let ident = switch stmt {
-        | Some(ExpressionStatement{value}) => {
-            switch (value) {
-                | Identifier(ident) => Some(ident)
-                | _ => None
-            }
-        }
-        | _ => None
-    };
-    
-    switch ident {
-        | Some(identifier) => {
-            check(Alcotest.string, "1", "foobar", identifier)
-        }
-        | _ => failwith("Missing identifier")
-    }
+    ([  Ast.ExpressionStatement{value: Ast.Identifier("foobar")}
+     ], 
+        program.statements
+    ) 
+    |> test_expression_statement_seq
 };
 
 let test_integer_expression(): unit = {
@@ -182,24 +182,11 @@ let test_integer_expression(): unit = {
         failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
-    let stmt = Core.List.nth(program.statements, 0);
-
-    let value = switch stmt {
-        | Some(Ast.ExpressionStatement{value}) => {
-            switch (value) {
-                | Integer(value) => Some(value)
-                | _ => None
-            }
-        }
-        | _ => None
-    };
-    
-    switch value {
-        | Some(value) => {
-            check(Alcotest.int, "1", 5, value)
-        }
-        | _ => failwith("Missing value")
-    }
+    ([  Ast.ExpressionStatement{value: Ast.Integer(5)}
+     ], 
+        program.statements
+    ) 
+    |> test_expression_statement_seq
 };
 
 let test_float_expression(): unit = {
@@ -218,22 +205,37 @@ let test_float_expression(): unit = {
         failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
 
-    let stmt = Core.List.nth(program.statements, 0);
+    ([  Ast.ExpressionStatement{value: Ast.Float(5.4)}
+     ], 
+        program.statements
+    ) 
+    |> test_expression_statement_seq
+};
 
-    let value = switch stmt {
-        | Some(Ast.ExpressionStatement{value}) => {
-            switch (value) {
-                | Float(value) => Some(value)
-                | _ => None
-            }
-        }
-        | _ => None
+let test_prefix_expression(): unit = {
+    let input = "
+        !5;
+        -15;
+        !foobar;
+    ";
+
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
+
+    let (_, program) = Parser.parse_program(parser);
+    check_parser_errors(program.errors);
+
+
+    if (List.length(program.statements) != 3) {
+        failf("statements length is incorrect, got=%d", List.length(program.statements))
     };
-    
-    switch value {
-        | Some(value) => {
-            check(Alcotest.float(0.001), "1", 5.4, value)
-        }
-        | _ => failwith("Missing value")
-    }
+
+    ([  Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Bang, value: Ast.Integer(5)}},
+        Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Minus, value: Ast.Integer(15)}},
+        Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Bang, value: Ast.Identifier("foobar")}},
+     ], 
+        program.statements
+    ) 
+    |> test_expression_statement_seq
+
 };

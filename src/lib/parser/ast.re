@@ -8,6 +8,10 @@ type node =
         | Identifier(identifier)
         | Integer(integer)
         | Float(floating)
+        | Prefix{
+            operator: Token.t,
+            value: expression
+        }
 
     and statement =
         | Let {
@@ -40,41 +44,40 @@ let token_literal = { fun
     | Statement(_) => "statement"
 };
 
+let rec string_of_expr(expr: expression) = {
+    switch expr {
+        | Identifier(i) => i
+        | Integer(i) => string_of_int(i)
+        | Float(f) => string_of_float(f)
+        | Prefix(e) => {
+            Format.sprintf(
+                "%s%s",
+                Token.to_string(e.operator),
+                string_of_expr(e.value)
+            )
+        }
+    };
+}
+
 let string(~program: program) = {
     let rec loop(~acc="") = { fun 
         | [] => acc
         | [h,...t] => {
             let literal = switch h {
                 | Let(stmt) => {
-                    let value = switch stmt.value {
-                        | Identifier(i) => i
-                        | Integer(i) => string_of_int(i)
-                        | Float(f) => string_of_float(f)
-                    };
+                    let value = string_of_expr(stmt.value);
                     Format.sprintf("let %s = %s;", stmt.name ,value)
                 }
                 | Const(stmt) => {
-                    let value = switch stmt.value {
-                        | Identifier(i) => i
-                        | Integer(i) => string_of_int(i)
-                        | Float(f) => string_of_float(f)
-                    };
+                    let value = string_of_expr(stmt.value);
                     Format.sprintf("let %s = %s;", stmt.name ,value)
                 }
                 | Return(stmt) => {
-                    let value = switch stmt.value {
-                        | Identifier(i) => i
-                        | Integer(i) => string_of_int(i)
-                        | Float(f) => string_of_float(f)
-                    };
+                    let value = string_of_expr(stmt.value);
                     Format.sprintf("return %s;", value)
                 }
                 | ExpressionStatement(stmt) => {
-                    let value = switch stmt.value {
-                        | Identifier(i) => i
-                        | Integer(i) => string_of_int(i)
-                        | Float(f) => string_of_float(f)
-                    };
+                    let value = string_of_expr(stmt.value);
                     Format.sprintf("%s;", value)
                 }
             };

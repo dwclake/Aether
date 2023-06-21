@@ -72,7 +72,7 @@ let _get_infix_fn(parser: t) = {
     }    
 };
 
-let parse_expression(parser: t, ~check=`Current,  _: _precedence) = {
+let rec parse_expression(parser: t, ~check=`Current,  _: _precedence) = {
     let checked_token = switch check {
         | `Current => parser.current
         | `Peek => parser.peek
@@ -105,6 +105,20 @@ let parse_expression(parser: t, ~check=`Current,  _: _precedence) = {
                             "Unable to convert %s to float", 
                             value
                         )))
+                    }
+                }
+                | Token.Bang => {
+                    let (parser, expr) = parse_expression(parser, `Lowest, ~check=`Peek);
+                    switch expr {
+                        | Ok(value) => (parser, Ok(Ast.Prefix{operator: Token.Bang, value}))
+                        | Error(message) => (parser, Error(message))
+                    }
+                }
+                | Token.Minus => {
+                    let (parser, expr) = parse_expression(parser, `Lowest, ~check=`Peek);
+                    switch expr {
+                        | Ok(value) => (parser, Ok(Ast.Prefix{operator: Token.Minus, value}))
+                        | Error(message) => (parser, Error(message))
                     }
                 }
                 | _ => (parser, Error("Not a expression"))
