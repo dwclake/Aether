@@ -1,4 +1,4 @@
-[@deriving (show, eq)]
+[@deriving (show{with_path: false}, eq)]
 type t = 
     | Ident(string)
     | Int(string)

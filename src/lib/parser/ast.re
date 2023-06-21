@@ -1,4 +1,4 @@
-[@deriving (show, eq)]
+[@deriving (show{with_path: false}, eq)]
 type node = 
     | Program(program)
     | Expression(expression)
