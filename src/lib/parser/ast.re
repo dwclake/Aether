@@ -56,14 +56,14 @@ let rec string_of_expr(expr: expression) = {
         | Float(f) => string_of_float(f)
         | Prefix(e) => {
             Format.sprintf(
-                "%s%s",
+                "(%s%s)",
                 Token.to_string(e.operator),
                 string_of_expr(e.value)
             )
         }
         | Infix(e) => {
             Format.sprintf(
-                "%s %s %s",
+                "(%s %s %s)",
                 string_of_expr(e.lhs),
                 Token.to_string(e.operator),
                 string_of_expr(e.rhs)
@@ -83,7 +83,7 @@ let string(~program: program) = {
                 }
                 | Const(stmt) => {
                     let value = string_of_expr(stmt.value);
-                    Format.sprintf("let %s = %s;", stmt.name ,value)
+                    Format.sprintf("const %s = %s;", stmt.name ,value)
                 }
                 | Return(stmt) => {
                     let value = string_of_expr(stmt.value);

@@ -7,18 +7,6 @@ type t = {
     peek: option_t,
 };
 
-[@deriving (show, ord)]
-type _precedence = [ 
-    | `Lowest
-    | `Equals
-    | `LessGreater
-    | `Sum
-    | `Product
-    | `Prefix
-    | `Call
-    | `Index
-];
-
 let next_token(parser: t): t = {
     let lex = Lexer.next_token(parser.lexer);
     
@@ -44,16 +32,72 @@ let peek_error(parser: t, token: Token.t): string = {
     )
 };
 
-let rec parse_expression(parser: t, _: _precedence) = {
+[@deriving (ord)]
+type precedence = [ 
+    | `Lowest
+    | `Equals
+    | `LessGreater
+    | `Sum
+    | `Product
+    | `Prefix
+    | `Call
+    | `Index
+];
+
+let check_precedence(token): precedence = {
+    switch token {
+        | Some(Token.EqualTo) => `Equals
+        | Some(Token.NotEq) => `Equals
+        | Some(Token.Lesser) => `LessGreater
+        | Some(Token.LesserEq) => `LessGreater
+        | Some(Token.Greater) => `LessGreater
+        | Some(Token.GreaterEq) => `LessGreater
+        | Some(Token.Plus) => `Sum
+        | Some(Token.Minus) => `Sum
+        | Some(Token.Forwardslash) => `Product
+        | Some(Token.Asterisk) => `Product
+        | _ => `Lowest
+    }
+};
+
+let prec_lesser(p1, tk) = {
+    let p2 = check_precedence(tk);
+    let value = compare_precedence(p1, p2);
+    if (value < 0) {
+        true
+    } else {
+        false
+    }
+}
+
+let rec parse_expression(parser: t, precedence: precedence) = {
     switch (get_prefix_fn(parser)) {
         | Some(fn) => {
-            let (parser, lhs) = fn(parser);
-            switch lhs {
+            let (parser, expr) = fn(parser);
+            switch expr {
                 | Ok(lhs) =>  {
-                    switch (get_infix_fn(parser)) {
-                        | Some(fn) => fn(parser, lhs)
-                        | None => (parser, Ok(lhs))
+                    let rec loop(parser, lhs) = {
+                        switch parser.peek {
+                            | x when x == Some(Token.Semicolon) 
+                            || !(prec_lesser(precedence, parser.peek)) => (parser, Ok(lhs))
+                            | _ => {
+                                switch (get_infix_fn(parser)) {
+                                    | Some(infix_fn) => {
+                                        let (parser, infix) = infix_fn(lhs);
+                                        switch infix {
+                                            | Ok(infix) => {
+                                                let parser = next_token(parser);
+                                                loop(parser, infix);
+                                            }
+                                            | err => (parser, err)
+                                        };
+                                    }
+                                    | None => (parser, Ok(lhs))
+                                }
+                            }
+                        }
                     }
+                    loop(parser, lhs);
                 }
                 | err => (parser, err)
             }
@@ -93,7 +137,7 @@ and parse_float(parser: t, ~number: string) = {
 and parse_prefix(parser: t) = {
     let operator = Option.get(parser.current);
     let parser = next_token(parser);
-    let (parser, expr) = parse_expression(parser, `Lowest);
+    let (parser, expr) = parse_expression(parser, `Prefix);
     switch expr {
         | Ok(value) => (parser, Ok(Ast.Prefix{operator, value}))
         | err => (parser, err)
@@ -112,10 +156,11 @@ and get_prefix_fn(parser: t) = {
 }
 
 and infix_fn(parser: t, lhs: Ast.expression) = {
-    let operator = Option.get(parser.peek);
+    let operator = Option.get(parser.current);
+    let precedence = check_precedence(parser.current);
 
-    let parser = parser |> next_token |> next_token;
-    let (parser, rhs) = parse_expression(parser, `Lowest);
+    let parser = next_token(parser);
+    let (parser, rhs) = parse_expression(parser, precedence);
     switch rhs {
         | Ok(rhs) => {
             let expression = Ast.Infix{
@@ -140,9 +185,9 @@ and get_infix_fn(parser: t) = {
         | Some(Lesser)
         | Some(Greater)
         | Some(LesserEq)
-        | Some(GreaterEq) => Some(infix_fn)
-        | Some(Lparen) => Some(infix_fn)
-        | Some(Lbracket) => Some(infix_fn)
+        | Some(GreaterEq) => Some(infix_fn(next_token(parser)))
+        | Some(Lparen) => Some(infix_fn(next_token(parser)))
+        | Some(Lbracket) => Some(infix_fn(next_token(parser)))
         | _ => None
     }    
 };
@@ -166,7 +211,10 @@ let parse_bind_statement(parser: t) = {
                             };
                             let binding = switch binding {
                                 | Some(expr) => Ok(expr)
-                                | None => Error("Token not associated with bindings")
+                                | None => Error(Format.sprintf(
+                                    "%s not associated with bindings",
+                                    Token.to_string(current)
+                                ))
                             };
 
                             (parser, binding)

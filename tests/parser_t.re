@@ -104,8 +104,9 @@ let test_binding_statement(): unit = {
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
-    if (List.length(program.statements) != 3) {
-        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    let test_length = 3;
+    if (List.length(program.statements) != test_length) {
+        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
     };
 
     ([  Ast.Let{name: "x", value: Ast.Integer(5)},
@@ -130,8 +131,9 @@ let test_return_statement(): unit = {
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
-    if (List.length(program.statements) != 3) {
-        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    let test_length = 3;
+    if (List.length(program.statements) != test_length) {
+        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
     };
 
     ([  Ast.Return{value: Ast.Integer(5)},
@@ -154,9 +156,9 @@ let test_identifier_expression(): unit = {
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
-
-    if (List.length(program.statements) != 1) {
-        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    let test_length = 1;
+    if (List.length(program.statements) != test_length) {
+        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
     };
 
     ([  Ast.ExpressionStatement{value: Ast.Identifier("foobar")}
@@ -177,9 +179,9 @@ let test_integer_expression(): unit = {
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
-
-    if (List.length(program.statements) != 1) {
-        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    let test_length = 1;
+    if (List.length(program.statements) != test_length) {
+        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
     };
 
     ([  Ast.ExpressionStatement{value: Ast.Integer(5)}
@@ -200,9 +202,9 @@ let test_float_expression(): unit = {
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
-
-    if (List.length(program.statements) != 1) {
-        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    let test_length = 1;
+    if (List.length(program.statements) != test_length) {
+        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
     };
 
     ([  Ast.ExpressionStatement{value: Ast.Float(5.4)}
@@ -225,9 +227,9 @@ let test_prefix_expression(): unit = {
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
-
-    if (List.length(program.statements) != 3) {
-        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    let test_length = 3;
+    if (List.length(program.statements) != test_length) {
+        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
     };
 
     ([  Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Bang, value: Ast.Integer(5)}},
@@ -242,6 +244,9 @@ let test_prefix_expression(): unit = {
 let test_infix_expression(): unit = {
     let input = "
         5 + foobar;
+        bar / 12;
+        12.2 * 13;
+        15 >= 13;
     ";
 
     let lexer = Lexer.create(~input);
@@ -250,17 +255,35 @@ let test_infix_expression(): unit = {
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
-
-    if (List.length(program.statements) != 1) {
-        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    let test_length = 4;
+    if (List.length(program.statements) != test_length) {
+        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
     };
 
     ([  Ast.ExpressionStatement{value: Ast.Infix{
-            lhs: Ast.Integer(5),
-            operator: Token.Plus, 
-            rhs: Ast.Identifier("foobar")
-        }
-    },
+                lhs: Ast.Integer(5),
+                operator: Token.Plus, 
+                rhs: Ast.Identifier("foobar")
+            }
+        },
+        Ast.ExpressionStatement{value: Ast.Infix{
+                lhs: Ast.Identifier("bar"),
+                operator: Token.Forwardslash, 
+                rhs: Ast.Integer(12)
+            }
+        },
+        Ast.ExpressionStatement{value: Ast.Infix{
+                lhs: Ast.Float(12.2),
+                operator: Token.Asterisk, 
+                rhs: Ast.Integer(13)
+            }
+        },
+        Ast.ExpressionStatement{value: Ast.Infix{
+                lhs: Ast.Integer(15),
+                operator: Token.GreaterEq, 
+                rhs: Ast.Integer(13)
+            }
+        },
      ], 
         program.statements
     ) 
