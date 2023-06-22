@@ -237,5 +237,32 @@ let test_prefix_expression(): unit = {
         program.statements
     ) 
     |> test_expression_statement_seq
+};
 
+let test_infix_expression(): unit = {
+    let input = "
+        5 + foobar;
+    ";
+
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
+
+    let (_, program) = Parser.parse_program(parser);
+    check_parser_errors(program.errors);
+
+
+    if (List.length(program.statements) != 1) {
+        failf("statements length is incorrect, got=%d", List.length(program.statements))
+    };
+
+    ([  Ast.ExpressionStatement{value: Ast.Infix{
+            lhs: Ast.Integer(5),
+            operator: Token.Plus, 
+            rhs: Ast.Identifier("foobar")
+        }
+    },
+     ], 
+        program.statements
+    ) 
+    |> test_expression_statement_seq
 };

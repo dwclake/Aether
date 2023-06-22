@@ -11,6 +11,11 @@ type node =
         | Prefix{
             operator: Token.t,
             value: expression
+        } 
+        | Infix{
+            lhs: expression,
+            operator: Token.t,
+            rhs: expression
         }
 
     and statement =
@@ -54,6 +59,14 @@ let rec string_of_expr(expr: expression) = {
                 "%s%s",
                 Token.to_string(e.operator),
                 string_of_expr(e.value)
+            )
+        }
+        | Infix(e) => {
+            Format.sprintf(
+                "%s %s %s",
+                string_of_expr(e.lhs),
+                Token.to_string(e.operator),
+                string_of_expr(e.rhs)
             )
         }
     };

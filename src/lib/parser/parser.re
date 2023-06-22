@@ -50,11 +50,135 @@ let peek_error(parser: t, token: Token.t): string = {
     Format.sprintf(
         "Expected next token to be %s, got=%s",
         Token.show(token),
-        Token.show(parser.peek |> Option.get)
+        Token.show(Option.get(parser.peek))
     )
 };
 
-let _get_infix_fn(parser: t) = {
+let rec parse_expression(parser: t, ~infix=false, _: _precedence) = {
+    switch infix {
+        | true => {
+            switch (get_prefix_fn(parser)) {
+                | Some(fn) => fn(parser)
+                | None => {
+                    switch parser.current {
+                        | Some(token) => {
+                            switch token {
+                                | Token.Ident(identifier) => {
+                                    let id = Ast.Identifier(identifier);
+
+                                    (parser, Ok(id))
+                                }
+                                | Token.Int(value) => parse_int(parser, ~number=value)
+                                | Token.Float(value) => parse_float(parser, ~number=value)
+                                | _ => (parser, Error("Cannot parse expression"))
+                            }
+                        }
+                        | None => (parser, Error("Missing token"))
+                    }
+                }
+            }
+        }
+        | false => {
+            switch (get_infix_fn(parser)) {
+                | Some(fn) => fn(parser)
+                | None => {
+                    switch (get_prefix_fn(parser)) {
+                        | Some(fn) => fn(parser)
+                        | None => {
+                            switch parser.current {
+                                | Some(token) => {
+                                    switch token {
+                                        | Token.Ident(identifier) => {
+                                            let id = Ast.Identifier(identifier);
+
+                                            (parser, Ok(id))
+                                        }
+                                        | Token.Int(value) => parse_int(parser, ~number=value)
+                                        | Token.Float(value) => parse_float(parser, ~number=value)
+                                        | _ => (parser, Error("Cannot parse expression"))
+                                    }
+                                }
+                                | None => (parser, Error("Missing token"))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+and parse_int(parser: t, ~number: string) = {
+    switch (int_of_string_opt(number)) {
+        | Some(value) => (parser, Ok(Ast.Integer(value)))
+        | None => (parser, Error(Format.sprintf(
+            "Unable to convert %s to float", 
+            number
+        )))
+    }
+}
+
+and parse_float(parser: t, ~number: string) = {
+    switch (float_of_string_opt(number)) {
+        | Some(value) => (parser, Ok(Ast.Float(value)))
+        | None => (parser, Error(Format.sprintf(
+            "Unable to convert %s to float", 
+            number
+        )))
+    }
+}
+
+and parse_prefix_negation(parser: t) = {
+    let parser = next_token(parser);
+    let (parser, expr) = parse_expression(parser, `Lowest);
+    switch expr {
+        | Ok(value) => (parser, Ok(Ast.Prefix{operator: Token.Bang, value}))
+        | err => (parser, err)
+    }
+}
+
+and parse_prefix_negative(parser: t) = {
+    let parser = next_token(parser);
+    let (parser, expr) = parse_expression(parser, `Lowest);
+    switch expr {
+        | Ok(value) => (parser, Ok(Ast.Prefix{operator: Token.Minus, value}))
+        | err => (parser, err)
+    }
+}
+
+and get_prefix_fn(parser: t) = {
+    switch parser.current {
+        | Some(Token.Bang) => Some(parse_prefix_negation)
+        | Some(Token.Minus) => Some(parse_prefix_negative)
+        | _ => None
+    }
+}
+
+and infix_fn(parser: t) = {
+    let operator = Option.get(parser.peek);
+
+    let (parser, lhs) = parse_expression(parser, `Lowest, ~infix=true);
+    switch lhs {
+        | Ok(lhs) => {
+            let parser = parser |> next_token |> next_token;
+            let (parser, rhs) = parse_expression(parser, `Lowest);
+            switch rhs {
+                | Ok(rhs) => {
+                    let expression = Ast.Infix{
+                        lhs,
+                        operator,
+                        rhs
+                    };
+                    (parser, Ok(expression))
+                }
+                | err => (parser, err)
+            }
+        }
+        | err => (parser, err)
+    }
+}
+
+and get_infix_fn(parser: t) = {
     switch parser.peek {
         | Some(Plus)
         | Some(Minus)
@@ -65,87 +189,36 @@ let _get_infix_fn(parser: t) = {
         | Some(Lesser)
         | Some(Greater)
         | Some(LesserEq)
-        | Some(GreaterEq) => Some(())
-        | Some(Lparen) => Some(())
-        | Some(Lbracket) => Some(())
+        | Some(GreaterEq) => Some(infix_fn)
+        | Some(Lparen) => Some(infix_fn)
+        | Some(Lbracket) => Some(infix_fn)
         | _ => None
     }    
 };
 
-let rec parse_expression(parser: t, ~check=`Current,  _: _precedence) = {
-    let checked_token = switch check {
-        | `Current => parser.current
-        | `Peek => parser.peek
-    };
-    let parser = switch check {
-        | `Current => parser
-        | `Peek => next_token(parser)
-    };
-
-    switch checked_token {
-        | Some(token) => {
-            switch token {
-                | Token.Ident(identifier) => {
-                    let id = Ast.Identifier(identifier);
-                    (parser, Ok(id))
-                }
-                | Token.Int(value) => {
-                    switch (int_of_string_opt(value)) {
-                        | Some(value) => (parser, Ok(Ast.Integer(value)))
-                        | None => (parser, Error(Format.sprintf(
-                            "Unable to convert %s to int", 
-                            value
-                        )))
-                    }
-                }
-                | Token.Float(value) => {
-                    switch (float_of_string_opt(value)) {
-                        | Some(value) => (parser, Ok(Ast.Float(value)))
-                        | None => (parser, Error(Format.sprintf(
-                            "Unable to convert %s to float", 
-                            value
-                        )))
-                    }
-                }
-                | Token.Bang => {
-                    let (parser, expr) = parse_expression(parser, `Lowest, ~check=`Peek);
-                    switch expr {
-                        | Ok(value) => (parser, Ok(Ast.Prefix{operator: Token.Bang, value}))
-                        | Error(message) => (parser, Error(message))
-                    }
-                }
-                | Token.Minus => {
-                    let (parser, expr) = parse_expression(parser, `Lowest, ~check=`Peek);
-                    switch expr {
-                        | Ok(value) => (parser, Ok(Ast.Prefix{operator: Token.Minus, value}))
-                        | Error(message) => (parser, Error(message))
-                    }
-                }
-                | _ => (parser, Error("Not a expression"))
-            }
-        }
-        | None => (parser, Error("Missing token"))
-    }
-};
-
-let parse_bind_statement(~bind=`Let, parser: t) = {
+let parse_bind_statement(parser: t) = {
+    let current = Option.get(parser.current);
     switch parser.peek {
-        | Some(Token.Ident(identifier)) => {
+        | Some(Token.Ident(name)) => {
             let parser = next_token(parser);
-            let name: Ast.identifier = {identifier};
-
             switch parser.peek {
                 | Some(Token.Assign) => {
-                    let parser = next_token(parser);
-                    let (parser, expr) = parse_expression(parser, `Lowest, ~check=`Peek);
+                    let parser = parser |> next_token |> next_token;
+                    let (parser, expr) = parse_expression(parser, `Lowest);
 
                     switch expr {
                         | Ok(value) => {
-                            let lexer = switch bind {
-                                | `Let => Ast.Let{name, value}
-                                | `Const => Ast.Const{name, value}
+                            let binding = switch current {
+                                | Let => Some(Ast.Let{name, value})
+                                | Const => Some(Ast.Const{name, value})
+                                | _ => None
                             };
-                            (parser, Ok(lexer))
+                            let binding = switch binding {
+                                | Some(expr) => Ok(expr)
+                                | None => Error("Token not associated with bindings")
+                            };
+
+                            (parser, binding)
                         }
                         | Error(message) => (parser, Error(message))
                     }
@@ -179,8 +252,11 @@ let parse_return_statement(parser: t) = {
 
 let parse_expression_statement(parser: t) = {
     let (parser, expr) = parse_expression(parser, `Lowest);
-
-    let parser = if(parser.peek == Some(Token.Semicolon)) {next_token(parser)} else {parser};
+    let parser = if(parser.peek == Some(Token.Semicolon)) {
+        next_token(parser)
+    } else {
+        parser
+    };
 
     switch expr {
         | Ok(value) => (parser, Ok(Ast.ExpressionStatement{value: value}))
@@ -190,8 +266,8 @@ let parse_expression_statement(parser: t) = {
 
 let parse_statement(parser: t) = {
     switch parser.current {
-        | Some(Token.Let) => parse_bind_statement(parser, ~bind=`Let)
-        | Some(Token.Const) => parse_bind_statement(parser, ~bind=`Const)
+        | Some(Token.Let) => parse_bind_statement(parser)
+        | Some(Token.Const) => parse_bind_statement(parser)
         | Some(Token.Return) => parse_return_statement(parser)
         | _ => parse_expression_statement(parser)
     }
