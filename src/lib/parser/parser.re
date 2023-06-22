@@ -54,25 +54,21 @@ let peek_error(parser: t, token: Token.t): string = {
     )
 };
 
-let rec parse_expression(parser: t, ~infix=false, _: _precedence) = {
-    switch infix {
-        | true => {
-            switch (get_prefix_fn(parser)) {
-                | Some(fn) => fn(parser)
-                | None => (parser, Error("Cannot parse expression"))
-            }
-        }
-        | false => {
-            switch (get_infix_fn(parser)) {
-                | Some(fn) => fn(parser)
-                | None => {
-                    switch (get_prefix_fn(parser)) {
-                        | Some(fn) => fn(parser)
-                        | None => (parser, Error("Cannot parse expression"))
+let rec parse_expression(parser: t, _: _precedence) = {
+    switch (get_prefix_fn(parser)) {
+        | Some(fn) => {
+            let (parser, lhs) = fn(parser);
+            switch lhs {
+                | Ok(lhs) =>  {
+                    switch (get_infix_fn(parser)) {
+                        | Some(fn) => fn(parser, lhs)
+                        | None => (parser, Ok(lhs))
                     }
                 }
+                | err => (parser, err)
             }
         }
+        | None => (parser, Error("Cannot parse expression"))
     }
 }
 
@@ -101,20 +97,12 @@ and parse_float(parser: t, ~number: string) = {
     }
 }
 
-and parse_prefix_negation(parser: t) = {
+and parse_prefix(parser: t) = {
+    let operator = Option.get(parser.current);
     let parser = next_token(parser);
     let (parser, expr) = parse_expression(parser, `Lowest);
     switch expr {
-        | Ok(value) => (parser, Ok(Ast.Prefix{operator: Token.Bang, value}))
-        | err => (parser, err)
-    }
-}
-
-and parse_prefix_negative(parser: t) = {
-    let parser = next_token(parser);
-    let (parser, expr) = parse_expression(parser, `Lowest);
-    switch expr {
-        | Ok(value) => (parser, Ok(Ast.Prefix{operator: Token.Minus, value}))
+        | Ok(value) => (parser, Ok(Ast.Prefix{operator, value}))
         | err => (parser, err)
     }
 }
@@ -124,31 +112,25 @@ and get_prefix_fn(parser: t) = {
         | Some(Token.Ident(identifier)) => Some(parse_identifier(~identifier))
         | Some(Token.Int(number)) => Some(parse_int(~number))
         | Some(Token.Float(number)) => Some(parse_float(~number))
-        | Some(Token.Bang) => Some(parse_prefix_negation)
-        | Some(Token.Minus) => Some(parse_prefix_negative)
+        | Some(Token.Bang) => Some(parse_prefix)
+        | Some(Token.Minus) => Some(parse_prefix)
         | _ => None
     }
 }
 
-and infix_fn(parser: t) = {
+and infix_fn(parser: t, lhs: Ast.expression) = {
     let operator = Option.get(parser.peek);
 
-    let (parser, lhs) = parse_expression(parser, `Lowest, ~infix=true);
-    switch lhs {
-        | Ok(lhs) => {
-            let parser = parser |> next_token |> next_token;
-            let (parser, rhs) = parse_expression(parser, `Lowest);
-            switch rhs {
-                | Ok(rhs) => {
-                    let expression = Ast.Infix{
-                        lhs,
-                        operator,
-                        rhs
-                    };
-                    (parser, Ok(expression))
-                }
-                | err => (parser, err)
-            }
+    let parser = parser |> next_token |> next_token;
+    let (parser, rhs) = parse_expression(parser, `Lowest);
+    switch rhs {
+        | Ok(rhs) => {
+            let expression = Ast.Infix{
+                lhs,
+                operator,
+                rhs
+            };
+            (parser, Ok(expression))
         }
         | err => (parser, err)
     }
