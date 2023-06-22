@@ -7,7 +7,7 @@ type t = {
     peek: option_t,
 };
 
-//[@deriving (show, ord)]
+[@deriving (show, ord)]
 type _precedence = [ 
     | `Lowest
     | `Equals
@@ -17,16 +17,6 @@ type _precedence = [
     | `Prefix
     | `Call
     | `Index
-];
-
-type _binding = [
-    | `Let
-    | `Const
-];
-
-type _check_token = [ 
-    | `Current
-    | `Peek
 ];
 
 let next_token(parser: t): t = {
@@ -68,7 +58,10 @@ let rec parse_expression(parser: t, _: _precedence) = {
                 | err => (parser, err)
             }
         }
-        | None => (parser, Error("Cannot parse expression"))
+        | None => (parser, Error(Format.sprintf(
+            "No prefix function for %s",
+            Token.to_string(Option.get(parser.current))
+        )))
     }
 }
 
