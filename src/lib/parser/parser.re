@@ -79,7 +79,7 @@ let rec parse_expression(parser: t, precedence: precedence) = {
                     let rec loop(parser, lhs) = {
                         switch parser.peek {
                             | x when x == Some(Token.Semicolon) 
-                            || !(prec_lesser(precedence, parser.peek)) => (parser, Ok(lhs))
+                            || !prec_lesser(precedence, x) => (parser, Ok(lhs))
                             | _ => {
                                 switch (get_infix_fn(parser)) {
                                     | Some(infix_fn) => {
