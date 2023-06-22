@@ -144,7 +144,6 @@ and build_infix(precedence, parser, lhs) = {
                     let (parser, expr) = fn(lhs);
                     switch expr {
                         | Ok(expr) => {
-                            let parser = next_token(parser);
                             build_infix(precedence, parser, expr);
                         }
                         | err => (parser, err)

@@ -247,6 +247,8 @@ let test_infix_expression(): unit = {
         bar / 12;
         12.2 * 13;
         15 >= 13;
+        a + b / c;
+        -5 * !x;
     ";
 
     let lexer = Lexer.create(~input);
@@ -255,7 +257,7 @@ let test_infix_expression(): unit = {
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
 
-    let test_length = 4;
+    let test_length = 6;
     if (List.length(program.statements) != test_length) {
         failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
     };
@@ -282,6 +284,28 @@ let test_infix_expression(): unit = {
                 lhs: Ast.Integer(15),
                 operator: Token.GreaterEq, 
                 rhs: Ast.Integer(13)
+            }
+        },
+        Ast.ExpressionStatement{value: Ast.Infix{
+                lhs: Ast.Identifier("a"),
+                operator: Token.Plus, 
+                rhs: Ast.Infix{
+                    lhs: Ast.Identifier("b"),
+                    operator: Token.Forwardslash,
+                    rhs: Ast.Identifier("c")
+                }
+            }
+        },
+        Ast.ExpressionStatement{value: Ast.Infix{
+                lhs: Ast.Prefix{
+                    operator: Token.Minus,
+                    value: Ast.Integer(5)
+                },
+                operator: Token.Asterisk, 
+                rhs: Ast.Prefix{
+                    operator: Token.Bang,
+                    value: Ast.Identifier("x")
+                }
             }
         },
      ], 
