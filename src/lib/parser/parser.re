@@ -109,11 +109,11 @@ and parse_prefix(parser: t) = {
 
 and get_prefix_fn(parser: t) = {
     switch parser.current {
+        | Some(Token.Bang)
+        | Some(Token.Minus) => Some(parse_prefix)
         | Some(Token.Ident(identifier)) => Some(parse_identifier(~identifier))
         | Some(Token.Int(number)) => Some(parse_int(~number))
         | Some(Token.Float(number)) => Some(parse_float(~number))
-        | Some(Token.Bang) => Some(parse_prefix)
-        | Some(Token.Minus) => Some(parse_prefix)
         | _ => None
     }
 }
@@ -181,16 +181,10 @@ let parse_bind_statement(parser: t) = {
                         | Error(message) => (parser, Error(message))
                     }
                 }
-                | _ => {
-                    let message = peek_error(parser, Token.Assign);
-                    (parser, Error(message))
-                }
+                | _ => (parser, Error(peek_error(parser, Token.Assign)))
             }
         } 
-        | _ => {
-            let message = peek_error(parser, Token.Ident("\000"));
-            (parser, Error(message))
-        }
+        | _ => (parser, Error(peek_error(parser, Token.Ident("\000"))))
     }
 };
 
