@@ -59,23 +59,7 @@ let rec parse_expression(parser: t, ~infix=false, _: _precedence) = {
         | true => {
             switch (get_prefix_fn(parser)) {
                 | Some(fn) => fn(parser)
-                | None => {
-                    switch parser.current {
-                        | Some(token) => {
-                            switch token {
-                                | Token.Ident(identifier) => {
-                                    let id = Ast.Identifier(identifier);
-
-                                    (parser, Ok(id))
-                                }
-                                | Token.Int(value) => parse_int(parser, ~number=value)
-                                | Token.Float(value) => parse_float(parser, ~number=value)
-                                | _ => (parser, Error("Cannot parse expression"))
-                            }
-                        }
-                        | None => (parser, Error("Missing token"))
-                    }
-                }
+                | None => (parser, Error("Cannot parse expression"))
             }
         }
         | false => {
@@ -84,28 +68,17 @@ let rec parse_expression(parser: t, ~infix=false, _: _precedence) = {
                 | None => {
                     switch (get_prefix_fn(parser)) {
                         | Some(fn) => fn(parser)
-                        | None => {
-                            switch parser.current {
-                                | Some(token) => {
-                                    switch token {
-                                        | Token.Ident(identifier) => {
-                                            let id = Ast.Identifier(identifier);
-
-                                            (parser, Ok(id))
-                                        }
-                                        | Token.Int(value) => parse_int(parser, ~number=value)
-                                        | Token.Float(value) => parse_float(parser, ~number=value)
-                                        | _ => (parser, Error("Cannot parse expression"))
-                                    }
-                                }
-                                | None => (parser, Error("Missing token"))
-                            }
-                        }
+                        | None => (parser, Error("Cannot parse expression"))
                     }
                 }
             }
         }
     }
+}
+
+and parse_identifier(parser: t, ~identifier: string) = {
+    let id = Ast.Identifier(identifier);
+    (parser, Ok(id))
 }
 
 and parse_int(parser: t, ~number: string) = {
@@ -148,6 +121,9 @@ and parse_prefix_negative(parser: t) = {
 
 and get_prefix_fn(parser: t) = {
     switch parser.current {
+        | Some(Token.Ident(identifier)) => Some(parse_identifier(~identifier))
+        | Some(Token.Int(number)) => Some(parse_int(~number))
+        | Some(Token.Float(number)) => Some(parse_float(~number))
         | Some(Token.Bang) => Some(parse_prefix_negation)
         | Some(Token.Minus) => Some(parse_prefix_negative)
         | _ => None
