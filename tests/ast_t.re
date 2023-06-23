@@ -4,7 +4,8 @@ open Alcotest;
 let test_string() = {
     let program: Ast.program = {
         statements: [
-            Ast.Let{
+            Ast.Binding{
+                kind: Token.Let,
                 name: "myVar",
                 value: Ast.Identifier("anotherVar")
             },

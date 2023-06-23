@@ -19,11 +19,8 @@ type node =
         }
 
     and statement =
-        | Let {
-            name: identifier,
-            value: expression
-        }
-        | Const {
+        | Binding {
+            kind: Token.t,
             name: identifier,
             value: expression
         }
@@ -77,13 +74,9 @@ let string(~program: program) = {
         | [] => acc
         | [h,...t] => {
             let literal = switch h {
-                | Let(stmt) => {
+                | Binding(stmt) => {
                     let value = string_of_expr(stmt.value);
-                    Format.sprintf("let %s = %s;", stmt.name ,value)
-                }
-                | Const(stmt) => {
-                    let value = string_of_expr(stmt.value);
-                    Format.sprintf("const %s = %s;", stmt.name ,value)
+                    Format.sprintf("%s %s = %s;", Token.to_string(stmt.kind), stmt.name ,value)
                 }
                 | Return(stmt) => {
                     let value = string_of_expr(stmt.value);

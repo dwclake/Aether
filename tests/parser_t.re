@@ -109,9 +109,9 @@ let test_binding_statement(): unit = {
         failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
     };
 
-    ([  Ast.Let{name: "x", value: Ast.Integer(5)},
-        Ast.Const{name: "y", value: Ast.Integer(10)},
-        Ast.Let{name: "foobar", value: Ast.Integer(838383)}
+    ([  Ast.Binding{kind: Token.Let, name: "x", value: Ast.Integer(5)},
+        Ast.Binding{kind: Token.Const, name: "y", value: Ast.Integer(10)},
+        Ast.Binding{kind: Token.Let, name: "foobar", value: Ast.Integer(838383)}
      ], 
         program.statements
     ) 

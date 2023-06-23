@@ -204,20 +204,13 @@ let parse_bind_statement(parser: t) = {
 
                     switch expr {
                         | Ok(value) => {
-                            let binding = switch current {
-                                | Let => Some(Ast.Let{name, value})
-                                | Const => Some(Ast.Const{name, value})
-                                | _ => None
-                            };
-                            let binding = switch binding {
-                                | Some(expr) => Ok(expr)
-                                | None => Error(Format.sprintf(
-                                    "%s not associated with bindings",
-                                    Token.to_string(current)
-                                ))
+                            let binding = Ast.Binding{
+                                kind: current,
+                                name,
+                                value
                             };
 
-                            (parser, binding)
+                            (parser, Ok(binding))
                         }
                         | Error(message) => (parser, Error(message))
                     }
