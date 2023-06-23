@@ -15,8 +15,16 @@ fn add(a, b) {
     return a + b;
 };
 
-fn add(a, ?b=2) { // ? marks optional parameters which can be followed be default values
+fn add(a, ?b) { // ? marks optional parameters
     let x = if b { // Options can be cooerced to bools, Some -> true, None -> false
+        a + b
+    } else {
+        a + 0
+    };
+};
+
+fn add(a, ?b=2) { // optional parameters can be followed be default values
+    let x = if b > 0 {
         a + b
     } else {
         a + 0
