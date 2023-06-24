@@ -60,16 +60,6 @@ let check_precedence(token): precedence = {
     }
 };
 
-let precedence_lesser(p1, tk) = {
-    let p2 = check_precedence(tk);
-    let value = compare_precedence(p1, p2);
-    if (value < 0) {
-        true
-    } else {
-        false
-    }
-}
-
 let rec parse_expression(parser: t, precedence: precedence) = {
     switch (get_prefix_fn(parser)) {
         | Some(fn) => {
@@ -136,8 +126,7 @@ and parse_prefix(parser: t) = {
 
 and build_infix(precedence, parser, lhs) = {
     switch parser.peek {
-        | x when x == Some(Token.Semicolon) 
-        || !precedence_lesser(precedence, x) => (parser, Ok(lhs))
+        | x when compare_precedence(precedence, check_precedence(x)) != -1 => (parser, Ok(lhs))
         | _ => {
             switch (get_infix_fn(parser)) {
                 | Some(fn) => {
