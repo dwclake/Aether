@@ -44,17 +44,19 @@ type precedence = [
     | `Index
 ];
 
-let check_precedence(token): precedence = {
+let comp_prec(a, b) = {compare_precedence(a, b) >= 0};
+
+let get_prec(token): precedence = {
     switch token {
-        | Some(Token.EqualTo) => `Equals
+        | Some(Token.EqualTo)
         | Some(Token.NotEq) => `Equals
-        | Some(Token.Lesser) => `LessGreater
-        | Some(Token.LesserEq) => `LessGreater
-        | Some(Token.Greater) => `LessGreater
+        | Some(Token.Lesser)
+        | Some(Token.LesserEq)
+        | Some(Token.Greater)
         | Some(Token.GreaterEq) => `LessGreater
-        | Some(Token.Plus) => `Sum
+        | Some(Token.Plus)
         | Some(Token.Minus) => `Sum
-        | Some(Token.Forwardslash) => `Product
+        | Some(Token.Forwardslash)
         | Some(Token.Asterisk) => `Product
         | _ => `Lowest
     }
@@ -65,9 +67,7 @@ let rec parse_expression(parser: t, precedence: precedence) = {
         | Some(fn) => {
             let (parser, prefix) = fn(parser);
             switch prefix {
-                | Ok(lhs) =>  {
-                    build_infix(precedence, parser, lhs)
-                }
+                | Ok(lhs) => build_infix(precedence, parser, lhs)
                 | err => (parser, err)
             }
         }
@@ -126,7 +126,7 @@ and parse_prefix(parser: t) = {
 
 and build_infix(precedence, parser, lhs) = {
     switch parser.peek {
-        | x when compare_precedence(precedence, check_precedence(x)) != -1 => (parser, Ok(lhs))
+        | x when comp_prec(precedence, get_prec(x)) => (parser, Ok(lhs))
         | _ => {
             switch (get_infix_fn(parser)) {
                 | Some(fn) => {
@@ -164,7 +164,7 @@ and get_infix_fn(parser: t) = {
 
 and parse_infix_fn(parser: t, lhs: Ast.expression) = {
     let operator = Option.get(parser.current);
-    let precedence = check_precedence(parser.current);
+    let precedence = get_prec(parser.current);
 
     let parser = next_token(parser);
     let (parser, rhs) = parse_expression(parser, precedence);

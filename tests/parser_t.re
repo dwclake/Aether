@@ -34,44 +34,24 @@ let rec test_token_seq(parser: Parser.t, ~i=1) = { fun
     }
 };
 
-let rec test_binding_statement_seq(~i=1, lists: (list(Ast.statement), list(Ast.statement))) = {
+let rec test_statement_seq(~i=1, lists: (list(Ast.statement), list(Ast.statement))) = {
     switch lists {
         | ([], []) => ()
         | ([es,...et], [s,...t]) => {
             check(ts, string_of_int(i), es, s);
             check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
 
-            test_binding_statement_seq(~i=i + 1, (et, t))
+            test_statement_seq(~i=i + 1, (et, t))
         }
         | _ => failwith("Lists must be of the same size")
     }
 };
 
-let rec test_return_statement_seq(~i=1, lists: (list(Ast.statement), list(Ast.statement))) = {
-    switch lists {
-        | ([], []) => ()
-        | ([es,...et], [s,...t]) => {
-            check(ts, string_of_int(i), es, s);
-            check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
-
-            test_return_statement_seq(~i=i + 1, (et, t))
-        }
-        | _ => failwith("Lists must be of the same size")
+let check_stmts_len(program: Ast.program, len) = {
+    if (List.length(program.statements) != len) {
+        failf("statements length is not %d, got=%d", len, List.length(program.statements))
     }
-};
-
-let rec test_expression_statement_seq(~i=1, lists: (list(Ast.statement), list(Ast.statement))) = {
-    switch lists {
-        | ([], []) => ()
-        | ([es,...et], [s,...t]) => {
-            check(ts, string_of_int(i), es, s);
-            check(Alcotest.string, string_of_int(i), "statement", Ast.token_literal(Ast.Statement(s)));
-
-            test_expression_statement_seq(~i=i + 1, (et, t))
-        }
-        | _ => failwith("Lists must be of the same size")
-    }
-};
+}
 
 let test_next_token(): unit = {
     let input = "=+(){},;";
@@ -103,11 +83,7 @@ let test_binding_statement(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-
-    let test_length = 3;
-    if (List.length(program.statements) != test_length) {
-        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
-    };
+    check_stmts_len(program, 3);
 
     ([  Ast.Binding{kind: Token.Let, name: "x", value: Ast.Integer(5)},
         Ast.Binding{kind: Token.Const, name: "y", value: Ast.Integer(10)},
@@ -115,7 +91,7 @@ let test_binding_statement(): unit = {
      ], 
         program.statements
     ) 
-    |> test_binding_statement_seq
+    |> test_statement_seq
 }
 
 let test_return_statement(): unit = {
@@ -130,11 +106,7 @@ let test_return_statement(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-
-    let test_length = 3;
-    if (List.length(program.statements) != test_length) {
-        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
-    };
+    check_stmts_len(program, 3);
 
     ([  Ast.Return{value: Ast.Integer(5)},
         Ast.Return{value: Ast.Integer(10)},
@@ -142,7 +114,7 @@ let test_return_statement(): unit = {
      ], 
         program.statements
     ) 
-    |> test_return_statement_seq
+    |> test_statement_seq
 };
 
 let test_identifier_expression(): unit = {
@@ -155,17 +127,13 @@ let test_identifier_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-
-    let test_length = 1;
-    if (List.length(program.statements) != test_length) {
-        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
-    };
+    check_stmts_len(program, 1);
 
     ([  Ast.ExpressionStatement{value: Ast.Identifier("foobar")}
      ], 
         program.statements
     ) 
-    |> test_expression_statement_seq
+    |> test_statement_seq
 };
 
 let test_integer_expression(): unit = {
@@ -178,17 +146,13 @@ let test_integer_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-
-    let test_length = 1;
-    if (List.length(program.statements) != test_length) {
-        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
-    };
+    check_stmts_len(program, 1);
 
     ([  Ast.ExpressionStatement{value: Ast.Integer(5)}
      ], 
         program.statements
     ) 
-    |> test_expression_statement_seq
+    |> test_statement_seq
 };
 
 let test_float_expression(): unit = {
@@ -201,17 +165,13 @@ let test_float_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-
-    let test_length = 1;
-    if (List.length(program.statements) != test_length) {
-        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
-    };
+    check_stmts_len(program, 1);
 
     ([  Ast.ExpressionStatement{value: Ast.Float(5.4)}
      ], 
         program.statements
     ) 
-    |> test_expression_statement_seq
+    |> test_statement_seq
 };
 
 let test_prefix_expression(): unit = {
@@ -226,11 +186,7 @@ let test_prefix_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-
-    let test_length = 3;
-    if (List.length(program.statements) != test_length) {
-        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
-    };
+    check_stmts_len(program, 3);
 
     ([  Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Bang, value: Ast.Integer(5)}},
         Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Minus, value: Ast.Integer(15)}},
@@ -238,7 +194,7 @@ let test_prefix_expression(): unit = {
      ], 
         program.statements
     ) 
-    |> test_expression_statement_seq
+    |> test_statement_seq
 };
 
 let test_infix_expression(): unit = {
@@ -256,11 +212,7 @@ let test_infix_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-
-    let test_length = 6;
-    if (List.length(program.statements) != test_length) {
-        failf("statements length is not %d, got=%d", test_length, List.length(program.statements))
-    };
+    check_stmts_len(program, 6);
 
     ([  Ast.ExpressionStatement{value: Ast.Infix{
                 lhs: Ast.Integer(5),
@@ -311,5 +263,5 @@ let test_infix_expression(): unit = {
      ], 
         program.statements
     ) 
-    |> test_expression_statement_seq
+    |> test_statement_seq
 };
