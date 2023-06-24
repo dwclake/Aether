@@ -95,7 +95,7 @@ let rec read_sequence(~acc="", ~predicate, lexer: t): lex_r<{.. literal: string}
 let compound_or(lexer: t, ~default: Token.t, ~rules): lex_r<{.. token: Token.t}> = {
     let next_ch = peek(lexer);
     
-    let rec loop = { fun
+    let rec compound_or' = { fun
         | [] => default 
         | [h,...t] => {
             let (ch, tok) = h;
@@ -103,11 +103,11 @@ let compound_or(lexer: t, ~default: Token.t, ~rules): lex_r<{.. token: Token.t}>
             if(next_ch == ch) {
                 tok
             } else {
-                loop(t);
+                compound_or'(t);
             }
         }
     };
-    let tok = loop(rules);
+    let tok = compound_or'(rules);
 
     switch tok {
         | tok when tok == default => { as _; 

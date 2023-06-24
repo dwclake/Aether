@@ -155,19 +155,18 @@ and get_infix_fn(parser: t) = {
         | Some(Lesser)
         | Some(Greater)
         | Some(LesserEq)
-        | Some(GreaterEq) => Some(parse_infix_fn(next_token(parser)))
-        | Some(Lparen) => Some(parse_infix_fn(next_token(parser)))
-        | Some(Lbracket) => Some(parse_infix_fn(next_token(parser)))
+        | Some(GreaterEq) => Some(parse_infix(next_token(parser)))
+        | Some(Lparen) => Some(parse_infix(next_token(parser)))
+        | Some(Lbracket) => Some(parse_infix(next_token(parser)))
         | _ => None
     }    
 }
 
-and parse_infix_fn(parser: t, lhs: Ast.expression) = {
+and parse_infix(parser: t, lhs: Ast.expression) = {
     let operator = Option.get(parser.current);
     let precedence = get_prec(parser.current);
 
-    let parser = next_token(parser);
-    let (parser, rhs) = parse_expression(parser, precedence);
+    let (parser, rhs) = parse_expression(next_token(parser), precedence);
     switch rhs {
         | Ok(rhs) => {
             let expression = Ast.Infix{
@@ -212,8 +211,7 @@ let parse_bind_statement(parser: t) = {
 };
 
 let parse_return_statement(parser: t) = {
-    let parser = next_token(parser);
-    let (parser, expr) = parse_expression(parser, `Lowest);
+    let (parser, expr) = parse_expression(next_token(parser), `Lowest);
 
     switch expr {
         | Ok(value) => {
@@ -249,19 +247,19 @@ let parse_statement(parser: t) = {
 };
 
 let parse_program(parser: t): (t, Ast.program) = { 
-    let rec loop = (parser: t, stmts, errors) => {
+    let rec parse_program' = (parser: t, stmts, errors) => {
         switch parser.current {
             | Some(Token.Eof) => (parser, stmts, errors)
             | _ => {
                 let (parser, stmt) = parse_statement(parser);
                 switch stmt {
-                    | Ok(stmt) => loop(next_token(parser), [stmt] @ stmts, errors)
-                    | Error(message) => loop(next_token(parser), stmts, [message] @ errors)
+                    | Ok(stmt) => parse_program'(next_token(parser), [stmt] @ stmts, errors)
+                    | Error(message) => parse_program'(next_token(parser), stmts, [message] @ errors)
                 }
             }
         }
     };
-    let (parser, statements, errors) = loop(parser, [], []);
+    let (parser, statements, errors) = parse_program'(parser, [], []);
 
     let errors = errors |> List.rev;
     let statements = statements |> List.rev;
