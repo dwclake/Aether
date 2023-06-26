@@ -55,7 +55,31 @@ let token_literal = { fun
     | Statement(_) => "statement"
 };
 
-let rec string_of_expr(expr: expression) = {
+let rec string(~block: block_statement) = {
+    let rec string'(~acc="") = { fun 
+        | [] => acc
+        | [h,...t] => {
+            let literal = switch h {
+                | Binding(stmt) => {
+                    let value = string_of_expr(stmt.value);
+                    Format.sprintf("%s %s = %s;\n", Token.to_string(stmt.kind), stmt.name ,value)
+                }
+                | Return(stmt) => {
+                    let value = string_of_expr(stmt.value);
+                    Format.sprintf("return %s;\n", value)
+                }
+                | ExpressionStatement(stmt) => {
+                    let value = string_of_expr(stmt.value);
+                    Format.sprintf("%s;\n", value)
+                }
+            };
+            string'(~acc=(acc ++ literal), t)
+        }
+    };
+    string'(block)
+}
+
+and string_of_expr(expr: expression) = {
     switch expr {
         | Identifier(i) => i
         | Integer(i) => string_of_int(i)
@@ -64,11 +88,11 @@ let rec string_of_expr(expr: expression) = {
         | Unit => "()"
         | If(i) => {
             let alternative = switch i.alternative {
-                | Some(block) => "else " ++ string(~block)
+                | Some(block) => " else {" ++ string(~block) ++ " }"
                 | None => ""
             }
             Format.sprintf(
-                "if %s {%s} %s",
+                "if %s {%s}%s",
                 string_of_expr(i.condition),
                 string(~block=i.consequence),
                 alternative
@@ -92,26 +116,3 @@ let rec string_of_expr(expr: expression) = {
     };
 }
 
-and string(~block: block_statement) = {
-    let rec string'(~acc="") = { fun 
-        | [] => acc
-        | [h,...t] => {
-            let literal = switch h {
-                | Binding(stmt) => {
-                    let value = string_of_expr(stmt.value);
-                    Format.sprintf("%s %s = %s;\n", Token.to_string(stmt.kind), stmt.name ,value)
-                }
-                | Return(stmt) => {
-                    let value = string_of_expr(stmt.value);
-                    Format.sprintf("return %s;\n", value)
-                }
-                | ExpressionStatement(stmt) => {
-                    let value = string_of_expr(stmt.value);
-                    Format.sprintf("%s;\n", value)
-                }
-            };
-            string'(~acc=(acc ++ literal), t)
-        }
-    };
-    string'(block)
-};
