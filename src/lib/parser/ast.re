@@ -88,11 +88,11 @@ and string_of_expr(expr: expression) = {
         | Unit => "()"
         | If(i) => {
             let alternative = switch i.alternative {
-                | Some(block) => " else {" ++ string(~block) ++ " }"
+                | Some(block) => " else {\n\t" ++ string(~block) ++ "\n}"
                 | None => ""
             }
             Format.sprintf(
-                "if %s {%s}%s",
+                "if %s {\n\t%s\n}%s",
                 string_of_expr(i.condition),
                 string(~block=i.consequence),
                 alternative
