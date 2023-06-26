@@ -8,6 +8,13 @@ type node =
         | Identifier(identifier)
         | Integer(integer)
         | Float(floating)
+        | Boolean(bool)
+        | Unit
+        | If{
+            condition: expression,
+            consequence: block_statement,
+            alternative: option(block_statement)
+        }
         | Prefix{
             operator: Token.t,
             value: expression
@@ -16,7 +23,7 @@ type node =
             lhs: expression,
             operator: Token.t,
             rhs: expression
-        }
+    }
 
     and statement =
         | Binding {
@@ -29,14 +36,16 @@ type node =
         }
         | ExpressionStatement {
             value: expression
-        }
+    }
+
+    and block_statement = list(statement)
     
     and integer = int
     and identifier = string
     and floating = float
 
     and program = {
-        statements: list(statement),
+        statements: block_statement,
         errors: list(string)
 };
 
@@ -51,6 +60,20 @@ let rec string_of_expr(expr: expression) = {
         | Identifier(i) => i
         | Integer(i) => string_of_int(i)
         | Float(f) => string_of_float(f)
+        | Boolean(b) => string_of_bool(b)
+        | Unit => "()"
+        | If(i) => {
+            let alternative = switch i.alternative {
+                | Some(block) => "else " ++ string(~block)
+                | None => ""
+            }
+            Format.sprintf(
+                "if %s {%s} %s",
+                string_of_expr(i.condition),
+                string(~block=i.consequence),
+                alternative
+            )
+        }
         | Prefix(e) => {
             Format.sprintf(
                 "(%s%s)",
@@ -69,26 +92,26 @@ let rec string_of_expr(expr: expression) = {
     };
 }
 
-let string(~program: program) = {
-    let rec loop(~acc="") = { fun 
+and string(~block: block_statement) = {
+    let rec string'(~acc="") = { fun 
         | [] => acc
         | [h,...t] => {
             let literal = switch h {
                 | Binding(stmt) => {
                     let value = string_of_expr(stmt.value);
-                    Format.sprintf("%s %s = %s;", Token.to_string(stmt.kind), stmt.name ,value)
+                    Format.sprintf("%s %s = %s;\n", Token.to_string(stmt.kind), stmt.name ,value)
                 }
                 | Return(stmt) => {
                     let value = string_of_expr(stmt.value);
-                    Format.sprintf("return %s;", value)
+                    Format.sprintf("return %s;\n", value)
                 }
                 | ExpressionStatement(stmt) => {
                     let value = string_of_expr(stmt.value);
-                    Format.sprintf("%s;", value)
+                    Format.sprintf("%s;\n", value)
                 }
             };
-            loop(~acc=(acc ++ literal), t)
+            string'(~acc=(acc ++ literal), t)
         }
     };
-    loop(program.statements)
+    string'(block)
 };

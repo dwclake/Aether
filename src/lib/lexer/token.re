@@ -62,6 +62,7 @@ type t =
     | Amp
     | Dollar
 
+    | Unit
     | Illegal
     | Eof;
 
@@ -129,8 +130,80 @@ let to_string(token: t): string = {
         | Amp => "&"
         | Dollar => "$"
 
+        | Unit => "()"
         | Illegal => "illegal"
         | Eof => "eof"
+    }
+}
+
+let to_string_opt(token: option(t)): string = {
+    switch token {
+        | Some(Ident(id)) => id
+        | Some(Int(x)) => x
+        | Some(Float(x)) => x
+
+        | Some(Fn) => "fn"
+        | Some(Let) => "let"
+        | Some(Const) => "const"
+        | Some(Mut) => "mut"
+        | Some(Match) => "match"
+        | Some(True) => "true"
+        | Some(False) => "false"
+        | Some(Return) => "return"
+        | Some(If) => "if"
+        | Some(Else) => "else"
+
+        | Some(Lparen) => "("
+        | Some(Rparen) => ")"
+        | Some(Lbracket) => "["
+        | Some(Rbracket) => "]"
+        | Some(Lsquirly) => "{"
+        | Some(Rsquirly) => "}"
+
+        | Some(Assign) => "="
+        | Some(FatArrow) => "=>"
+        | Some(SlimArrow) => "->"
+
+        | Some(EqualTo) => "=="
+        | Some(NotEq) => "!="
+
+        | Some(Plus) => "+"
+        | Some(Minus) => "-"
+        | Some(Modulo) => "%"
+        | Some(Caret) => "^"
+
+        | Some(Forwardslash) => "/"
+        | Some(Backslash) => "\\"
+
+        | Some(SingleQuote) => "'"
+        | Some(DoubleQuote) => "\""
+        | Some(Backtick) => "`"
+
+        | Some(Greater) => ">"
+        | Some(Lesser) => "<"
+        
+        | Some(GreaterEq) => ">="
+        | Some(LesserEq) => "<="
+
+        | Some(Semicolon) => ";"
+        | Some(Colon) => ":"
+        | Some(Pipe) => "|"
+        | Some(Comma) => ","
+        | Some(Dot) => "."
+        
+        | Some(Asterisk) => "*"
+        | Some(Bang) => "!"
+        | Some(Question) => "?"
+        | Some(Tilde) => "~"
+        | Some(Pound) => "#"
+        | Some(At) => "@"
+        | Some(Amp) => "&"
+        | Some(Dollar) => "$"
+
+        | Some(Unit) => "()"
+        | Some(Illegal) => "illegal"
+        | Some(Eof) => "eof"
+        | None => "missing token"
     }
 }
 

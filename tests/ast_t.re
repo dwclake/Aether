@@ -13,5 +13,5 @@ let test_string() = {
         errors: []
     }; 
     
-    check(Alcotest.string, "1", "let myVar = anotherVar;", Ast.string(~program))
+    check(Alcotest.string, "1", "let myVar = anotherVar;\n", Ast.string(~block=program.statements))
 }

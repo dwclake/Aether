@@ -62,10 +62,12 @@ type t =
     | Amp
     | Dollar
 
+    | Unit
     | Illegal
     | Eof;
 
 let of_char: char => t;
 let to_string: t => string;
+let to_string_opt: option(t) => string;
 let to_char: t => option(char);
 let parse_keyword: string => option(t);

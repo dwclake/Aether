@@ -72,6 +72,7 @@ let test_next_token(): unit = {
 };
 
 let test_binding_statement(): unit = {
+    let num_tests = 3;
     let input = "
         let x = 5;
         const y = 10;
@@ -83,7 +84,7 @@ let test_binding_statement(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-    check_stmts_len(program, 3);
+    check_stmts_len(program, num_tests);
 
     ([  Ast.Binding{kind: Token.Let, name: "x", value: Ast.Integer(5)},
         Ast.Binding{kind: Token.Const, name: "y", value: Ast.Integer(10)},
@@ -95,6 +96,7 @@ let test_binding_statement(): unit = {
 }
 
 let test_return_statement(): unit = {
+    let num_tests = 3;
     let input = "
         return 5;
         return 10;
@@ -106,7 +108,7 @@ let test_return_statement(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-    check_stmts_len(program, 3);
+    check_stmts_len(program, num_tests);
 
     ([  Ast.Return{value: Ast.Integer(5)},
         Ast.Return{value: Ast.Integer(10)},
@@ -118,6 +120,7 @@ let test_return_statement(): unit = {
 };
 
 let test_identifier_expression(): unit = {
+    let num_tests = 1;
     let input = "
         foobar;
     ";
@@ -127,7 +130,7 @@ let test_identifier_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-    check_stmts_len(program, 1);
+    check_stmts_len(program, num_tests);
 
     ([  Ast.ExpressionStatement{value: Ast.Identifier("foobar")}
      ], 
@@ -137,6 +140,7 @@ let test_identifier_expression(): unit = {
 };
 
 let test_integer_expression(): unit = {
+    let num_tests = 1;
     let input = "
         5;
     ";
@@ -146,7 +150,7 @@ let test_integer_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-    check_stmts_len(program, 1);
+    check_stmts_len(program, num_tests);
 
     ([  Ast.ExpressionStatement{value: Ast.Integer(5)}
      ], 
@@ -156,6 +160,7 @@ let test_integer_expression(): unit = {
 };
 
 let test_float_expression(): unit = {
+    let num_tests = 1;
     let input = "
         5.4;
     ";
@@ -165,7 +170,7 @@ let test_float_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-    check_stmts_len(program, 1);
+    check_stmts_len(program, num_tests);
 
     ([  Ast.ExpressionStatement{value: Ast.Float(5.4)}
      ], 
@@ -174,7 +179,34 @@ let test_float_expression(): unit = {
     |> test_statement_seq
 };
 
+let test_boolean_expression(): unit = {
+    let num_tests = 4;
+    let input = "
+        true;
+        !false;
+        const foobar = true;
+        let barfoo = false;
+    ";
+
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
+
+    let (_, program) = Parser.parse_program(parser);
+    check_parser_errors(program.errors);
+    check_stmts_len(program, num_tests);
+
+    ([  Ast.ExpressionStatement{value: Ast.Boolean(true)},
+        Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Bang, value: Ast.Boolean(false)}},
+        Ast.Binding{kind: Token.Const, name: "foobar", value: Ast.Boolean(true)},
+        Ast.Binding{kind: Token.Let, name: "barfoo", value: Ast.Boolean(false)},
+     ], 
+        program.statements
+    ) 
+    |> test_statement_seq
+};
+
 let test_prefix_expression(): unit = {
+    let num_tests = 3;
     let input = "
         !5;
         -15;
@@ -186,7 +218,7 @@ let test_prefix_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-    check_stmts_len(program, 3);
+    check_stmts_len(program, num_tests);
 
     ([  Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Bang, value: Ast.Integer(5)}},
         Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Minus, value: Ast.Integer(15)}},
@@ -198,6 +230,7 @@ let test_prefix_expression(): unit = {
 };
 
 let test_infix_expression(): unit = {
+    let num_tests = 8;
     let input = "
         5 + foobar;
         bar / 12;
@@ -205,6 +238,8 @@ let test_infix_expression(): unit = {
         15 >= 13;
         a + b / c;
         -5 * !x;
+        3 > 5 == false;
+        1 + (2 + 3) + 4;
     ";
 
     let lexer = Lexer.create(~input);
@@ -212,7 +247,7 @@ let test_infix_expression(): unit = {
 
     let (_, program) = Parser.parse_program(parser);
     check_parser_errors(program.errors);
-    check_stmts_len(program, 6);
+    check_stmts_len(program, num_tests);
 
     ([  Ast.ExpressionStatement{value: Ast.Infix{
                 lhs: Ast.Integer(5),
@@ -258,6 +293,30 @@ let test_infix_expression(): unit = {
                     operator: Token.Bang,
                     value: Ast.Identifier("x")
                 }
+            }
+        },
+        Ast.ExpressionStatement{value: Ast.Infix{
+                lhs: Ast.Infix{
+                    lhs: Ast.Integer(3),
+                    operator: Token.Greater,
+                    rhs: Ast.Integer(5)
+                },
+                operator: Token.EqualTo, 
+                rhs: Ast.Boolean(false)
+            }
+        },
+        Ast.ExpressionStatement{value: Ast.Infix{
+                lhs: Ast.Infix{
+                    lhs: Ast.Integer(1),
+                    operator: Token.Plus,
+                    rhs: Ast.Infix{
+                        lhs: Ast.Integer(2),
+                        operator: Token.Plus,
+                        rhs: Ast.Integer(3)
+                    }
+                },
+                operator: Token.Plus, 
+                rhs: Ast.Integer(4)
             }
         },
      ], 

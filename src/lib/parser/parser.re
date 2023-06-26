@@ -82,10 +82,47 @@ and get_prefix_fn(parser: t) = {
     switch parser.current {
         | Some(Token.Bang)
         | Some(Token.Minus) => Some(parse_prefix)
+        | Some(Token.True)
+        | Some(Token.False) => Some(parse_boolean)
+        | Some(Token.Lparen) => Some(parse_group)
         | Some(Token.Ident(identifier)) => Some(parse_identifier(~identifier))
         | Some(Token.Int(number)) => Some(parse_int(~number))
         | Some(Token.Float(number)) => Some(parse_float(~number))
         | _ => None
+    }
+}
+
+and parse_boolean(parser: t) = {
+    let boolean = bool_of_string_opt(Token.to_string_opt(parser.current));
+    switch boolean {
+        | Some(boolean) => (parser, Ok(Ast.Boolean(boolean)))
+        | None => (parser, Error(Format.sprintf(
+            "Could not convert %s to boolean",
+            Token.to_string_opt(parser.current)
+        )))
+    }
+}
+
+and parse_group(parser: t) = {
+    let parser = next_token(parser);
+    let (parser, expr) = parse_expression(parser, `Lowest);
+
+    switch expr {
+        | Ok(expr) => {
+            switch parser.peek {
+                | Some(token) => {
+                    switch token {
+                        | Token.Rparen => (next_token(parser), Ok(expr))
+                        | _ as token => (parser, Error(Format.sprintf(
+                            "Expected ) got %s",
+                            Token.to_string(token)
+                        )))
+                    }
+                }
+                | None => (parser, Error("no peek token"))
+            }
+        }
+        | err => (parser, err)
     }
 }
 
@@ -156,8 +193,6 @@ and get_infix_fn(parser: t) = {
         | Some(Greater)
         | Some(LesserEq)
         | Some(GreaterEq) => Some(parse_infix(next_token(parser)))
-        | Some(Lparen) => Some(parse_infix(next_token(parser)))
-        | Some(Lbracket) => Some(parse_infix(next_token(parser)))
         | _ => None
     }    
 }
