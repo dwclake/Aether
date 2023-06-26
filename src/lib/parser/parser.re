@@ -32,6 +32,7 @@ let peek_error(parser: t, token: Token.t): string = {
     )
 };
 
+
 [@deriving (ord)]
 type precedence = [ 
     | `Lowest
@@ -62,7 +63,73 @@ let get_prec(token): precedence = {
     }
 };
 
-let rec parse_expression(parser: t, precedence: precedence) = {
+let rec parse_statement(parser: t) = {
+    switch parser.current {
+        | Some(Token.Let) => parse_bind_statement(parser)
+        | Some(Token.Const) => parse_bind_statement(parser)
+        | Some(Token.Return) => parse_return_statement(parser)
+        | _ => parse_expression_statement(parser)
+    }
+}
+
+and parse_bind_statement(parser: t) = {
+    let current = Option.get(parser.current);
+    switch parser.peek {
+        | Some(Token.Ident(name)) => {
+            let parser = next_token(parser);
+            switch parser.peek {
+                | Some(Token.Assign) => {
+                    let parser = parser |> next_token |> next_token;
+                    let (parser, expr) = parse_expression(parser, `Lowest);
+
+                    switch expr {
+                        | Ok(value) => {
+                            let binding = Ast.Binding{
+                                kind: current,
+                                name,
+                                value
+                            };
+
+                            (parser, Ok(binding))
+                        }
+                        | Error(message) => (parser, Error(message))
+                    }
+                }
+                | _ => (parser, Error(peek_error(parser, Token.Assign)))
+            }
+        } 
+        | _ => (parser, Error(peek_error(parser, Token.Ident("\000"))))
+    }
+}
+
+and parse_return_statement(parser: t) = {
+    let (parser, expr) = parse_expression(next_token(parser), `Lowest);
+
+    switch expr {
+        | Ok(value) => {
+            (parser, Ok(Ast.Return{value: value}))
+        }
+        | Error(message) => {
+            (parser, Error(message))
+        }
+    }
+}
+
+and parse_expression_statement(parser: t) = {
+    let (parser, expr) = parse_expression(parser, `Lowest);
+    let parser = if(parser.peek == Some(Token.Semicolon)) {
+        next_token(parser)
+    } else {
+        parser
+    };
+
+    switch expr {
+        | Ok(value) => (parser, Ok(Ast.Expression{value: value}))
+        | Error(message) => (parser, Error(message))
+    }
+}
+
+and parse_expression(parser: t, precedence: precedence) = {
     switch (get_prefix_fn(parser)) {
         | Some(fn) => {
             let (parser, prefix) = fn(parser);
@@ -88,6 +155,7 @@ and get_prefix_fn(parser: t) = {
         | Some(Token.Ident(identifier)) => Some(parse_identifier(~identifier))
         | Some(Token.Int(number)) => Some(parse_int(~number))
         | Some(Token.Float(number)) => Some(parse_float(~number))
+        | Some(Token.If) => Some(parse_if)
         | _ => None
     }
 }
@@ -122,6 +190,62 @@ and parse_group(parser: t) = {
                 | None => (parser, Error("no peek token"))
             }
         }
+        | err => (parser, err)
+    }
+}
+
+and parse_if(parser: t) = {
+    let parser = next_token(parser);
+    let (parser, cond) = parse_expression(parser, `Lowest);
+    switch cond {
+        | Ok(cond) => {
+            switch parser.peek {
+                | Some(token) => {
+                    switch token {
+                        | Token.Lsquirly => {
+                            let (parser, cons) = parse_block_statement(parser);
+                            switch cons {
+                                | Ok(cons) => (parser, Ok(Ast.If{
+                                    condition: cond,
+                                    consequence: cons,
+                                    alternative: None
+                                }))
+                                | Error(message) => (parser, Error(message))
+                            }
+                        }
+                        | _ as token => (parser, Error(Format.sprintf(
+                            "Expected ) got %s",
+                            Token.to_string(token)
+                        )))
+                    }
+                }
+                | None => (parser, Error("no peek token"))
+            }           
+        }
+        | err => (parser, err)
+    }
+}
+
+and parse_block_statement(parser: t) = {
+
+    let rec parse_block_statement'(~acc=[], parser: t) = {
+        switch parser.current {
+            | Some(Token.Rsquirly) => (next_token(parser), Ok(acc))
+            | Some(Token.Eof) => (parser, Ok(acc))
+            | Some(_) => {
+                let (parser, stmt) = parse_statement(parser);
+                switch stmt {
+                    | Ok(stmt) => parse_block_statement'(next_token(parser), ~acc=[stmt] @ acc)
+                    | Error(message) => (parser, Error(message))
+                }
+            }
+            | None => (parser, Error("Missing token"))
+        }
+    }
+
+    let (parser, block) = parse_block_statement'(parser);
+    switch block {
+        | Ok(_) as ok => (parser, ok)
         | err => (parser, err)
     }
 }
@@ -215,71 +339,6 @@ and parse_infix(parser: t, lhs: Ast.expression) = {
     }
 };
 
-let parse_bind_statement(parser: t) = {
-    let current = Option.get(parser.current);
-    switch parser.peek {
-        | Some(Token.Ident(name)) => {
-            let parser = next_token(parser);
-            switch parser.peek {
-                | Some(Token.Assign) => {
-                    let parser = parser |> next_token |> next_token;
-                    let (parser, expr) = parse_expression(parser, `Lowest);
-
-                    switch expr {
-                        | Ok(value) => {
-                            let binding = Ast.Binding{
-                                kind: current,
-                                name,
-                                value
-                            };
-
-                            (parser, Ok(binding))
-                        }
-                        | Error(message) => (parser, Error(message))
-                    }
-                }
-                | _ => (parser, Error(peek_error(parser, Token.Assign)))
-            }
-        } 
-        | _ => (parser, Error(peek_error(parser, Token.Ident("\000"))))
-    }
-};
-
-let parse_return_statement(parser: t) = {
-    let (parser, expr) = parse_expression(next_token(parser), `Lowest);
-
-    switch expr {
-        | Ok(value) => {
-            (parser, Ok(Ast.Return{value: value}))
-        }
-        | Error(message) => {
-            (parser, Error(message))
-        }
-    }
-};
-
-let parse_expression_statement(parser: t) = {
-    let (parser, expr) = parse_expression(parser, `Lowest);
-    let parser = if(parser.peek == Some(Token.Semicolon)) {
-        next_token(parser)
-    } else {
-        parser
-    };
-
-    switch expr {
-        | Ok(value) => (parser, Ok(Ast.ExpressionStatement{value: value}))
-        | Error(message) => (parser, Error(message))
-    }
-}
-
-let parse_statement(parser: t) = {
-    switch parser.current {
-        | Some(Token.Let) => parse_bind_statement(parser)
-        | Some(Token.Const) => parse_bind_statement(parser)
-        | Some(Token.Return) => parse_return_statement(parser)
-        | _ => parse_expression_statement(parser)
-    }
-};
 
 let parse_program(parser: t): (t, Ast.program) = { 
     let rec parse_program' = (parser: t, stmts, errors) => {

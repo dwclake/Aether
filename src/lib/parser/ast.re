@@ -1,7 +1,6 @@
 [@deriving (show{with_path: false}, eq)]
 type node = 
     | Program(program)
-    | Expression(expression)
     | Statement(statement)
 
     and expression = 
@@ -34,7 +33,7 @@ type node =
         | Return {
             value: expression
         }
-        | ExpressionStatement {
+        | Expression {
             value: expression
     }
 
@@ -51,7 +50,6 @@ type node =
 
 let token_literal = { fun
     | Program(_) => "program"
-    | Expression(_) => "expression"
     | Statement(_) => "statement"
 };
 
@@ -68,7 +66,7 @@ let rec string(~block: block_statement) = {
                     let value = string_of_expr(stmt.value);
                     Format.sprintf("return %s;\n", value)
                 }
-                | ExpressionStatement(stmt) => {
+                | Expression(stmt) => {
                     let value = string_of_expr(stmt.value);
                     Format.sprintf("%s;\n", value)
                 }

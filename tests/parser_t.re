@@ -132,7 +132,7 @@ let test_identifier_expression(): unit = {
     check_parser_errors(program.errors);
     check_stmts_len(program, num_tests);
 
-    ([  Ast.ExpressionStatement{value: Ast.Identifier("foobar")}
+    ([  Ast.Expression{value: Ast.Identifier("foobar")}
      ], 
         program.statements
     ) 
@@ -152,7 +152,7 @@ let test_integer_expression(): unit = {
     check_parser_errors(program.errors);
     check_stmts_len(program, num_tests);
 
-    ([  Ast.ExpressionStatement{value: Ast.Integer(5)}
+    ([  Ast.Expression{value: Ast.Integer(5)}
      ], 
         program.statements
     ) 
@@ -172,7 +172,7 @@ let test_float_expression(): unit = {
     check_parser_errors(program.errors);
     check_stmts_len(program, num_tests);
 
-    ([  Ast.ExpressionStatement{value: Ast.Float(5.4)}
+    ([  Ast.Expression{value: Ast.Float(5.4)}
      ], 
         program.statements
     ) 
@@ -195,8 +195,8 @@ let test_boolean_expression(): unit = {
     check_parser_errors(program.errors);
     check_stmts_len(program, num_tests);
 
-    ([  Ast.ExpressionStatement{value: Ast.Boolean(true)},
-        Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Bang, value: Ast.Boolean(false)}},
+    ([  Ast.Expression{value: Ast.Boolean(true)},
+        Ast.Expression{value: Ast.Prefix{operator: Token.Bang, value: Ast.Boolean(false)}},
         Ast.Binding{kind: Token.Const, name: "foobar", value: Ast.Boolean(true)},
         Ast.Binding{kind: Token.Let, name: "barfoo", value: Ast.Boolean(false)},
      ], 
@@ -220,9 +220,9 @@ let test_prefix_expression(): unit = {
     check_parser_errors(program.errors);
     check_stmts_len(program, num_tests);
 
-    ([  Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Bang, value: Ast.Integer(5)}},
-        Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Minus, value: Ast.Integer(15)}},
-        Ast.ExpressionStatement{value: Ast.Prefix{operator: Token.Bang, value: Ast.Identifier("foobar")}},
+    ([  Ast.Expression{value: Ast.Prefix{operator: Token.Bang, value: Ast.Integer(5)}},
+        Ast.Expression{value: Ast.Prefix{operator: Token.Minus, value: Ast.Integer(15)}},
+        Ast.Expression{value: Ast.Prefix{operator: Token.Bang, value: Ast.Identifier("foobar")}},
      ], 
         program.statements
     ) 
@@ -249,31 +249,31 @@ let test_infix_expression(): unit = {
     check_parser_errors(program.errors);
     check_stmts_len(program, num_tests);
 
-    ([  Ast.ExpressionStatement{value: Ast.Infix{
+    ([  Ast.Expression{value: Ast.Infix{
                 lhs: Ast.Integer(5),
                 operator: Token.Plus, 
                 rhs: Ast.Identifier("foobar")
             }
         },
-        Ast.ExpressionStatement{value: Ast.Infix{
+        Ast.Expression{value: Ast.Infix{
                 lhs: Ast.Identifier("bar"),
                 operator: Token.Forwardslash, 
                 rhs: Ast.Integer(12)
             }
         },
-        Ast.ExpressionStatement{value: Ast.Infix{
+        Ast.Expression{value: Ast.Infix{
                 lhs: Ast.Float(12.2),
                 operator: Token.Asterisk, 
                 rhs: Ast.Integer(13)
             }
         },
-        Ast.ExpressionStatement{value: Ast.Infix{
+        Ast.Expression{value: Ast.Infix{
                 lhs: Ast.Integer(15),
                 operator: Token.GreaterEq, 
                 rhs: Ast.Integer(13)
             }
         },
-        Ast.ExpressionStatement{value: Ast.Infix{
+        Ast.Expression{value: Ast.Infix{
                 lhs: Ast.Identifier("a"),
                 operator: Token.Plus, 
                 rhs: Ast.Infix{
@@ -283,7 +283,7 @@ let test_infix_expression(): unit = {
                 }
             }
         },
-        Ast.ExpressionStatement{value: Ast.Infix{
+        Ast.Expression{value: Ast.Infix{
                 lhs: Ast.Prefix{
                     operator: Token.Minus,
                     value: Ast.Integer(5)
@@ -295,7 +295,7 @@ let test_infix_expression(): unit = {
                 }
             }
         },
-        Ast.ExpressionStatement{value: Ast.Infix{
+        Ast.Expression{value: Ast.Infix{
                 lhs: Ast.Infix{
                     lhs: Ast.Integer(3),
                     operator: Token.Greater,
@@ -305,7 +305,7 @@ let test_infix_expression(): unit = {
                 rhs: Ast.Boolean(false)
             }
         },
-        Ast.ExpressionStatement{value: Ast.Infix{
+        Ast.Expression{value: Ast.Infix{
                 lhs: Ast.Infix{
                     lhs: Ast.Integer(1),
                     operator: Token.Plus,
@@ -319,6 +319,62 @@ let test_infix_expression(): unit = {
                 rhs: Ast.Integer(4)
             }
         },
+     ], 
+        program.statements
+    ) 
+    |> test_statement_seq
+};
+
+let test_if_expression(): unit = {
+    let num_tests = 1;
+    let input = "
+        if x < y { x }
+    ";
+
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
+
+    let (_, program) = Parser.parse_program(parser);
+    check_parser_errors(program.errors);
+    check_stmts_len(program, num_tests);
+
+    ([  Ast.Expression{value: Ast.If{
+            condition: Ast.Infix{
+                lhs: Ast.Identifier("x"), 
+                operator: Token.Lesser,
+                rhs: Ast.Identifier("y")
+            }, 
+            consequence: [Ast.Expression{value: Ast.Identifier("x")}],
+            alternative: None
+        }},
+     ], 
+        program.statements
+    ) 
+    |> test_statement_seq
+};
+
+let test_if_else_expression(): unit = {
+    let num_tests = 1;
+    let input = "
+        if x < y { x } else { y }
+    ";
+
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
+
+    let (_, program) = Parser.parse_program(parser);
+    check_parser_errors(program.errors);
+    check_stmts_len(program, num_tests);
+
+    ([  Ast.Expression{value: Ast.If{
+            condition: Ast.Infix{
+                lhs: Ast.Identifier("x"), 
+                operator: Token.Lesser,
+                rhs: Ast.Identifier("y")
+            }, 
+            consequence: [Ast.Expression{value: Ast.Identifier("x")}],
+            alternative: Some([Ast.Expression{value: Ast.Identifier("y")}])
+        }},
      ], 
         program.statements
     ) 
