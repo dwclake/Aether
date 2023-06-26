@@ -171,6 +171,31 @@ and parse_boolean(parser: t) = {
     }
 }
 
+and parse_identifier(parser: t, ~identifier: string) = {
+    let id = Ast.Identifier(identifier);
+    (parser, Ok(id))
+}
+
+and parse_int(parser: t, ~number: string) = {
+    switch (int_of_string_opt(number)) {
+        | Some(value) => (parser, Ok(Ast.Integer(value)))
+        | None => (parser, Error(Format.sprintf(
+            "Unable to convert %s to float", 
+            number
+        )))
+    }
+}
+
+and parse_float(parser: t, ~number: string) = {
+    switch (float_of_string_opt(number)) {
+        | Some(value) => (parser, Ok(Ast.Float(value)))
+        | None => (parser, Error(Format.sprintf(
+            "Unable to convert %s to float", 
+            number
+        )))
+    }
+}
+
 and parse_group(parser: t) = {
     let parser = next_token(parser);
     let (parser, expr) = parse_expression(parser, `Lowest);
@@ -227,11 +252,12 @@ and parse_if(parser: t) = {
 }
 
 and parse_block_statement(parser: t) = {
+    let parser = next_token(parser);
 
     let rec parse_block_statement'(~acc=[], parser: t) = {
         switch parser.current {
-            | Some(Token.Rsquirly) => (next_token(parser), Ok(acc))
-            | Some(Token.Eof) => (parser, Ok(acc))
+            | Some(Token.Rsquirly)
+            | Some(Token.Eof) => (next_token(parser), Ok(acc))
             | Some(_) => {
                 let (parser, stmt) = parse_statement(parser);
                 switch stmt {
@@ -247,31 +273,6 @@ and parse_block_statement(parser: t) = {
     switch block {
         | Ok(_) as ok => (parser, ok)
         | err => (parser, err)
-    }
-}
-
-and parse_identifier(parser: t, ~identifier: string) = {
-    let id = Ast.Identifier(identifier);
-    (parser, Ok(id))
-}
-
-and parse_int(parser: t, ~number: string) = {
-    switch (int_of_string_opt(number)) {
-        | Some(value) => (parser, Ok(Ast.Integer(value)))
-        | None => (parser, Error(Format.sprintf(
-            "Unable to convert %s to float", 
-            number
-        )))
-    }
-}
-
-and parse_float(parser: t, ~number: string) = {
-    switch (float_of_string_opt(number)) {
-        | Some(value) => (parser, Ok(Ast.Float(value)))
-        | None => (parser, Error(Format.sprintf(
-            "Unable to convert %s to float", 
-            number
-        )))
     }
 }
 
