@@ -106,12 +106,8 @@ and parse_return_statement(parser: t) = {
     let (parser, expr) = parse_expression(next_token(parser), `Lowest);
 
     switch expr {
-        | Ok(value) => {
-            (parser, Ok(Ast.Return{value: value}))
-        }
-        | Error(message) => {
-            (parser, Error(message))
-        }
+        | Ok(value) => (parser, Ok(Ast.Return{value: value}))
+        | Error(message) => (parser, Error(message))
     }
 }
 
@@ -290,38 +286,6 @@ and parse_block_expression(parser: t) = {
         }
     }
 }
-
-/*and parse_block_statement(parser: t) = {
-    let parser = parser
-        |> next_token
-        |> next_token;
-
-    let rec parse_block_statement'(~acc=[], parser: t) = {
-        switch parser.current {
-            | Some(Token.Rsquirly)
-            | Some(Token.Eof) => (next_token(parser), Ok(acc))
-            | Some(_) => {
-                let (parser, stmt) = parse_statement(parser);
-                switch stmt {
-                    | Ok(stmt) => parse_block_statement'(next_token(parser), ~acc=[stmt] @ acc)
-                    | Error(message) => (parser, Error(message))
-                }
-            }
-            | None => (parser, Error("Missing token"))
-        }
-    }
-
-    switch parser.current {
-        | Some(Token.Rsquirly) => (next_token(parser), Ok([Ast.Expression{value: Ast.Unit}]))
-        | _ => {
-            let (parser, block) = parse_block_statement'(parser);
-            switch block {
-                | Ok(block) => (parser, Ok(block |> List.rev))
-                | err => (parser, err)
-            }
-        }
-    }
-}*/
 
 and parse_prefix(parser: t) = {
     let operator = Option.get(parser.current);
