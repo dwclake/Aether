@@ -5,6 +5,7 @@ type t =
     | Float(string)
 
     | Fn
+    | FnAnon
     | Let
     | Const
     | Mut

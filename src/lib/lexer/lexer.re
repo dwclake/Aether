@@ -174,6 +174,9 @@ let next_token(lexer: t): lex_r<{.. token: Token.t}> = {
         | ch when ch == '(' => {
             compound_or(lexer, ~default=Token.Lparen, ~rules=[(')', Token.Unit)])
         }
+        | ch when ch == '%' => {
+            compound_or(lexer, ~default=Token.Modulo, ~rules=[('{', Token.FnAnon)])
+        }
         // Individual characters
         | ch => { as _;
             pub lexer = advance(lexer); 

@@ -5,6 +5,7 @@ type t =
     | Float(string)
 
     | Fn
+    | FnAnon
     | Let
     | Const
     | Mut
@@ -73,6 +74,7 @@ let to_string(token: t): string = {
         | Float(x) => x
 
         | Fn => "fn"
+        | FnAnon => "%{"
         | Let => "let"
         | Const => "const"
         | Mut => "mut"
@@ -143,6 +145,7 @@ let to_string_opt(token: option(t)): string = {
         | Some(Float(x)) => x
 
         | Some(Fn) => "fn"
+        | Some(FnAnon) => "%{"
         | Some(Let) => "let"
         | Some(Const) => "const"
         | Some(Mut) => "mut"

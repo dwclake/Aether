@@ -400,10 +400,11 @@ let test_if_else_expression(): unit = {
     |> test_statement_seq
 };
 
-let test_fn_literal(): unit = {
-    let num_tests = 1;
+let test_fn_literal_expression(): unit = {
+    let num_tests = 2;
     let input = "
-        %{x, y -> x + y}
+        %{x, y -> x + y};
+        %{foobar}
     ";
 
     let lexer = Lexer.create(~input);
@@ -421,6 +422,12 @@ let test_fn_literal(): unit = {
                     operator: Token.Plus,
                     rhs: Ast.Identifier("y")
                 }}
+            ]
+        }},
+        Ast.Expression{value: Ast.Fn{
+            parameter_list: [],
+            block: [
+                Ast.Expression{value: Ast.Identifier("foobar")}
             ]
         }},
      ], 

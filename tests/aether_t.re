@@ -14,13 +14,14 @@ let suite = [
             test_case("Binding statement", `Quick, Parser_t.test_binding_statement),
             test_case("Return statement", `Quick, Parser_t.test_return_statement),
             test_case("Identifier expression statement", `Quick, Parser_t.test_identifier_expression),
-            test_case("Integer expression statement", `Quick, Parser_t.test_integer_expression),
-            test_case("Float expression statement", `Quick, Parser_t.test_float_expression),
-            test_case("Boolean expression statement", `Quick, Parser_t.test_boolean_expression),
-            test_case("If expression statement", `Quick, Parser_t.test_if_expression),
-            test_case("If else expression statement", `Quick, Parser_t.test_if_else_expression),
-            test_case("Prefix expression statement", `Quick, Parser_t.test_prefix_expression),
-            test_case("Infix expression statement", `Quick, Parser_t.test_infix_expression)
+            test_case("Integer expression", `Quick, Parser_t.test_integer_expression),
+            test_case("Float expression", `Quick, Parser_t.test_float_expression),
+            test_case("Boolean expression", `Quick, Parser_t.test_boolean_expression),
+            test_case("If expression", `Quick, Parser_t.test_if_expression),
+            test_case("If else expression", `Quick, Parser_t.test_if_else_expression),
+            test_case("Fn literal expression", `Quick, Parser_t.test_fn_literal_expression),
+            test_case("Prefix expression", `Quick, Parser_t.test_prefix_expression),
+            test_case("Infix expression", `Quick, Parser_t.test_infix_expression)
         ]),
     ("Ast",[
             test_case("Test string", `Quick, Ast_t.test_string)
