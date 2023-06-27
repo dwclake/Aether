@@ -9,14 +9,15 @@ type node =
         | Float(floating)
         | Boolean(bool)
         | Unit
+        | Block(block_statement)
         | If{
             condition: expression,
-            consequence: block_statement,
-            alternative: option(block_statement)
+            consequence: expression,
+            alternative: option(expression)
         }
         | Fn{
             parameter_list: list(identifier),
-            block: block_statement
+            block: expression
         }
         | Prefix{
             operator: Token.t,
@@ -88,15 +89,16 @@ and string_of_expr(expr: expression) = {
         | Float(f) => string_of_float(f)
         | Boolean(b) => string_of_bool(b)
         | Unit => "()"
+        | Block(block) => string(~block)
         | If(i) => {
             let alternative = switch i.alternative {
-                | Some(block) => " else {\n\t" ++ string(~block) ++ "\n}"
+                | Some(block) => " else {\n\t" ++ string_of_expr(block) ++ "\n}"
                 | None => ""
             }
             Format.sprintf(
                 "if %s {\n\t%s\n}%s",
                 string_of_expr(i.condition),
-                string(~block=i.consequence),
+                string_of_expr(i.consequence),
                 alternative
             )
         }
@@ -105,7 +107,7 @@ and string_of_expr(expr: expression) = {
             Format.sprintf(
                 "{%s -> %s}",
                 Core.List.fold(f.parameter_list, ~init="", ~f=((x, acc) => x ++ ", " ++ acc)),
-                string(~block=f.block)
+                string_of_expr(f.block)
             )
         }
         | Prefix(e) => {

@@ -152,6 +152,7 @@ and get_prefix_fn(parser: t) = {
         | Some(Token.True)
         | Some(Token.False) => Some(parse_boolean)
         | Some(Token.Lparen) => Some(parse_group)
+        | Some(Token.Lsquirly) => Some(parse_block_expression)
         | Some(Token.Ident(identifier)) => Some(parse_identifier(~identifier))
         | Some(Token.Int(number)) => Some(parse_int(~number))
         | Some(Token.Float(number)) => Some(parse_float(~number))
@@ -212,7 +213,7 @@ and parse_group(parser: t) = {
                         }
                 }
                 | err => (parser, err)
-                }
+            }
         }
     }
 }
@@ -224,12 +225,14 @@ and parse_if(parser: t) = {
         | Ok(cond) => {
             switch parser.peek {
                 | Some(Token.Lsquirly) => {
-                    let (parser, cons) = parse_block_statement(parser);
+                    let parser = next_token(parser);
+                    let (parser, cons) = parse_expression(parser, `Lowest);
                     switch cons {
                         | Ok(cons) => {
                             switch parser.current {
                                 | Some(Token.Else) => {
-                                    let (parser, alt) = parse_block_statement(parser);
+                                    let parser = next_token(parser);
+                                    let (parser, alt) = parse_expression(parser, `Lowest);
                                     switch alt {
                                         | Ok(alt) => (parser, Ok(Ast.If{
                                             condition: cond,
@@ -257,7 +260,38 @@ and parse_if(parser: t) = {
     }
 }
 
-and parse_block_statement(parser: t) = {
+and parse_block_expression(parser: t) = {
+    let parser = parser
+        |> next_token;
+
+    let rec parse_block_statement'(~acc=[], parser: t) = {
+        switch parser.current {
+            | Some(Token.Rsquirly)
+            | Some(Token.Eof) => (next_token(parser), Ok(acc))
+            | Some(_) => {
+                let (parser, stmt) = parse_statement(parser);
+                switch stmt {
+                    | Ok(stmt) => parse_block_statement'(next_token(parser), ~acc=[stmt] @ acc)
+                    | Error(message) => (parser, Error(message))
+                }
+            }
+            | None => (parser, Error("Missing token"))
+        }
+    }
+
+    switch parser.current {
+        | Some(Token.Rsquirly) => (next_token(parser), Ok(Ast.Block([Ast.Expression{value: Ast.Unit}])))
+        | _ => {
+            let (parser, block) = parse_block_statement'(parser);
+            switch block {
+                | Ok(block) => (parser, Ok(Ast.Block(block |> List.rev)))
+                | Error(message) => (parser, Error(message))
+            }
+        }
+    }
+}
+
+/*and parse_block_statement(parser: t) = {
     let parser = parser
         |> next_token
         |> next_token;
@@ -287,7 +321,7 @@ and parse_block_statement(parser: t) = {
             }
         }
     }
-}
+}*/
 
 and parse_prefix(parser: t) = {
     let operator = Option.get(parser.current);

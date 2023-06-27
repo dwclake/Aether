@@ -53,7 +53,7 @@ let check_stmts_len(program: Ast.program, len) = {
     }
 }
 
-let test_next_token(): unit = {
+let test_next_token() = {
     let input = "=+(){},;";
 
     let lexer = Lexer.create(~input);
@@ -71,7 +71,7 @@ let test_next_token(): unit = {
     ] |> test_token_seq(parser)
 };
 
-let test_binding_statement(): unit = {
+let test_binding_statement() = {
     let num_tests = 3;
     let input = "
         let x = 5;
@@ -96,9 +96,10 @@ let test_binding_statement(): unit = {
 }
 
 let test_return_statement(): unit = {
-    let num_tests = 3;
+    let num_tests = 4;
     let input = "
         return ();
+        return {};
         return 10;
         return 993322;
     ";
@@ -111,6 +112,7 @@ let test_return_statement(): unit = {
     check_stmts_len(program, num_tests);
 
     ([  Ast.Return{value: Ast.Unit},
+        Ast.Return{value: Ast.Block([Ast.Expression{value: Ast.Unit}])},
         Ast.Return{value: Ast.Integer(10)},
         Ast.Return{value: Ast.Integer(993322)}
      ], 
@@ -344,7 +346,7 @@ let test_if_expression(): unit = {
                 operator: Token.Lesser,
                 rhs: Ast.Identifier("y")
             }, 
-            consequence: [Ast.Expression{value: Ast.Identifier("x")}],
+            consequence: Ast.Block([Ast.Expression{value: Ast.Identifier("x")}]),
             alternative: None
         }},
      ], 
@@ -381,8 +383,8 @@ let test_if_else_expression(): unit = {
                 operator: Token.Lesser,
                 rhs: Ast.Identifier("y")
             }, 
-            consequence: [Ast.Expression{value: Ast.Identifier("x")}],
-            alternative: Some([Ast.Expression{value: Ast.Identifier("y")}])
+            consequence: Ast.Block([Ast.Expression{value: Ast.Identifier("x")}]),
+            alternative: Some(Ast.Block([Ast.Expression{value: Ast.Identifier("y")}]))
         }},
         Ast.Expression{value: Ast.If{
             condition: Ast.Infix{
@@ -390,8 +392,8 @@ let test_if_else_expression(): unit = {
                 operator: Token.Lesser,
                 rhs: Ast.Identifier("y")
             }, 
-            consequence: [Ast.Expression{value: Ast.Unit}],
-            alternative: Some([Ast.Expression{value: Ast.Identifier("y")}])
+            consequence: Ast.Block([Ast.Expression{value: Ast.Unit}]),
+            alternative: Some(Ast.Block([Ast.Expression{value: Ast.Identifier("y")}]))
         }},
      ], 
         program.statements
@@ -422,27 +424,27 @@ let test_fn_literal_expression(): unit = {
 
     ([  Ast.Expression{value: Ast.Fn{
             parameter_list: ["x", "y"],
-            block: [
+            block: Ast.Block([
                 Ast.Expression{value: Ast.Infix{
                     lhs: Ast.Identifier("x"),
                     operator: Token.Plus,
                     rhs: Ast.Identifier("y")
                 }}
-            ]
+            ])
         }},
         Ast.Expression{value: Ast.Fn{
             parameter_list: ["foo", "bar"],
-            block: [
+            block: Ast.Block([
                 Ast.Expression{value: Ast.Identifier("x")},
                 Ast.Expression{value: Ast.Integer(12)}
-            ]
+            ])
         }},
         Ast.Expression{value: Ast.Fn{
             parameter_list: ["foo", "bar"],
-            block: [
+            block: Ast.Block([
                 Ast.Expression{value: Ast.Identifier("x")},
                 Ast.Expression{value: Ast.Integer(12)}
-            ]
+            ])
         }},
      ], 
         program.statements
