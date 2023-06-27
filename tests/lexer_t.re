@@ -14,16 +14,17 @@ let rec test_token_seq(lexer: Lexer.t, ~i= 1) = { fun
 };
 
 let test_next_token() = {
-    let input = "=+(){},;";
+    let input = "=+)({},;()";
 
     [   Token.Assign,
         Token.Plus,
-        Token.Lparen,
         Token.Rparen,
+        Token.Lparen,
         Token.Lsquirly,
         Token.Rsquirly,
         Token.Comma,
         Token.Semicolon,
+        Token.Unit,
         Token.Eof
     ] 
     |> test_token_seq(Lexer.create(~input))

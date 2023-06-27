@@ -14,6 +14,10 @@ type node =
             consequence: block_statement,
             alternative: option(block_statement)
         }
+        | Fn{
+            parameter_list: list(identifier),
+            block: block_statement
+        }
         | Prefix{
             operator: Token.t,
             value: expression
@@ -94,6 +98,14 @@ and string_of_expr(expr: expression) = {
                 string_of_expr(i.condition),
                 string(~block=i.consequence),
                 alternative
+            )
+        }
+        | Fn(f) => {
+            "%" ++
+            Format.sprintf(
+                "{%s -> %s}",
+                Core.List.fold(f.parameter_list, ~init="", ~f=((x, acc) => x ++ ", " ++ acc)),
+                string(~block=f.block)
             )
         }
         | Prefix(e) => {

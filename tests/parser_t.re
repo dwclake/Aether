@@ -54,19 +54,20 @@ let check_stmts_len(program: Ast.program, len) = {
 }
 
 let test_next_token(): unit = {
-    let input = "=+(){},;";
+    let input = "=+(){},;)(";
 
     let lexer = Lexer.create(~input);
     let parser = Parser.create(lexer);
 
     [   Some(Token.Assign),
         Some(Token.Plus),
-        Some(Token.Lparen),
-        Some(Token.Rparen),
+        Some(Token.Unit),
         Some(Token.Lsquirly),
         Some(Token.Rsquirly),
         Some(Token.Comma),
         Some(Token.Semicolon),
+        Some(Token.Rparen),
+        Some(Token.Lparen),
         Some(Token.Eof)
     ] |> test_token_seq(parser)
 };
@@ -98,7 +99,7 @@ let test_binding_statement(): unit = {
 let test_return_statement(): unit = {
     let num_tests = 3;
     let input = "
-        return 5;
+        return ();
         return 10;
         return 993322;
     ";
@@ -110,7 +111,7 @@ let test_return_statement(): unit = {
     check_parser_errors(program.errors);
     check_stmts_len(program, num_tests);
 
-    ([  Ast.Return{value: Ast.Integer(5)},
+    ([  Ast.Return{value: Ast.Unit},
         Ast.Return{value: Ast.Integer(10)},
         Ast.Return{value: Ast.Integer(993322)}
      ], 
@@ -354,10 +355,15 @@ let test_if_expression(): unit = {
 };
 
 let test_if_else_expression(): unit = {
-    let num_tests = 1;
+    let num_tests = 2;
     let input = "
         if (x < y) { 
             x 
+        } else { 
+            y;
+        };
+        if (x < y) { 
+             
         } else { 
             y;
         }
@@ -378,6 +384,44 @@ let test_if_else_expression(): unit = {
             }, 
             consequence: [Ast.Expression{value: Ast.Identifier("x")}],
             alternative: Some([Ast.Expression{value: Ast.Identifier("y")}])
+        }},
+        Ast.Expression{value: Ast.If{
+            condition: Ast.Infix{
+                lhs: Ast.Identifier("x"), 
+                operator: Token.Lesser,
+                rhs: Ast.Identifier("y")
+            }, 
+            consequence: [Ast.Expression{value: Ast.Unit}],
+            alternative: Some([Ast.Expression{value: Ast.Identifier("y")}])
+        }},
+     ], 
+        program.statements
+    ) 
+    |> test_statement_seq
+};
+
+let test_fn_literal(): unit = {
+    let num_tests = 1;
+    let input = "
+        %{x, y -> x + y}
+    ";
+
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
+
+    let (_, program) = Parser.parse_program(parser);
+    check_parser_errors(program.errors);
+    check_stmts_len(program, num_tests);
+
+    ([  Ast.Expression{value: Ast.Fn{
+            parameter_list: ["x", "y"],
+            block: [
+                Ast.Expression{value: Ast.Infix{
+                    lhs: Ast.Identifier("x"),
+                    operator: Token.Plus,
+                    rhs: Ast.Identifier("y")
+                }}
+            ]
         }},
      ], 
         program.statements

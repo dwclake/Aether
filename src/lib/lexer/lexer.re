@@ -171,6 +171,9 @@ let next_token(lexer: t): lex_r<{.. token: Token.t}> = {
                 ('>', Token.FatArrow)
             ])
         }
+        | ch when ch == '(' => {
+            compound_or(lexer, ~default=Token.Lparen, ~rules=[(')', Token.Unit)])
+        }
         // Individual characters
         | ch => { as _;
             pub lexer = advance(lexer); 

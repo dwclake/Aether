@@ -147,6 +147,7 @@ and parse_expression(parser: t, precedence: precedence) = {
 
 and get_prefix_fn(parser: t) = {
     switch parser.current {
+        | Some(Token.Unit) => Some(parse_unit)
         | Some(Token.Bang)
         | Some(Token.Minus) => Some(parse_prefix)
         | Some(Token.True)
@@ -158,6 +159,11 @@ and get_prefix_fn(parser: t) = {
         | Some(Token.If) => Some(parse_if)
         | _ => None
     }
+}
+
+and parse_unit(parser: t) = {
+    let parser = next_token(parser);
+    (parser, Ok(Ast.Unit))
 }
 
 and parse_boolean(parser: t) = {
@@ -272,10 +278,15 @@ and parse_block_statement(parser: t) = {
         }
     }
 
-    let (parser, block) = parse_block_statement'(parser);
-    switch block {
-        | Ok(block) => (parser, Ok(block |> List.rev))
-        | err => (parser, err)
+    switch parser.current {
+        | Some(Token.Rsquirly) => (next_token(parser), Ok([Ast.Expression{value: Ast.Unit}]))
+        | _ => {
+            let (parser, block) = parse_block_statement'(parser);
+            switch block {
+                | Ok(block) => (parser, Ok(block |> List.rev))
+                | err => (parser, err)
+            }
+        }
     }
 }
 
