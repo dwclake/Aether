@@ -254,12 +254,12 @@ and parse_if(parser: t) = {
                             }
                         }
                         | _ as token => (parser, Error(Format.sprintf(
-                            "Expected ) got %s",
+                            "Expected { got %s",
                             Token.to_string(token)
                         )))
                     }
                 }
-                | None => (parser, Error("no peek token"))
+                | None => (parser, Error("no peek token, expected {"))
             }           
         }
         | err => (parser, err)
