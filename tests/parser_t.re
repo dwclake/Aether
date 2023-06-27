@@ -53,7 +53,7 @@ let check_stmts_len(program: Ast.program, len) = {
     }
 }
 
-let test_next_token() = {
+let test_next_token(): unit = {
     let input = "=+(){},;";
 
     let lexer = Lexer.create(~input);
@@ -71,7 +71,7 @@ let test_next_token() = {
     ] |> test_token_seq(parser)
 };
 
-let test_binding_statement() = {
+let test_binding_statement(): unit = {
     let num_tests = 3;
     let input = "
         let x = 5;
