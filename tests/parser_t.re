@@ -356,7 +356,11 @@ let test_if_expression(): unit = {
 let test_if_else_expression(): unit = {
     let num_tests = 1;
     let input = "
-        if x < y { x } else { y }
+        if x < y { 
+            x 
+        } else { 
+            y 
+        }
     ";
 
     let lexer = Lexer.create(~input);

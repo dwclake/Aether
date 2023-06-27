@@ -230,11 +230,26 @@ and parse_if(parser: t) = {
                         | Token.Lsquirly => {
                             let (parser, cons) = parse_block_statement(parser);
                             switch cons {
-                                | Ok(cons) => (parser, Ok(Ast.If{
-                                    condition: cond,
-                                    consequence: cons,
-                                    alternative: None
-                                }))
+                                | Ok(cons) => {
+                                    switch parser.current {
+                                        | Some(Token.Else) => {
+                                            let (parser, alt) = parse_block_statement(parser);
+                                            switch alt {
+                                                | Ok(alt) => (parser, Ok(Ast.If{
+                                                    condition: cond,
+                                                    consequence: cons,
+                                                    alternative: Some(alt)
+                                                }))
+                                                | Error(message) => (parser, Error(message))
+                                            }
+                                        }
+                                        | _ => (parser, Ok(Ast.If{
+                                            condition: cond,
+                                            consequence: cons,
+                                            alternative: None
+                                        }))
+                                    }
+                                }
                                 | Error(message) => (parser, Error(message))
                             }
                         }
@@ -252,8 +267,9 @@ and parse_if(parser: t) = {
 }
 
 and parse_block_statement(parser: t) = {
-    let parser = next_token(parser);
-    let parser = next_token(parser);
+    let parser = parser
+        |> next_token
+        |> next_token;
 
     let rec parse_block_statement'(~acc=[], parser: t) = {
         switch parser.current {
