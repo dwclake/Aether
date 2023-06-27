@@ -203,15 +203,8 @@ and parse_group(parser: t) = {
     switch expr {
         | Ok(expr) => {
             switch parser.peek {
-                | Some(token) => {
-                    switch token {
-                        | Token.Rparen => (next_token(parser), Ok(expr))
-                        | _ as token => (parser, Error(Format.sprintf(
-                            "Expected ) got %s",
-                            Token.to_string(token)
-                        )))
-                    }
-                }
+                | Some(Token.Rparen) => (next_token(parser), Ok(expr))
+                | Some(_) => (parser, Error(peek_error(parser, Token.Rparen)))
                 | None => (parser, Error("no peek token"))
             }
         }
@@ -225,42 +218,35 @@ and parse_if(parser: t) = {
     switch cond {
         | Ok(cond) => {
             switch parser.peek {
-                | Some(token) => {
-                    switch token {
-                        | Token.Lsquirly => {
-                            let (parser, cons) = parse_block_statement(parser);
-                            switch cons {
-                                | Ok(cons) => {
-                                    switch parser.current {
-                                        | Some(Token.Else) => {
-                                            let (parser, alt) = parse_block_statement(parser);
-                                            switch alt {
-                                                | Ok(alt) => (parser, Ok(Ast.If{
-                                                    condition: cond,
-                                                    consequence: cons,
-                                                    alternative: Some(alt)
-                                                }))
-                                                | Error(message) => (parser, Error(message))
-                                            }
-                                        }
-                                        | _ => (parser, Ok(Ast.If{
+                | Some(Token.Lsquirly) => {
+                    let (parser, cons) = parse_block_statement(parser);
+                    switch cons {
+                        | Ok(cons) => {
+                            switch parser.current {
+                                | Some(Token.Else) => {
+                                    let (parser, alt) = parse_block_statement(parser);
+                                    switch alt {
+                                        | Ok(alt) => (parser, Ok(Ast.If{
                                             condition: cond,
                                             consequence: cons,
-                                            alternative: None
+                                            alternative: Some(alt)
                                         }))
+                                        | Error(message) => (parser, Error(message))
                                     }
                                 }
-                                | Error(message) => (parser, Error(message))
+                                | _ => (parser, Ok(Ast.If{
+                                    condition: cond,
+                                    consequence: cons,
+                                    alternative: None
+                                }))
                             }
                         }
-                        | _ as token => (parser, Error(Format.sprintf(
-                            "Expected { got %s",
-                            Token.to_string(token)
-                        )))
+                        | Error(message) => (parser, Error(message))
                     }
                 }
+                | Some(_) => (parser, Error(peek_error(parser, Token.Lsquirly)))
                 | None => (parser, Error("no peek token, expected {"))
-            }           
+            }
         }
         | err => (parser, err)
     }
