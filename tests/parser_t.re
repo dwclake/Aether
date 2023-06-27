@@ -400,13 +400,17 @@ let test_if_else_expression(): unit = {
 };
 
 let test_fn_literal_expression(): unit = {
-    let num_tests = 2;
+    let num_tests = 3;
     let input = "
         %{x, y -> x + y};
         %{foo, bar ->
             x;
             12
         };
+        %{foo, bar -> {
+            x;
+            12
+        }};
     ";
 
     let lexer = Lexer.create(~input);
@@ -424,6 +428,13 @@ let test_fn_literal_expression(): unit = {
                     operator: Token.Plus,
                     rhs: Ast.Identifier("y")
                 }}
+            ]
+        }},
+        Ast.Expression{value: Ast.Fn{
+            parameter_list: ["foo", "bar"],
+            block: [
+                Ast.Expression{value: Ast.Identifier("x")},
+                Ast.Expression{value: Ast.Integer(12)}
             ]
         }},
         Ast.Expression{value: Ast.Fn{
