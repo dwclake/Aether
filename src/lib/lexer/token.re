@@ -5,7 +5,6 @@ type t =
     | Float(string)
 
     | Fn
-    | FnAnon
     | Let
     | Const
     | Mut
@@ -63,7 +62,6 @@ type t =
     | Amp
     | Dollar
 
-    | Unit
     | Illegal
     | Eof;
 
@@ -74,7 +72,6 @@ let to_string(token: t): string = {
         | Float(x) => x
 
         | Fn => "fn"
-        | FnAnon => "%{"
         | Let => "let"
         | Const => "const"
         | Mut => "mut"
@@ -132,7 +129,6 @@ let to_string(token: t): string = {
         | Amp => "&"
         | Dollar => "$"
 
-        | Unit => "()"
         | Illegal => "illegal"
         | Eof => "eof"
     }
@@ -145,7 +141,6 @@ let to_string_opt(token: option(t)): string = {
         | Some(Float(x)) => x
 
         | Some(Fn) => "fn"
-        | Some(FnAnon) => "%{"
         | Some(Let) => "let"
         | Some(Const) => "const"
         | Some(Mut) => "mut"
@@ -203,7 +198,6 @@ let to_string_opt(token: option(t)): string = {
         | Some(Amp) => "&"
         | Some(Dollar) => "$"
 
-        | Some(Unit) => "()"
         | Some(Illegal) => "illegal"
         | Some(Eof) => "eof"
         | None => "missing token"

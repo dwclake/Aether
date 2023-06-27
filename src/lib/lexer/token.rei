@@ -5,7 +5,6 @@ type t =
     | Float(string)
 
     | Fn
-    | FnAnon
     | Let
     | Const
     | Mut
@@ -63,7 +62,6 @@ type t =
     | Amp
     | Dollar
 
-    | Unit
     | Illegal
     | Eof;
 

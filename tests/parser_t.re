@@ -54,20 +54,19 @@ let check_stmts_len(program: Ast.program, len) = {
 }
 
 let test_next_token(): unit = {
-    let input = "=+(){},;)(";
+    let input = "=+(){},;";
 
     let lexer = Lexer.create(~input);
     let parser = Parser.create(lexer);
 
     [   Some(Token.Assign),
         Some(Token.Plus),
-        Some(Token.Unit),
+        Some(Token.Lparen),
+        Some(Token.Rparen),
         Some(Token.Lsquirly),
         Some(Token.Rsquirly),
         Some(Token.Comma),
         Some(Token.Semicolon),
-        Some(Token.Rparen),
-        Some(Token.Lparen),
         Some(Token.Eof)
     ] |> test_token_seq(parser)
 };
