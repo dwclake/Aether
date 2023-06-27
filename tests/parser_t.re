@@ -403,7 +403,10 @@ let test_fn_literal_expression(): unit = {
     let num_tests = 2;
     let input = "
         %{x, y -> x + y};
-        %{foobar}
+        %{foo, bar ->
+            x;
+            12
+        };
     ";
 
     let lexer = Lexer.create(~input);
@@ -424,9 +427,10 @@ let test_fn_literal_expression(): unit = {
             ]
         }},
         Ast.Expression{value: Ast.Fn{
-            parameter_list: [],
+            parameter_list: ["foo", "bar"],
             block: [
-                Ast.Expression{value: Ast.Identifier("foobar")}
+                Ast.Expression{value: Ast.Identifier("x")},
+                Ast.Expression{value: Ast.Integer(12)}
             ]
         }},
      ], 
