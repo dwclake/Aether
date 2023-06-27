@@ -253,6 +253,7 @@ and parse_if(parser: t) = {
 
 and parse_block_statement(parser: t) = {
     let parser = next_token(parser);
+    let parser = next_token(parser);
 
     let rec parse_block_statement'(~acc=[], parser: t) = {
         switch parser.current {
@@ -271,7 +272,7 @@ and parse_block_statement(parser: t) = {
 
     let (parser, block) = parse_block_statement'(parser);
     switch block {
-        | Ok(_) as ok => (parser, ok)
+        | Ok(block) => (parser, Ok(block |> List.rev))
         | err => (parser, err)
     }
 }
