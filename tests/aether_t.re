@@ -21,7 +21,8 @@ let suite = [
             test_case("If else expression", `Quick, Parser_t.test_if_else_expression),
             test_case("Fn literal expression", `Quick, Parser_t.test_fn_literal_expression),
             test_case("Prefix expression", `Quick, Parser_t.test_prefix_expression),
-            test_case("Infix expression", `Quick, Parser_t.test_infix_expression)
+            test_case("Infix expression", `Quick, Parser_t.test_infix_expression),
+            test_case("Complex parsing", `Quick, Parser_t.test_complex_parsing)
         ]),
     ("Ast",[
             test_case("Test string", `Quick, Ast_t.test_string)

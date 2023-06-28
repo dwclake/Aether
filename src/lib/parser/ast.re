@@ -16,6 +16,11 @@ type node =
             alternative: option(expression)
         }
         | Fn{
+            name: identifier,
+            parameter_list: list(identifier),
+            block: expression
+        }
+        | FnAnon{
             parameter_list: list(identifier),
             block: expression
         }
@@ -103,6 +108,14 @@ and string_of_expr(expr: expression) = {
             )
         }
         | Fn(f) => {
+            f.name ++
+            Format.sprintf(
+                "{%s -> %s}",
+                Core.List.fold(f.parameter_list, ~init="", ~f=((x, acc) => x ++ ", " ++ acc)),
+                string_of_expr(f.block)
+            )
+        }
+        | FnAnon(f) => {
             "%" ++
             Format.sprintf(
                 "{%s -> %s}",

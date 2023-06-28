@@ -32,7 +32,6 @@ let peek_error(parser: t, token: Token.t): string = {
     )
 };
 
-
 [@deriving (ord)]
 type precedence = [ 
     | `Lowest
@@ -149,6 +148,7 @@ and get_prefix_fn(parser: t) = {
         | Some(Token.False) => Some(parse_boolean)
         | Some(Token.Lparen) => Some(parse_group)
         | Some(Token.Lsquirly) => Some(parse_block_expression)
+        | Some(Token.Modulo) => Some(parse_anon_function)
         | Some(Token.Ident(identifier)) => Some(parse_identifier(~identifier))
         | Some(Token.Int(number)) => Some(parse_int(~number))
         | Some(Token.Float(number)) => Some(parse_float(~number))
@@ -214,6 +214,104 @@ and parse_group(parser: t) = {
     }
 }
 
+and parse_block_expression(parser: t) = {
+    let parser = parser
+        |> next_token;
+
+    let rec parse_block_statement'(~acc=[], parser: t) = {
+        switch parser.current {
+            | Some(Token.Rsquirly)
+            | Some(Token.Eof) => (next_token(parser), Ok(acc))
+            | Some(_) => {
+                let (parser, stmt) = parse_statement(parser);
+                switch stmt {
+                    | Ok(stmt) => parse_block_statement'(next_token(parser), ~acc=[stmt] @ acc)
+                    | Error(message) => (parser, Error(message))
+                }
+            }
+            | None => (parser, Error("Missing token"))
+        }
+    }
+
+    switch parser.current {
+        | Some(Token.Rsquirly) => (next_token(parser), Ok(Ast.Block([Ast.Expression{value: Ast.Unit}])))
+        | _ => {
+            let (parser, block) = parse_block_statement'(parser);
+            switch block {
+                | Ok(block) => (parser, Ok(Ast.Block(block |> List.rev)))
+                | Error(message) => (parser, Error(message))
+            }
+        }
+    }
+}
+
+and parse_anon_function(parser: t) = {
+    switch parser.peek {
+        | Some(Token.Lsquirly) => {
+            let (parser, params) = parse_param_list(parser);
+            switch params {
+                | Ok(params) => {
+                    switch parser.peek {
+                        | Some(Token.SlimArrow) => {
+                            let parser = parser
+                                |> next_token
+                                |> next_token;
+
+                            let (parser, expr) = parse_expression(parser, `Lowest);
+                            switch expr {
+                                | Ok(expr) => {
+                                    let parser = parser 
+                                        |> next_token 
+                                        |> next_token;
+
+                                    (parser, Ok(Ast.FnAnon{
+                                        parameter_list: params,
+                                        block: expr
+                                    }))
+                                }
+                                | err => (parser, err)
+                            }
+                        }
+                        | Some(_) => (parser, Error(peek_error(parser, Token.SlimArrow)))
+                        | None => (parser, Error("Missing peek token"))
+                    }
+                }
+                | Error(message) => (parser, Error(message))
+            }
+
+        }
+        | Some(_) => (parser, Error(peek_error(parser, Token.Lsquirly)))
+        | None => (parser, Error("Missing peek token"))
+    }
+}
+
+and parse_param_list(parser: t): (t, Result.t(list(Ast.identifier), string)) = {
+    let parser = parser 
+        |> next_token
+        |> next_token;
+
+    let rec parser_param_list'(~acc=[], parser: t) = {
+        switch parser.current {
+            | Some(Token.Ident(ident)) => {
+                switch parser.peek {
+                    | Some(Token.Comma) => {
+                        let parser = parser
+                            |> next_token
+                            |> next_token;
+
+                        parser_param_list'(parser, ~acc=[ident] @ acc)
+                    }
+                    | _ => (parser, [ident] @ acc)
+                }
+            }
+            | _ => (parser, acc)
+        }
+    }
+
+    let (parser, params) = parser_param_list'(parser);
+    (parser, Ok(params |> List.rev))
+}
+
 and parse_if(parser: t) = {
     let parser = next_token(parser);
     let (parser, cond) = parse_expression(parser, `Lowest);
@@ -255,37 +353,6 @@ and parse_else(parser: t, cond: Ast.expression, cons: Ast.expression) = {
             consequence: cons,
             alternative: None
         }))
-    }
-}
-
-and parse_block_expression(parser: t) = {
-    let parser = parser
-        |> next_token;
-
-    let rec parse_block_statement'(~acc=[], parser: t) = {
-        switch parser.current {
-            | Some(Token.Rsquirly)
-            | Some(Token.Eof) => (next_token(parser), Ok(acc))
-            | Some(_) => {
-                let (parser, stmt) = parse_statement(parser);
-                switch stmt {
-                    | Ok(stmt) => parse_block_statement'(next_token(parser), ~acc=[stmt] @ acc)
-                    | Error(message) => (parser, Error(message))
-                }
-            }
-            | None => (parser, Error("Missing token"))
-        }
-    }
-
-    switch parser.current {
-        | Some(Token.Rsquirly) => (next_token(parser), Ok(Ast.Block([Ast.Expression{value: Ast.Unit}])))
-        | _ => {
-            let (parser, block) = parse_block_statement'(parser);
-            switch block {
-                | Ok(block) => (parser, Ok(Ast.Block(block |> List.rev)))
-                | Error(message) => (parser, Error(message))
-            }
-        }
     }
 }
 

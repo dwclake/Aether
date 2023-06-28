@@ -402,13 +402,9 @@ let test_if_else_expression(): unit = {
 };
 
 let test_fn_literal_expression(): unit = {
-    let num_tests = 3;
+    let num_tests = 2;
     let input = "
         %{x, y -> x + y};
-        %{foo, bar ->
-            x;
-            12
-        };
         %{foo, bar -> {
             x;
             12
@@ -422,30 +418,70 @@ let test_fn_literal_expression(): unit = {
     check_parser_errors(program.errors);
     check_stmts_len(program, num_tests);
 
-    ([  Ast.Expression{value: Ast.Fn{
+    ([  Ast.Expression{value: Ast.FnAnon{
             parameter_list: ["x", "y"],
-            block: Ast.Block([
-                Ast.Expression{value: Ast.Infix{
+            block: Ast.Infix{
                     lhs: Ast.Identifier("x"),
                     operator: Token.Plus,
                     rhs: Ast.Identifier("y")
-                }}
-            ])
+            }
         }},
-        Ast.Expression{value: Ast.Fn{
+        Ast.Expression{value: Ast.FnAnon{
             parameter_list: ["foo", "bar"],
             block: Ast.Block([
                 Ast.Expression{value: Ast.Identifier("x")},
                 Ast.Expression{value: Ast.Integer(12)}
             ])
         }},
-        Ast.Expression{value: Ast.Fn{
-            parameter_list: ["foo", "bar"],
-            block: Ast.Block([
-                Ast.Expression{value: Ast.Identifier("x")},
-                Ast.Expression{value: Ast.Integer(12)}
-            ])
-        }},
+     ], 
+        program.statements
+    ) 
+    |> test_statement_seq
+};
+let test_complex_parsing(): unit = {
+    let num_tests = 1;
+    let input = "
+        const div = %{x, y -> {
+            if y != 0 {
+                x / y
+            } else {
+                x / 1
+            }
+        }};
+    ";
+
+    let lexer = Lexer.create(~input);
+    let parser = Parser.create(lexer);
+
+    let (_, program) = Parser.parse_program(parser);
+    check_parser_errors(program.errors);
+    check_stmts_len(program, num_tests);
+
+    ([  Ast.Binding{
+            kind: Token.Const,
+            name: "div",
+            value: Ast.FnAnon{
+                parameter_list: ["x", "y"],
+                block: Ast.Block([Ast.Expression{value: Ast.If{
+                        condition: Ast.Infix{
+                            lhs: Ast.Identifier("y"),
+                            operator: Token.NotEq,
+                            rhs: Ast.Integer(0)
+                        },
+                        consequence: Ast.Block([Ast.Expression{value: Ast.Infix{
+                            lhs: Ast.Identifier("x"),
+                            operator: Token.Forwardslash,
+                            rhs: Ast.Identifier("y")
+                        }}]),
+                        alternative: Some(Ast.Block([Ast.Expression{value: Ast.Infix{
+                            lhs: Ast.Identifier("x"),
+                            operator: Token.Forwardslash,
+                            rhs: Ast.Integer(1)
+                        }}])),
+                    }
+                }])
+            }
+        }
      ], 
         program.statements
     ) 
