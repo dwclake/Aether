@@ -224,27 +224,7 @@ and parse_if(parser: t) = {
                     let parser = next_token(parser);
                     let (parser, cons) = parse_expression(parser, `Lowest);
                     switch cons {
-                        | Ok(cons) => {
-                            switch parser.current {
-                                | Some(Token.Else) => {
-                                    let parser = next_token(parser);
-                                    let (parser, alt) = parse_expression(parser, `Lowest);
-                                    switch alt {
-                                        | Ok(alt) => (parser, Ok(Ast.If{
-                                            condition: cond,
-                                            consequence: cons,
-                                            alternative: Some(alt)
-                                        }))
-                                        | Error(message) => (parser, Error(message))
-                                    }
-                                }
-                                | _ => (parser, Ok(Ast.If{
-                                    condition: cond,
-                                    consequence: cons,
-                                    alternative: None
-                                }))
-                            }
-                        }
+                        | Ok(cons) => parse_else(parser, cond, cons)
                         | Error(message) => (parser, Error(message))
                     }
                 }
@@ -253,6 +233,28 @@ and parse_if(parser: t) = {
             }
         }
         | err => (parser, err)
+    }
+}
+
+and parse_else(parser: t, cond: Ast.expression, cons: Ast.expression) = {
+    switch parser.current {
+        | Some(Token.Else) => {
+            let parser = next_token(parser);
+            let (parser, alt) = parse_expression(parser, `Lowest);
+            switch alt {
+                | Ok(alt) => (parser, Ok(Ast.If{
+                    condition: cond,
+                    consequence: cons,
+                    alternative: Some(alt)
+                }))
+                | Error(message) => (parser, Error(message))
+            }
+        }
+        | _ => (parser, Ok(Ast.If{
+            condition: cond,
+            consequence: cons,
+            alternative: None
+        }))
     }
 }
 
