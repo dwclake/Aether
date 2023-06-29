@@ -6,7 +6,7 @@ let prompt = ">> ";
 
 let lex_input(input: string): list(Token.t) = {
     let tokens = ref{[]};
-    let lexer = Lexer.create(~input) |> ref;
+    let lexer = new Lexer.t(~input) |> ref;
     let token = Lexer.next_token(lexer) |> ref;
 
     while(token^ != Token.Eof) {

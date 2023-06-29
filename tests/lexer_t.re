@@ -26,7 +26,7 @@ let test_next_token() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input) |> ref)
+    |> test_token_seq(new Lexer.t(~input) |> ref)
 };
 
 
@@ -62,7 +62,7 @@ let test_ident_tokens() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input) |> ref)
+    |> test_token_seq(new Lexer.t(~input) |> ref)
 };
 
 let test_operators() = {
@@ -108,7 +108,7 @@ let test_operators() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input) |> ref)
+    |> test_token_seq(new Lexer.t(~input) |> ref)
 };
 
 
@@ -156,7 +156,7 @@ let test_comp_ops() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input) |> ref)
+    |> test_token_seq(new Lexer.t(~input) |> ref)
 };
 
 let test_keywords() = {
@@ -233,7 +233,7 @@ let test_keywords() = {
 
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input) |> ref)
+    |> test_token_seq(new Lexer.t(~input) |> ref)
 };
 
 let test_functions() = {
@@ -265,5 +265,5 @@ let test_functions() = {
 
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input) |> ref)
+    |> test_token_seq(new Lexer.t(~input) |> ref)
 };

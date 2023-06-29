@@ -1,21 +1,15 @@
-type t
+class t: (~input:string) => { as _;
+        pub input: string;
 
-/*
-type t1 =
-    { .
-        input: string,
+        pub pos: int;
+        pub set_pos: int => unit;
 
-        pos: int,
-        set_pos: int => unit,
+        pub read_pos: int;
+        pub set_read_pos: int => unit;
 
-        read_pos: int,
-        set_read_pos: int => unit,
-
-        ch: char,
-        set_ch: char => unit,
+        pub ch: char;
+        pub set_ch: char => unit;
 };
-*/
 
-let create: (~input:string) => t;
 // Lexes from the char currently stored in the lexer, returning the corresponding token and a lexer 
 let next_token: ref(t) => Token.t;

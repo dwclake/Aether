@@ -7,21 +7,6 @@ type t = {
     peek: option_t,
 };
 
-/*
-class t1 = (lexer) => { as _;
-    pub lexer: Lexer.t = lexer;
-};
-
-let next_token(parser: t): t = {
-    let lex = Lexer.next_token(parser.lexer);
-    let y = new t1(lex#lexer);
-    {   lexer: y#lexer,
-        current: parser.peek,
-        peek: Some(lex#token),
-    }
-};
-*/
-
 let next_token(parser: t): t = {
     let token = Lexer.next_token(parser.lexer);
   

@@ -1,12 +1,4 @@
-type t = {
-    input: string,
-    mutable pos: int,
-    mutable read_pos: int,
-    mutable ch: char
-};
-
-/*
-class t1 = (~input) => {
+class t = (~input: string) => {
     let ch = switch input {
         | "" => '\000'
         | _ => input.[0]
@@ -29,45 +21,31 @@ class t1 = (~input) => {
         pub set_ch = x => ch' = x;
     }
 };
-*/
-
-let create(~input: string): t = {
-    let ch = switch input {
-        | "" => '\000'
-        | _ => input.[0]
-    };
-
-    {   input,
-        pos: 0,
-        read_pos: 1,
-        ch
-    }
-};
 
 let advance(~count=1, lexer: ref(t)): unit = {
-    let readp = lexer^.pos + count;
-    let ch = if (readp >= String.length(lexer^.input)) {
+    let readp = lexer^ #pos + count;
+    let ch = if (readp >= String.length(lexer^ #input)) {
             '\000';
         } else {
-            String.get(lexer^.input, readp);
+            String.get(lexer^ #input, readp);
     };
 
 
-        lexer^.pos = readp;
-        lexer^.read_pos = readp + 1;
-        lexer^.ch = ch;
+        lexer^ #set_pos(readp);
+        lexer^ #set_read_pos(readp + 1);
+        lexer^ #set_ch(ch);
 };
 
 let peek(lexer: ref(t)): char = {
-    if (lexer^.read_pos >= String.length(lexer^.input)) {
+    if (lexer^ #read_pos >= String.length(lexer^ #input)) {
         '\000';
     } else {
-         String.get(lexer^.input, lexer^.read_pos);
+         String.get(lexer^ #input, lexer^ #read_pos);
     }
 };
 
 let rec skip_whitespace(lexer: ref(t)): unit = {
-    switch lexer^.ch {
+    switch lexer^ #ch {
         | ' ' | '\t' | '\n' | '\r' => {
             advance(lexer);
             skip_whitespace(lexer)
@@ -98,7 +76,7 @@ let is_alphanumeric = { fun
 };
 
 let rec read_sequence(~acc="", ~predicate, lexer: ref(t)): string = {
-    switch lexer^.ch {
+    switch lexer^ #ch {
         | ch when predicate(ch) => {
             advance(lexer);
             read_sequence(
@@ -143,7 +121,7 @@ let compound_or(lexer: ref(t), ~default: Token.t, ~rules): Token.t = {
 let next_token(lexer: ref(t)): Token.t = {
     skip_whitespace(lexer);
 
-    switch lexer^.ch {
+    switch lexer^ #ch {
         // Idenifiers and keywords
         | ch when is_letter(ch) => {
             let literal = read_sequence(lexer, ~predicate=is_alphanumeric);
