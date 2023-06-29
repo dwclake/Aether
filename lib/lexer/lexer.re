@@ -5,6 +5,32 @@ type t = {
     mutable ch: char
 };
 
+/*
+class t1 = (~input) => {
+    let ch = switch input {
+        | "" => '\000'
+        | _ => input.[0]
+    };
+
+    { as _;
+        val input' = input;
+        pub input = input';
+
+        val mutable pos' = 0;
+        pub pos = pos';
+        pub set_pos = x => pos' = x;
+
+        val mutable read_pos' = 1;
+        pub read_pos = read_pos';
+        pub set_read_pos = x => read_pos' = x;
+
+        val mutable ch' = ch;
+        pub ch = ch';
+        pub set_ch = x => ch' = x;
+    }
+};
+*/
+
 let create(~input: string): t = {
     let ch = switch input {
         | "" => '\000'
