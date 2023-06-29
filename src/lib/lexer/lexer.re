@@ -18,7 +18,7 @@ let create(~input: string): t = {
     }
 };
 
-let advance(~count=1, lexer: ref(t)) = {
+let advance(~count=1, lexer: ref(t)): unit = {
     let readp = lexer^.pos + count;
     let ch = if (readp >= String.length(lexer^.input)) {
             '\000';
@@ -40,7 +40,7 @@ let peek(lexer: ref(t)): char = {
     }
 };
 
-let rec skip_whitespace(lexer: ref(t)) = {
+let rec skip_whitespace(lexer: ref(t)): unit = {
     switch lexer^.ch {
         | ' ' | '\t' | '\n' | '\r' => {
             advance(lexer);
@@ -71,7 +71,7 @@ let is_alphanumeric = { fun
     | _ => false
 };
 
-let rec read_sequence(~acc="", ~predicate, lexer: ref(t)) = {
+let rec read_sequence(~acc="", ~predicate, lexer: ref(t)): string = {
     switch lexer^.ch {
         | ch when predicate(ch) => {
             advance(lexer);
@@ -85,7 +85,7 @@ let rec read_sequence(~acc="", ~predicate, lexer: ref(t)) = {
     }
 };
 
-let compound_or(lexer: ref(t), ~default: Token.t, ~rules) = {
+let compound_or(lexer: ref(t), ~default: Token.t, ~rules): Token.t = {
     let next_ch = peek(lexer);
     
     let rec compound_or' = { fun
@@ -114,7 +114,7 @@ let compound_or(lexer: ref(t), ~default: Token.t, ~rules) = {
     }
 };
 
-let next_token(lexer: ref(t)) = {
+let next_token(lexer: ref(t)): Token.t = {
     skip_whitespace(lexer);
 
     switch lexer^.ch {

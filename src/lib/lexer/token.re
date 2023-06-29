@@ -204,52 +204,6 @@ let to_string_opt(token: option(t)): string = {
     }
 }
 
-let to_char(token: t): option(char) = {
-    switch token {
-        | Lparen => Some('(')
-        | Rparen => Some(')')
-        | Lbracket => Some('[')
-        | Rbracket => Some(']')
-        | Lsquirly => Some('{')
-        | Rsquirly => Some('}')
-
-        | Assign => Some('=')
-
-        | Plus => Some('+')
-        | Minus => Some('-')
-        | Modulo => Some('%')
-        | Caret => Some('^')
-
-        | Forwardslash => Some('/')
-        | Backslash => Some('\\')
-
-        | SingleQuote => Some('\'')
-        | DoubleQuote => Some('\"')
-        | Backtick => Some('`')
-
-        | Greater => Some('>')
-        | Lesser => Some('<')
-        
-        | Semicolon => Some(';')
-        | Colon => Some(':')
-        | Pipe => Some('|')
-        | Comma => Some(',')
-        | Dot => Some('.')
-        
-        | Asterisk => Some('*')
-        | Bang => Some('!')
-        | Question => Some('?')
-        | Tilde => Some('~')
-        | Pound => Some('#')
-        | At => Some('@')
-        | Amp => Some('&')
-        | Dollar => Some('$')
-        
-        | Eof => Some('\000')
-        | _ => None
-    }
-}
-
 let of_char(ch: char): t = {
     switch ch {
     | '(' => Lparen
