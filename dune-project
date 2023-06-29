@@ -1,11 +1,11 @@
 (lang dune 3.8)
 
-(name Aether)
+(name aether)
 
 (generate_opam_files true)
 
 (package
- (name Aether)
+ (name aether)
  (depends (ocaml(= :5.0.0)) 
           (dune(= :3.8)) 
           (alcotest(= :1.7.0)) 
