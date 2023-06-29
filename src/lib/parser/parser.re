@@ -2,7 +2,7 @@
 type option_t = option(Token.t);
 
 type t = {
-    lexer: Lexer.t,
+    lexer: ref(Lexer.t),
     current: option_t,
     peek: option_t,
 };
@@ -23,15 +23,15 @@ let next_token(parser: t): t = {
 */
 
 let next_token(parser: t): t = {
-    let lex = Lexer.next_token(parser.lexer);
+    let token = Lexer.next_token(parser.lexer);
   
-    {   lexer: lex#lexer,
+    {   ...parser,
         current: parser.peek,
-        peek: Some(lex#token),
+        peek: Some(token),
     }
 };
 
-let create(lexer: Lexer.t): t = {
+let create(lexer: ref(Lexer.t)): t = {
     {   lexer,
         current: None,
         peek: None,

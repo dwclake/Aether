@@ -1,9 +1,10 @@
-type t
-type lex_r<'a> = {
-    ..
-    lexer: t
-} as 'a;
+type t = {
+    input: string,
+    mutable pos: int,
+    mutable read_pos: int,
+    mutable ch: char
+}
 
 let create: (~input:string) => t;
 // Lexes from the char currently stored in the lexer, returning the corresponding token and a lexer 
-let next_token: t => lex_r<{. lexer: t, token: Token.t}>;
+let next_token: ref(t) => Token.t;

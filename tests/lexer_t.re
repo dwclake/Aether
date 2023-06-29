@@ -3,13 +3,13 @@ open Alcotest;
 
 let tt = testable(Token.pp, Token.equal);
 
-let rec test_token_seq(lexer: Lexer.t, ~i= 1) = { fun
+let rec test_token_seq(lexer: ref(Lexer.t), ~i= 1) = { fun
     | [] => ()
     | [h,...t] => {
-        let lex = Lexer.next_token(lexer);
+        let token = Lexer.next_token(lexer);
 
-        check(tt, string_of_int(i), h, lex#token);
-        test_token_seq(lex#lexer, ~i=i + 1, t);
+        check(tt, string_of_int(i), h, token);
+        test_token_seq(lexer, ~i=i + 1, t);
     }
 };
 
@@ -26,7 +26,7 @@ let test_next_token() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input))
+    |> test_token_seq(Lexer.create(~input) |> ref)
 };
 
 
@@ -62,7 +62,7 @@ let test_ident_tokens() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input))
+    |> test_token_seq(Lexer.create(~input) |> ref)
 };
 
 let test_operators() = {
@@ -108,7 +108,7 @@ let test_operators() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input))
+    |> test_token_seq(Lexer.create(~input) |> ref)
 };
 
 
@@ -156,7 +156,7 @@ let test_comp_ops() = {
         Token.Semicolon,
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input))
+    |> test_token_seq(Lexer.create(~input) |> ref)
 };
 
 let test_keywords() = {
@@ -233,7 +233,7 @@ let test_keywords() = {
 
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input))
+    |> test_token_seq(Lexer.create(~input) |> ref)
 };
 
 let test_functions() = {
@@ -265,5 +265,5 @@ let test_functions() = {
 
         Token.Eof
     ] 
-    |> test_token_seq(Lexer.create(~input))
+    |> test_token_seq(Lexer.create(~input) |> ref)
 };

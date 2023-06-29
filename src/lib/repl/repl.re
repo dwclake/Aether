@@ -6,15 +6,13 @@ let prompt = ">> ";
 
 let lex_input(input: string): list(Token.t) = {
     let tokens = ref{[]};
-    let lex = 
-        Lexer.create(~input)
-        |> Lexer.next_token
-        |> ref;
+    let lexer = Lexer.create(~input) |> ref;
+    let token = Lexer.next_token(lexer) |> ref;
 
-    while((lex^)#token != Token.Eof) {
-        tokens := [(lex^)#token] @ tokens^;
+    while(token^ != Token.Eof) {
+        tokens := [token^] @ tokens^;
 
-        lex := Lexer.next_token((lex^)#lexer);
+        token := Lexer.next_token(lexer);
     }
 
     tokens^ |> List.rev

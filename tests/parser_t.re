@@ -56,7 +56,7 @@ let check_stmts_len(program: Ast.program, len) = {
 let test_next_token(): unit = {
     let input = "=+(){},;";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     [   Some(Token.Assign),
@@ -79,7 +79,7 @@ let test_binding_statement(): unit = {
         let foobar = 838383;
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -104,7 +104,7 @@ let test_return_statement(): unit = {
         return 993322;
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -127,7 +127,7 @@ let test_identifier_expression(): unit = {
         foobar;
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -147,7 +147,7 @@ let test_integer_expression(): unit = {
         5;
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -167,7 +167,7 @@ let test_float_expression(): unit = {
         5.4;
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -190,7 +190,7 @@ let test_boolean_expression(): unit = {
         let barfoo = false;
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -215,7 +215,7 @@ let test_prefix_expression(): unit = {
         !foobar;
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -244,7 +244,7 @@ let test_infix_expression(): unit = {
         1 + (2 + 3) + 4;
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -333,7 +333,7 @@ let test_if_expression(): unit = {
         if x < y { x }
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -370,7 +370,7 @@ let test_if_else_expression(): unit = {
         }
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -411,7 +411,7 @@ let test_fn_literal_expression(): unit = {
         }};
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);
@@ -450,7 +450,7 @@ let test_complex_parsing(): unit = {
         }};
     ";
 
-    let lexer = Lexer.create(~input);
+    let lexer = Lexer.create(~input) |> ref;
     let parser = Parser.create(lexer);
 
     let (_, program) = Parser.parse_program(parser);

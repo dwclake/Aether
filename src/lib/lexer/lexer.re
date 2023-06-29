@@ -1,14 +1,9 @@
 type t = {
     input: string,
-    pos: int,
-    read_pos: int,
-    ch: char
+    mutable pos: int,
+    mutable read_pos: int,
+    mutable ch: char
 };
-
-type lex_r<'a> = {
-    ..
-    lexer: t
-} as 'a;
 
 let create(~input: string): t = {
     let ch = switch input {
@@ -23,35 +18,35 @@ let create(~input: string): t = {
     }
 };
 
-let advance(~count=1, lexer: t): t = {
-    let readp = lexer.pos + count;
-    let ch = if (readp >= String.length(lexer.input)) {
+let advance(~count=1, lexer: ref(t)) = {
+    let readp = lexer^.pos + count;
+    let ch = if (readp >= String.length(lexer^.input)) {
             '\000';
         } else {
-            String.get(lexer.input, readp);
+            String.get(lexer^.input, readp);
     };
 
-    {   ...lexer,
-        pos: readp,
-        read_pos: readp + 1,
-        ch,
+
+        lexer^.pos = readp;
+        lexer^.read_pos = readp + 1;
+        lexer^.ch = ch;
+};
+
+let peek(lexer: ref(t)): char = {
+    if (lexer^.read_pos >= String.length(lexer^.input)) {
+        '\000';
+    } else {
+         String.get(lexer^.input, lexer^.read_pos);
     }
 };
 
-let peek(lexer: t): char = {
-    let ch = if (lexer.read_pos >= String.length(lexer.input)) {
-            '\000';
-        } else {
-            String.get(lexer.input, lexer.read_pos);
-    };
-
-    ch
-};
-
-let rec skip_whitespace(lexer: t): t = {
-    switch lexer.ch {
-        | ' ' | '\t' | '\n' | '\r' => skip_whitespace(advance(lexer))
-        | _ => lexer
+let rec skip_whitespace(lexer: ref(t)) = {
+    switch lexer^.ch {
+        | ' ' | '\t' | '\n' | '\r' => {
+            advance(lexer);
+            skip_whitespace(lexer)
+        }
+        | _ => ()
     }
 };
 
@@ -76,80 +71,68 @@ let is_alphanumeric = { fun
     | _ => false
 };
 
-let rec read_sequence(~acc="", ~predicate, lexer: t): lex_r<{.. literal: string}> = {
-    switch lexer.ch {
+let rec read_sequence(~acc="", ~predicate, lexer: ref(t)) = {
+    switch lexer^.ch {
         | ch when predicate(ch) => {
+            advance(lexer);
             read_sequence(
-                advance(lexer), 
+                lexer, 
                 ~predicate,  
                 ~acc=acc ++ Core.Char.to_string(ch)
             );
         }
-        | _ => { as _; 
-            pub lexer = lexer; 
-            pub literal = acc;
-        }
+        | _ => acc
     }
 };
 
-let compound_or(lexer: t, ~default: Token.t, ~rules): lex_r<{.. token: Token.t}> = {
+let compound_or(lexer: ref(t), ~default: Token.t, ~rules) = {
     let next_ch = peek(lexer);
     
     let rec compound_or' = { fun
         | [] => default 
         | [h,...t] => {
-            let (ch, tok) = h;
+            let (ch, token) = h;
 
             if(next_ch == ch) {
-                tok
+                token
             } else {
                 compound_or'(t);
             }
         }
     };
-    let tok = compound_or'(rules);
+    let token = compound_or'(rules);
 
-    switch tok {
-        | tok when tok == default => { as _; 
-            pub lexer = advance(lexer); 
-            pub token = tok;
+    switch token {
+        | token when token == default => { 
+            advance(lexer); 
+            token
         }
-        | _ => { as _; 
-            pub lexer = advance(lexer, ~count=2); 
-            pub token = tok;
+        | _ => {
+            advance(lexer, ~count=2); 
+            token
         }
     }
 };
 
-let next_token(lexer: t): lex_r<{.. token: Token.t}> = {
-    let lexer = skip_whitespace(lexer);
+let next_token(lexer: ref(t)) = {
+    skip_whitespace(lexer);
 
-    switch lexer.ch {
+    switch lexer^.ch {
         // Idenifiers and keywords
         | ch when is_letter(ch) => {
-            let lex = read_sequence(lexer, ~predicate=is_alphanumeric);
-            let token = switch (Token.parse_keyword(lex#literal)) {
+            let literal = read_sequence(lexer, ~predicate=is_alphanumeric);
+            switch (Token.parse_keyword(literal)) {
                 | Some(token) => token
-                | None => Token.Ident(lex#literal)
-            };
-
-            { as _; 
-                pub lexer = lex#lexer; 
-                pub token = token;
+                | None => Token.Ident(literal)
             }
         }
         // Integers
         | ch when is_integer(ch) => {
-            let lex = read_sequence(lexer, ~predicate=is_number);
-            let token = if (String.exists(ch => ch == '.', lex#literal)) {
-                Token.Float(lex#literal)
+            let literal = read_sequence(lexer, ~predicate=is_number);
+            if (String.exists(ch => ch == '.', literal)) {
+                Token.Float(literal)
             } else {
-                Token.Int(lex#literal)
-            };
-            
-            { as _; 
-                pub lexer = lex#lexer; 
-                pub token = token;
+                Token.Int(literal)
             }
         }
         // Compound operators
@@ -172,9 +155,9 @@ let next_token(lexer: t): lex_r<{.. token: Token.t}> = {
             ])
         }
         // Individual characters
-        | ch => { as _;
-            pub lexer = advance(lexer); 
-            pub token = Token.of_char(ch);
+        | ch => {
+            advance(lexer); 
+            Token.of_char(ch)
         }
     }
 };
