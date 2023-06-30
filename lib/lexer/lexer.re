@@ -30,10 +30,9 @@ let advance(~count=1, lexer: ref(t)): unit = {
             String.get(lexer^ #input, readp);
     };
 
-
-        lexer^ #set_pos(readp);
-        lexer^ #set_read_pos(readp + 1);
-        lexer^ #set_ch(ch);
+    lexer^ #set_pos(readp);
+    lexer^ #set_read_pos(readp + 1);
+    lexer^ #set_ch(ch);
 };
 
 let peek(lexer: ref(t)): char = {
