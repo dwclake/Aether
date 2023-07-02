@@ -8,46 +8,59 @@ arr[0] // -> 1
 
 const pos = (3, 5); // A tuple
 
-%{x, y -> [x] @ [y]} // Anonymous fn definition. @ can be used for appending array, strings, and fn composition
+fn (x, y) -> [x] @ [y] // Anonymous fn definition. @ can be used for appending array, strings, and fn composition
+
+fn x -> x ^ x // paren are optional in anonymous fn parameter list, ^ is exponentiation
 
 let myCar = { as _; // An anonymous struct, the identifier following as is the name of the "self" pointer, _ sets it as unused
     make: "Mazda",
     mut model: "RX-7",
-    color: %{ return "red"; }
+    color: fn -> return "red";
 }
 
 let make = myCar.make; // member access
 
+enum traffic_light = { // enumeration definition, enum variants can hold data
+	red(int),
+	yellow,
+	green
+}
+
+const x = traffic_light.red(int);
+
+let y = :red; // polymorphic enum start with :
+
 struct car { // struct definition with type declarations
     make: string,
     mut model: string,
-    color: %{() -> string}
+    color: fn () -> string
 }
 
-let map = {"make": "Chevrolet", "model": "Impala"}; // A hashmap
+let map = %{"make": "Chevrolet", "model": "Impala"}; // A hashmap with string keys
 map["make"] // -> Chevrolet
+let map = %{make: "Chevrolet", model: "Impala"}; // A hashmap with polymorphic enums as keys
 
-fn add(a, b) {
+let add(a, b) {
     return a + b;
-};
+}
 
-fn add(a, ?b) { // ? marks optional parameters
+let add(a, ?b) { // ? marks optional parameters
     let x = if b { // Options can be cooerced to bools, Some -> true, None -> false
         a + b
     } else {
         a + 0
     };
-};
+}
 
-fn add(a, ?b=2) { // optional parameters can be followed be default values
+let add(a, ?b=2) { // optional parameters can be followed be default values
     let x = if b > 0 {
         a + b
     } else {
         a + 0
     };
-};
+}
 
-fn div(a: int, b: int) -> !int { // ! marks a function which returns either ok(of the type after !) or error
+let div(a: int, b: int) -> !int { // ! marks a function which returns either ok(of the type after !) or error
     if b == 0 {
         return err("cannot divide by zero")
     } else {
@@ -61,9 +74,9 @@ match arr {
     | _ -> {
         "Hello" @ " world!" // @ can be used for string concatenation
     }
-};
+}
 
-fn rec sum(arr, acc) {
+let rec sum(arr, acc) {
     match arr {
         | [] -> acc
         | [h, ...tail] -> {
@@ -72,13 +85,13 @@ fn rec sum(arr, acc) {
     }
 }
 
-fn rec fib(x) {
+let rec fib(x) {
     match x {
-        | a: a > 2 -> 0 // guard clauses follow var name and colon
+        | a when a > 2 -> 0 // guard clauses follow var name and when
         | 1 -> 1
         | _ -> fib(x - 1) + fib(x - 2)
     }
-};
+}
 
 { // the composition operator @ takes the value of the previous expression and passes it to the function after it
     let mut nums = 1..100 // Range
@@ -87,11 +100,15 @@ fn rec fib(x) {
         @ filter(...);
 }
 
-fn twice(~f, x) { // : marks named parameters
+let twice ~f, x { // ~ marks named parameters, paren are optional in fn def
     return f(f(x));
 }
 
-twice(f: fib, 2); // named parameters must be specified with the name followed by :
+let twice ~f, x {
+    return x @ f @ f;
+}
+
+twice ~f:fib, 2; // named parameters must be specified with the name followed by :, paren are optional in fn calls
 twice(2, f); // if argument name matches named parameter can just use argument name, named arguments can go in any order
 
 ```

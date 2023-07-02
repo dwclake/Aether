@@ -13,7 +13,7 @@
 (library
   (name parser_t)
   (modules parser_t)
-  (libraries aether core alcotest))
+  (libraries aether alcotest core))
 
 (library
   (name ast_t)
