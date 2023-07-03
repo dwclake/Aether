@@ -29,8 +29,7 @@ let rec test_token_seq (parser: Parser.t) ?(i = 1) = function
         test_token_seq parser ~i:(i + 1) t;
 ;;
 
-let rec test_statement_seq ?(i=1) lists =
-    match lists with
+let rec test_statement_seq ?(i=1) lists = match lists with
     | ([], []) -> ()
     | (es::et, s::t) ->
         check ts (string_of_int i) es s;

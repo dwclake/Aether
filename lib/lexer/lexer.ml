@@ -66,14 +66,13 @@ let is_alphanumeric = function
     | _ -> false
 ;;
 
-let rec read_sequence ?(acc="") ~predicate lexer =
-    match !lexer#ch with
-        | ch when predicate ch ->
-            let literal = acc ^ Core.Char.to_string ch in
-            let () = advance lexer in
+let rec read_sequence ?(acc="") ~predicate lexer = match !lexer#ch with
+    | ch when predicate ch ->
+        let literal = acc ^ Core.Char.to_string ch in
+        let () = advance lexer in
 
-            read_sequence lexer ~predicate ~acc:literal
-        | _ -> acc
+        read_sequence lexer ~predicate ~acc:literal
+    | _ -> acc
 ;;
 
 let compound_or ~default ~rules lexer =
