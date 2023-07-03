@@ -36,8 +36,10 @@ let print_toks tokens =
 let rec start () =
     let open Core in
     
-    printf "%s" prompt; 
-    flush_out();
+    let () = 
+        printf "%s" prompt; 
+        flush_out();
+    in
 
     let input = In_channel.input_lines In_channel.stdin in
     let tokens = 
@@ -47,8 +49,10 @@ let rec start () =
             ~f:(fun x accum -> x ^ accum)
         |> lex_input
     in
-    printf "\n";
-    print_toks tokens;
 
+    let () = 
+        printf "\n";
+        print_toks tokens;
+    in    
     start()
 ;;

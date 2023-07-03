@@ -16,15 +16,15 @@ let rec test_token_seq lexer ?(i=1) = function
 let test_next_token () =
     let code = "=+(){},;" in
 
-    [   Token.Assign;
-        Token.Plus;
-        Token.Lparen;
-        Token.Rparen;
-        Token.Lbrace;
-        Token.Rbrace;
-        Token.Comma;
-        Token.Semicolon;
-        Token.Eof;
+    [ Token.Assign
+    ; Token.Plus
+    ; Token.Lparen
+    ; Token.Rparen
+    ; Token.Lbrace
+    ; Token.Rbrace
+    ; Token.Comma
+    ; Token.Semicolon
+    ; Token.Eof
     ]
     |> test_token_seq (new Lexer.t ~input:code |> ref)
 ;;
@@ -39,29 +39,29 @@ let test_ident_tokens () =
     " 
     in
 
-    [   Token.Let;
-        Token.Ident "five";
-        Token.Assign;
-        Token.Int "5";
-        Token.Semicolon;
+    [ Token.Let
+    ; Token.Ident "five"
+    ; Token.Assign
+    ; Token.Int "5"
+    ; Token.Semicolon
 
-        Token.Let;
-        Token.Ident "ten";
-        Token.Assign;
-        Token.Float "10.0";
-        Token.Semicolon;
+    ; Token.Let
+    ; Token.Ident "ten"
+    ; Token.Assign
+    ; Token.Float "10.0"
+    ; Token.Semicolon
 
-        Token.Let;
-        Token.Ident "result";
-        Token.Assign;
-        Token.Ident "add";
-        Token.Lparen;
-        Token.Ident "five";
-        Token.Comma;
-        Token.Ident "ten";
-        Token.Rparen;
-        Token.Semicolon;
-        Token.Eof;
+    ; Token.Let
+    ; Token.Ident "result"
+    ; Token.Assign
+    ; Token.Ident "add"
+    ; Token.Lparen
+    ; Token.Ident "five"
+    ; Token.Comma
+    ; Token.Ident "ten"
+    ; Token.Rparen
+    ; Token.Semicolon
+    ; Token.Eof
     ] 
     |> test_token_seq (new Lexer.t ~input:code |> ref)
 ;;
@@ -76,39 +76,39 @@ let test_operators () =
     |}
     in
 
-    [   Token.Lbrace;
-        Token.Rbrace;
-        Token.Semicolon;
+    [ Token.Lbrace
+    ; Token.Rbrace
+    ; Token.Semicolon
 
-        Token.Lbracket;
-        Token.Rbracket;
-        Token.Colon;
-        Token.Dot;
-        Token.Dollar;
-        Token.Bang;
-        Token.Minus;
-        Token.Slash;
-        Token.Asterisk;
-        Token.Int "5";
-        Token.Backslash;
-        Token.Tilde;
-        Token.Backtick;
-        Token.Question;
-        Token.Quote;
-        Token.DoubleQuote;
-        Token.Percent;
-        Token.Address;
-        Token.Caret;
-        Token.Pound;
-        Token.Semicolon;
+    ; Token.Lbracket
+    ; Token.Rbracket
+    ; Token.Colon
+    ; Token.Dot
+    ; Token.Dollar
+    ; Token.Bang
+    ; Token.Minus
+    ; Token.Slash
+    ; Token.Asterisk
+    ; Token.Int "5"
+    ; Token.Backslash
+    ; Token.Tilde
+    ; Token.Backtick
+    ; Token.Question
+    ; Token.Quote
+    ; Token.DoubleQuote
+    ; Token.Percent
+    ; Token.Address
+    ; Token.Caret
+    ; Token.Pound
+    ; Token.Semicolon
 
-        Token.Int "5";
-        Token.Lt;
-        Token.Int "10";
-        Token.Gt;
-        Token.Int "5";
-        Token.Semicolon;
-        Token.Eof;
+    ; Token.Int "5"
+    ; Token.Lt
+    ; Token.Int "10"
+    ; Token.Gt
+    ; Token.Int "5"
+    ; Token.Semicolon
+    ; Token.Eof
     ] 
     |> test_token_seq (new Lexer.t ~input:code |> ref)
 ;;

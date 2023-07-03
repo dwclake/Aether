@@ -27,7 +27,7 @@ let advance ?(count=1) lexer =
     in
 
     !lexer#set_pos rp;
-    !lexer#set_read_pos (rp + 1);
+    !lexer#set_read_pos @@ rp + 1;
     !lexer#set_ch ch;
 ;;
 
@@ -70,7 +70,7 @@ let rec read_sequence ?(acc="") ~predicate lexer =
     match !lexer#ch with
         | ch when predicate ch ->
             let literal = acc ^ Core.Char.to_string ch in
-            advance lexer;
+            let () = advance lexer in
 
             read_sequence lexer ~predicate ~acc:literal
         | _ -> acc
@@ -92,15 +92,15 @@ let compound_or ~default ~rules lexer =
 
     match token with
     | token when token == default ->
-            advance lexer;
+            let () = advance lexer in
             token
     | _ ->
-            advance lexer ~count:2;
+            let () = advance lexer ~count:2 in
             token
 ;;
 
 let next_token lexer =
-    skip_whitespace lexer;
+    let () = skip_whitespace lexer in
 
     match !lexer#ch with
         (* Idenifiers and keywords *)
@@ -147,6 +147,6 @@ let next_token lexer =
                 ~rules:[('=', Token.Eq); ('>', Token.FatArrow)]
         (* Individual characters *)
         | ch ->
-            advance lexer;
+                let () = advance lexer in
             Token.of_char ch
 ;;
