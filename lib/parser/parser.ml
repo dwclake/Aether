@@ -1,41 +1,39 @@
 type option_t = Token.t option
 [@@deriving show, eq];;
 
-class t = fun ~lexer -> 
-    let current = Lexer.next_token lexer in
-    let peek = Lexer.next_token lexer in
-    object
-        val lexer': Lexer.t ref = lexer
-        method lexer = lexer'
-        
-        val mutable current': option_t = Some current
-        method current = current'
-        method set_current = fun tok -> current' <- tok
-        
-        val mutable peek': option_t = Some peek
-        method peek = peek'
-        method set_peek = fun tok -> peek' <- tok
-    end
+type t = { lexer: Lexer.t ref
+         ; current: option_t
+         ; peek: option_t;
+         };;
+
+let next_token ?(count=1) (parser: t) =
+    let rec next_token' (parser: t) = function
+        | x when x <= 0 -> parser
+        | x ->
+            let token = Lexer.next_token parser.lexer in
+
+            (x - 1) |> next_token'
+            { lexer= parser.lexer
+            ; current= parser.peek
+            ; peek= Some token
+            }
+    in 
+    next_token' parser count
 ;;
 
-let next_token ?(count=1) parser =
-    let rec next_token' = function
-        | x when x <= 0 -> ()
-        | x ->
-            let token = Lexer.next_token !parser#lexer in
-
-            !parser#set_current !parser#peek;
-            !parser#set_peek (Some token);
-            next_token' (x - 1)
-    in
-    next_token' count;
+let create ~lexer =
+    { lexer
+    ; current= None
+    ; peek= None
+    }
+    |> next_token ~count:2
 ;;
 
 let peek_error parser token =
     Format.sprintf 
         "Expected next token to be %s, got %s instead" 
         (Token.show token) 
-        (Token.show (Option.get !parser#peek))
+        (Token.show (Option.get parser.peek))
 ;;
 
 type precedence = 
@@ -67,65 +65,67 @@ let get_prec token: precedence =
 ;;
 
 let rec parse_statement parser =
-    match !parser#current with
+    match parser.current with
         | Some Token.Let
         | Some Token.Const -> parse_binding_statement parser;
         | Some Token.Return -> parse_return_statement parser;
         | _ -> parse_expression_statement parser;
 
 and parse_binding_statement parser =
-    let current = Option.get !parser#current in
-    match !parser#peek with
+    let current = Option.get parser.current in
+    match parser.peek with
         | Some (Token.Ident name) -> begin
-            next_token parser;
-            match !parser#peek with
+            let parser = next_token parser in
+            match parser.peek with
                 | Some Token.Assign ->
-                    next_token parser ~count:2;
-                    let expr = parse_expression parser `Lowest in
+                    let parser =next_token parser ~count:2 in
+                    let parser, expr = parse_expression parser `Lowest in
                     begin match expr with 
                         | Ok value ->
-                            Ok (Ast.Binding{
-                                kind=current;
-                                name;
-                                value
-                            })
-                        | Error message -> Error message
+                            parser, Ok (Ast.Binding
+                                { kind=current
+                                ; name
+                                ; value
+                                })
+                        | Error message -> parser, Error message
                     end
-                    | _ -> Error (peek_error parser Token.Assign)
+                    | _ -> parser, Error (peek_error parser Token.Assign)
         end
-        | _ -> Error (peek_error parser (Token.Ident ""))
+        | _ -> parser, Error (peek_error parser @@ Token.Ident "")
 
 and parse_return_statement parser =
-    next_token parser;
-    let expr = parse_expression parser `Lowest in
+    let parser = next_token parser in
+    let parser, expr = parse_expression parser `Lowest in
 
     match expr with 
-        | Ok value -> Ok (Ast.Return{value})
-        | Error message -> Error message
+        | Ok value -> parser, Ok (Ast.Return{value})
+        | Error message -> parser, Error message
 
 and parse_expression_statement parser =
-    let expr = parse_expression parser `Lowest in
-    if !parser#peek == Some Token.Semicolon
-        then next_token parser;
+    let parser, expr = parse_expression parser `Lowest in
+    let parser = if parser.peek == Some Token.Semicolon
+        then next_token parser
+        else parser
+    in
     
     match expr with
-        | Ok(value) -> Ok (Ast.Expression{value})
-        | Error(message) -> Error(message)
+        | Ok(value) -> parser, Ok (Ast.Expression{value})
+        | Error(message) -> parser, Error message
 
-and parse_expression parser precedence =
+and parse_expression parser precedence: t * (Ast.expression, string) result =
     match get_prefix_fn parser with
         | Some fn ->
-            let prefix = fn parser in
+            let parser, prefix = fn parser in
             begin match prefix with
                 | Ok lhs -> build_infix precedence parser lhs
-                | err ->  err
+                | err ->  parser, err
             end
-        | None -> Error (Format.sprintf
+        | None -> parser, Error (Format.sprintf
             "No prefix function for %s"
-            (Token.to_string (Option.get !parser#current)))
+            (Token.to_string @@ Option.get parser.current))
 
 and get_prefix_fn parser =
-    match !parser#current with
+    match parser.current with
         | Some (Token.Ident identifier) -> Some (parse_identifier ~identifier)
         | Some (Token.Int number) -> Some (parse_int ~number)
         | Some (Token.Float number) -> Some (parse_float ~number)
@@ -139,181 +139,181 @@ and get_prefix_fn parser =
         | Some Token.Percent -> Some parse_fn_anon
         | _ -> None
 
-and parse_identifier _ ~identifier =
-    Ok (Ast.Identifier identifier)
+and parse_identifier parser ~identifier =
+    parser, Ok (Ast.Identifier identifier)
 
-and parse_int _ ~number = 
+and parse_int parser ~number = 
     match int_of_string_opt number with
-        | Some value -> Ok (Ast.Integer value)
-        | None -> Error (Format.sprintf
+        | Some value -> parser, Ok (Ast.Integer value)
+        | None -> parser, Error (Format.sprintf
             "Unable to convert %s to int"
             number
         )
 
-and parse_float _ ~number = 
+and parse_float parser ~number = 
     match float_of_string_opt number with
-        | Some value -> Ok (Ast.Float value)
-        | None -> Error (Format.sprintf
+        | Some value -> parser, Ok (Ast.Float value)
+        | None -> parser, Error (Format.sprintf
             "Unable to convert %s to float"
             number)
 
-and parse_boolean _ ~boolean =
-    Ok (Ast.Boolean boolean)
+and parse_boolean parser ~boolean =
+    parser, Ok (Ast.Boolean boolean)
 
 and parse_prefix parser =
-    let operator = Option.get !parser#current in
-    next_token parser;
-    let expr = parse_expression parser `Prefix in
+    let operator = Option.get parser.current in
+    let parser = next_token parser in
+    let parser, expr = parse_expression parser `Prefix in
     match expr with 
-        | Ok value -> Ok (Ast.Prefix{operator; value})
-        | err -> err
+        | Ok value -> parser, Ok (Ast.Prefix{operator; value})
+        | err -> parser, err
 
 and parse_group parser =
-    next_token parser;
-    match !parser#current with
+    let parser = next_token parser in
+    match parser.current with
         | Some Token.Rparen -> 
-            next_token parser;
+            next_token parser,
             Ok Ast.Unit
         | _ ->
-            let expr = parse_expression parser `Lowest in
+            let parser, expr = parse_expression parser `Lowest in
             match expr with
                 | Ok expr ->
-                    begin match !parser#peek with
+                    begin match parser.peek with
                         | Some Token.Rparen ->
-                            next_token parser;
+                            next_token parser,
                             Ok expr
-                        | Some _ -> Error (peek_error parser Token.Rparen)
-                        | None -> Error "No peek token"
+                        | Some _ -> parser, Error (peek_error parser Token.Rparen)
+                        | None -> parser, Error "No peek token"
                     end
-                | err -> err
+                | err -> parser, err
 
 and parse_block parser =
-    next_token parser;
+    let parser = next_token parser in
 
     let rec parse_block' ?(acc=[]) parser =
-        match !parser#current with
+        match parser.current with
             | Some Token.Rbrace ->
-                next_token parser;
+                next_token parser,
                 Ok acc
             | Some Token.Semicolon ->
-                next_token parser;
+                let parser = next_token parser in
                 parse_block' parser ~acc
             | Some _ ->
-                let stmt = parse_statement parser in
+                let parser, stmt = parse_statement parser in
                 begin match stmt with
                     | Ok stmt -> 
-                        next_token parser;
+                        let parser = next_token parser in
                         parse_block' parser ~acc:([stmt] @ acc)
-                    | Error message -> Error message
+                    | Error message -> parser, Error message
                 end
-            | None -> Error "Missing token"
+            | None -> parser, Error "Missing token"
     in
-    match !parser#current with
+    match parser.current with
         | Some Token.Rbrace ->
-            next_token parser;
+            next_token parser,
             Ok (Ast.Block [Ast.Expression{value= Ast.Unit}])
         | _ ->
-            let block = parse_block' parser in
+            let parser, block = parse_block' parser in
             match block with
-                | Ok block -> Ok (Ast.Block (block |> List.rev))
-                | Error message -> Error message
+                | Ok block -> parser, Ok (Ast.Block (block |> List.rev))
+                | Error message -> parser, Error message
 
 and parse_if parser =
-    next_token parser;
-    let cond = parse_expression parser `Lowest in
+    let parser = next_token parser in
+    let parser, cond = parse_expression parser `Lowest in
     match cond with
         | Ok cond ->
-            begin match !parser#peek with
+            begin match parser.peek with
                 | Some Token.Lbrace ->
-                    next_token parser;
-                    let cons = parse_expression parser `Lowest in
+                    let parser = next_token parser in
+                    let parser, cons = parse_expression parser `Lowest in
                     begin match cons with
                         | Ok cons -> parse_else parser cond cons
-                        | Error message -> Error message
+                        | Error message -> parser, Error message
                     end
-                | Some _ -> Error (peek_error parser Token.Lbrace)
-                | None -> Error "No peek token"
+                | Some _ -> parser, Error (peek_error parser Token.Lbrace)
+                | None -> parser, Error "No peek token"
             end
-        | err -> err
+        | err -> parser, err
 
 and parse_else parser cond cons =
-    match !parser#current with
+    match parser.current with
         | Some Token.Else ->
-            next_token parser;
-            let alt = parse_expression parser `Lowest in
+            let parser = next_token parser in
+            let parser, alt = parse_expression parser `Lowest in
             begin match alt with
-                | Ok alt -> Ok (Ast.If{
-                    condition= cond;
-                    consequence= cons;
-                    alternative= Some alt;
-                })
-                | Error message -> Error message
+                | Ok alt -> parser, Ok (Ast.If
+                    { condition= cond
+                    ; consequence= cons
+                    ; alternative= Some alt;
+                    })
+                | Error message -> parser, Error message
             end
-        | _ -> Ok (Ast.If{
-            condition= cond;
-            consequence= cons;
-            alternative= None;
-        })
+        | _ -> parser, Ok (Ast.If
+            { condition= cond
+            ; consequence= cons
+            ; alternative= None;
+            })
 
 and parse_fn_anon parser =
-    match !parser#peek with 
+    match parser.peek with 
         | Some Token.Lbrace ->
-            let params = parse_param_list parser in
+            let parser, params = parse_param_list parser in
             begin match params with
                 | Ok params ->
-                    begin match !parser#peek with
+                    begin match parser.peek with
                         | Some Token.Arrow ->
-                            next_token parser ~count:2;
-                            let expr = parse_expression parser `Lowest in
+                            let parser = next_token parser ~count:2 in
+                            let parser, expr = parse_expression parser `Lowest in
                             begin match expr with
                                 | Ok expr ->
-                                    next_token parser ~count:2;
-                                    Ok (Ast.AnonFn{
-                                        parameter_list= params;
-                                        block= expr;
-                                    })
-                                | err -> err
+                                    next_token parser ~count:2,
+                                    Ok (Ast.AnonFn
+                                        { parameter_list= params
+                                        ; block= expr;
+                                        })
+                                | err -> parser, err
                             end
-                        | Some _ -> Error (peek_error parser Token.Arrow)
-                        | None -> Error "Missing peek token"
+                        | Some _ -> parser, Error (peek_error parser Token.Arrow)
+                        | None -> parser, Error "Missing peek token"
                     end
-                | Error message -> Error message
+                | Error message -> parser, Error message
             end
-        | Some _ -> Error (peek_error parser Token.Lbrace)
-        | None -> Error "Missing peek token"
+        | Some _ -> parser, Error (peek_error parser Token.Lbrace)
+        | None -> parser, Error "Missing peek token"
 
 and parse_param_list parser =
-    next_token parser ~count:2;
+    let parser = next_token parser ~count:2 in
 
-    let rec parse_param_list' ?(acc=[]) parser =
-        match !parser#current with
+    let rec parse_param_list' ?(acc=[]) parser: t * string list =
+        match parser.current with
             | Some Token.Ident ident ->
-                begin match !parser#peek with
+                begin match parser.peek with
                     | Some Token.Comma -> 
-                        next_token parser ~count:2;
-                        parse_param_list' parser ~acc:[ident] @ acc
-                    | _ -> [ident] @ acc
+                        let parser = next_token parser ~count:2 in
+                        parse_param_list' parser ~acc:([ident] @ acc)
+                    | _ -> parser, [ident] @ acc
                 end
-            | _ -> acc
+            | _ -> parser, acc
     in
-    let params = parse_param_list' parser in
-    Ok (params |> List.rev)
+    let parser, params = parse_param_list' parser in
+    parser, Ok (params |> List.rev)
 
 and build_infix precedence parser lhs =
-    match !parser#peek with
-        | x when comp_prec precedence (get_prec x) -> Ok lhs
+    match parser.peek with
+        | x when comp_prec precedence (get_prec x) -> parser, Ok lhs
         | _ ->
             match get_infix_fn parser with
                 | Some fn ->
-                    let expr = fn lhs in
+                    let parser, expr = fn lhs in
                     begin match expr with
                         | Ok expr -> build_infix precedence parser expr
-                        | err -> err
+                        | err -> parser, err
                     end
-                | None -> Ok lhs
+                | None -> parser, Ok lhs
 
 and get_infix_fn parser =
-    match !parser#peek with
+    match parser.peek with
         | Some Token.Plus
         | Some Token.Minus
         | Some Token.Slash
@@ -326,43 +326,43 @@ and get_infix_fn parser =
         | Some Token.Geq
         | Some Token.Lparen
         | Some Token.Lbracket -> 
-            next_token parser;
-            Some (parse_infix parser)
+            
+            Some (parse_infix @@ next_token parser)
         | _ -> None
 
 and parse_infix parser lhs =
-    let operator = Option.get !parser#current in
-    let precedence = get_prec !parser#current in
+    let operator = Option.get parser.current in
+    let precedence = get_prec parser.current in
     
-    next_token parser;
-    let rhs = parse_expression parser precedence in
+    let parser = next_token parser in
+    let parser, rhs = parse_expression parser precedence in
     match rhs with
         | Ok rhs -> 
-            Ok (Ast.Infix{
-                lhs;
-                operator;
-                rhs
-            })
-        | err -> err
+            parser, Ok (Ast.Infix
+                { lhs
+                ; operator
+                ; rhs
+                })
+        | err -> parser, err
 ;;
 
-let parse_program parser: Ast.program =
+let parse_program parser: t * Ast.program =
     let rec parse_program' parser stmts errors =
-        match !parser#current with
-            | Some Token.Eof -> (stmts, errors)
+        match parser.current with
+            | Some Token.Eof -> parser, stmts, errors
             | _ ->
-                let stmt = parse_statement parser in
-                next_token parser;
+                let parser, stmt = parse_statement parser in
+                let parser = next_token parser in
                 match stmt with
                     | Ok stmt -> 
                         parse_program' parser ([stmt] @ stmts) errors
                     | Error message -> 
                         parse_program' parser stmts ([message] @ errors)
     in
-    let (statements, errors) = parse_program' parser [] [] in
+    let (parser, statements, errors) = parse_program' parser [] [] in
 
     let statements = statements |> List.rev in
     let errors = errors |> List.rev in
 
-    {statements; errors}
+    parser, {statements; errors}
 ;;

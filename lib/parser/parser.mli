@@ -12,19 +12,11 @@ type precedence =
     | `Index
 ][@@deriving ord]
 
-class t: lexer:Lexer.t ref -> 
-    object
-        val lexer': Lexer.t ref
-        method lexer: Lexer.t ref
-        
-        val mutable current': option_t
-        method current: option_t 
-        method set_current: option_t -> unit
-        
-        val mutable peek': option_t
-        method peek: option_t 
-        method set_peek: option_t -> unit
-end
+type t = { lexer: Lexer.t ref
+         ; current: option_t
+         ; peek: option_t
+         }
 
-val next_token: ?count:int -> t ref -> unit
-val parse_program: t ref -> Ast.program
+val create: lexer:Lexer.t ref -> t
+val next_token: ?count:int -> t -> t
+val parse_program: t -> t * Ast.program

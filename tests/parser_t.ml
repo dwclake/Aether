@@ -21,11 +21,11 @@ let check_parser_errors list =
         print list
 ;;
 
-let rec test_token_seq (parser: Parser.t ref) ?(i = 1) = function
+let rec test_token_seq (parser: Parser.t) ?(i = 1) = function
     | [] -> ()
     | h::t ->
-        check tt (string_of_int i) h !parser#current;
-        Parser.next_token parser;
+        check tt (string_of_int i) h parser.current;
+        let parser = Parser.next_token parser in
         test_token_seq parser ~i:(i + 1) t;
 ;;
 
@@ -49,7 +49,7 @@ let test_next_token () =
     let input = "=+(){},;" in
 
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
     [   Some Token.Assign;
         Some Token.Plus;
@@ -72,9 +72,9 @@ let test_binding_statement () =
     "
     in
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
 
     test_stmts_length program 3;
@@ -99,9 +99,9 @@ let test_return_statement () =
     in
 
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 4;
@@ -123,9 +123,9 @@ let test_identifier_expression () =
     in
     
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 1;
@@ -143,9 +143,9 @@ let test_integer_expression () =
     in
     
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 1;
@@ -163,9 +163,9 @@ let test_float_expression () =
     in
     
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 1;
@@ -186,9 +186,9 @@ let test_boolean_expression () =
     in
     
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 4;
@@ -212,9 +212,9 @@ let test_prefix_expression () =
     in
     
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 3;
@@ -242,9 +242,9 @@ let test_infix_expression () =
     in
     
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 8;
@@ -306,9 +306,9 @@ let test_if_expression () =
     in
 
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 1;
@@ -344,9 +344,9 @@ let test_if_else_expression () =
     in
 
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 2;
@@ -386,9 +386,9 @@ let test_fn_literal_expression () =
     in
 
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 2;
@@ -427,9 +427,9 @@ let test_complex_parsing () =
     in
 
     let lexer = new Lexer.t ~input |> ref in
-    let parser = new Parser.t ~lexer |> ref in
+    let parser = Parser.create ~lexer in
 
-    let program = Parser.parse_program parser in
+    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 1;
