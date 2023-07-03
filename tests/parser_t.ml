@@ -352,24 +352,24 @@ let test_if_else_expression () =
     
     test_stmts_length program 2;
 
-    ([  Ast.Expression{value= Ast.If{
-            condition= Ast.Infix{
-                lhs= Ast.Identifier "x";
-                operator= Token.Lt;
-                rhs= Ast.Identifier "y";
-            };
-            consequence= Ast.Block [Ast.Expression{value= Ast.Identifier "x"}];
-            alternative= Some (Ast.Block [Ast.Expression{value= Ast.Identifier "y"}]);
-        }};
-        Ast.Expression{value= Ast.If{
-            condition= Ast.Infix{
-                lhs= Ast.Identifier "x";
-                operator= Token.Lt;
-                rhs= Ast.Identifier "y";
-            };
-            consequence= Ast.Block [Ast.Expression{value= Ast.Unit}];
-            alternative= Some (Ast.Block [Ast.Expression{value= Ast.Identifier "y"}]);
-        }};
+    ([ Ast.Expression{value= Ast.If
+            { condition= Ast.Infix
+                { lhs= Ast.Identifier "x"
+                ; operator= Token.Lt
+                ; rhs= Ast.Identifier "y"
+                }
+            ; consequence= Ast.Block [Ast.Expression{value= Ast.Identifier "x"}]
+            ; alternative= Some (Ast.Block [Ast.Expression{value= Ast.Identifier "y"}])
+            }}
+     ; Ast.Expression{value= Ast.If
+            { condition= Ast.Infix
+                { lhs= Ast.Identifier "x"
+                ; operator= Token.Lt
+                ; rhs= Ast.Identifier "y"
+                }
+            ; consequence= Ast.Block [Ast.Expression{value= Ast.Unit}]
+            ; alternative= Some (Ast.Block [Ast.Expression{value= Ast.Identifier "y"}])
+            }}
     ],
         program.statements    
     )
@@ -394,21 +394,21 @@ let test_fn_literal_expression () =
     
     test_stmts_length program 2;
 
-    ([  Ast.Expression{value= Ast.AnonFn{
-            parameter_list= ["x"; "y"];
-            block= Ast.Infix{
-                lhs= Ast.Identifier "x";
-                operator= Token.Plus;
-                rhs= Ast.Identifier "y";
-            };
-        }};
-        Ast.Expression{value= Ast.AnonFn{
-            parameter_list= ["foo"; "bar"];
-            block= Ast.Block [
-                Ast.Expression{value= Ast.Identifier "x"};
-                Ast.Expression{value= Ast.Integer 12};
-            ];
-        }};
+    ([ Ast.Expression{value= Ast.AnonFn
+            { parameter_list= ["x"; "y"]
+            ; block= Ast.Infix
+                { lhs= Ast.Identifier "x"
+                ; operator= Token.Plus
+                ; rhs= Ast.Identifier "y"
+                }
+            }}
+     ; Ast.Expression{value= Ast.AnonFn
+            { parameter_list= ["foo"; "bar"]
+            ; block= Ast.Block 
+                [ Ast.Expression{value= Ast.Identifier "x"}
+                ; Ast.Expression{value= Ast.Integer 12}
+                ]
+            }}
     ],
         program.statements
     )
@@ -435,31 +435,29 @@ let test_complex_parsing () =
     
     test_stmts_length program 1;
 
-    ([  Ast.Binding{
-            kind= Token.Const;
-            name= "div";
-            value= Ast.AnonFn{
-                parameter_list= ["x"; "y"];
-                block= Ast.Block [Ast.Expression{value= Ast.If{
-                        condition= Ast.Infix{
-                            lhs= Ast.Identifier "y";
-                            operator= Token.Neq;
-                            rhs= Ast.Integer 0;
-                        };
-                        consequence= Ast.Block [Ast.Expression{value= Ast.Infix{
-                            lhs= Ast.Identifier "x";
-                            operator= Token.Slash;
-                            rhs= Ast.Identifier "y";
-                        }}];
-                        alternative= Some( Ast.Block [Ast.Expression{value= Ast.Infix{
-                            lhs= Ast.Identifier "x";
-                            operator= Token.Slash;
-                            rhs= Ast.Integer 1;
-                        }}]);
-                    }}
-                ];
-            }
-        }
+    ([ Ast.Binding
+            { kind= Token.Const
+            ; name= "div"
+            ; value= Ast.AnonFn
+                {parameter_list= ["x"; "y"]
+                ; block= Ast.Block [Ast.Expression{value= Ast.If
+                        { condition= Ast.Infix
+                            { lhs= Ast.Identifier "y"
+                            ; operator= Token.Neq
+                            ; rhs= Ast.Integer 0
+                            }
+                        ; consequence= Ast.Block [Ast.Expression{value= Ast.Infix
+                            { lhs= Ast.Identifier "x"
+                            ; operator= Token.Slash
+                            ; rhs= Ast.Identifier "y"
+                            }}]
+                        ; alternative= Some( Ast.Block [Ast.Expression{value= Ast.Infix
+                            { lhs= Ast.Identifier "x"
+                            ; operator= Token.Slash
+                            ; rhs= Ast.Integer 1
+                            }}])
+                        }}
+                ]}}
     ],
         program.statements
     )

@@ -127,50 +127,50 @@ let test_comp_ops () =
     "
     in
 
-    [   Token.Let;
-        Token.Ident "x";
-        Token.Assign;
-        Token.Int "12";
-        Token.Semicolon;
+    [ Token.Let
+    ; Token.Ident "x"
+    ; Token.Assign
+    ; Token.Int "12"
+    ; Token.Semicolon
 
-        Token.Let;
-        Token.Ident "y";
-        Token.Assign;
-        Token.Int "1";
-        Token.FatArrow;
-        Token.Semicolon;
+    ; Token.Let
+    ; Token.Ident "y"
+    ; Token.Assign
+    ; Token.Int "1"
+    ; Token.FatArrow
+    ; Token.Semicolon
 
-        Token.Int "5";
-        Token.Leq;
-        Token.Int "10";
-        Token.Semicolon;
+    ; Token.Int "5"
+    ; Token.Leq
+    ; Token.Int "10"
+    ; Token.Semicolon
 
-        Token.Ident "x";
-        Token.Geq;
-        Token.Int "2";
-        Token.Semicolon;
+    ; Token.Ident "x"
+    ; Token.Geq
+    ; Token.Int "2"
+    ; Token.Semicolon
 
-        Token.Ident "y";
-        Token.Neq;
-        Token.Ident "x";
-        Token.Semicolon;
+    ; Token.Ident "y"
+    ; Token.Neq
+    ; Token.Ident "x"
+    ; Token.Semicolon
 
-        Token.Ident "y";
-        Token.Eq;
-        Token.Int "1";
-        Token.Semicolon;
+    ; Token.Ident "y"
+    ; Token.Eq
+    ; Token.Int "1"
+    ; Token.Semicolon
 
-        Token.True;
-        Token.Or;
-        Token.False;
-        Token.Semicolon;
+    ; Token.True
+    ; Token.Or
+    ; Token.False
+    ; Token.Semicolon
 
-        Token.Ident "x";
-        Token.And;
-        Token.Ident "y";
-        Token.Semicolon;
+    ; Token.Ident "x"
+    ; Token.And
+    ; Token.Ident "y"
+    ; Token.Semicolon
 
-        Token.Eof;
+    ; Token.Eof
     ] 
     |> test_token_seq (new Lexer.t ~input:code |> ref)
 ;;
@@ -193,61 +193,61 @@ let test_keywords () =
     "
     in
 
-    [   Token.Let;
-        Token.Ident "y";
-        Token.Assign;
-        Token.True;
-        Token.Semicolon;
+    [ Token.Let
+    ; Token.Ident "y"
+    ; Token.Assign
+    ; Token.True
+    ; Token.Semicolon
 
-        Token.Const;
-        Token.Ident "x";
-        Token.Assign;
-        Token.Match;
-        Token.Ident "y";
-        Token.Lbrace;
+    ; Token.Const
+    ; Token.Ident "x"
+    ; Token.Assign
+    ; Token.Match
+    ; Token.Ident "y"
+    ; Token.Lbrace
 
-        Token.Pipe;
-        Token.True;
-        Token.FatArrow;
-        Token.Int "20";
+    ; Token.Pipe
+    ; Token.True
+    ; Token.FatArrow
+    ; Token.Int "20"
 
-        Token.Pipe;
-        Token.False;
-        Token.FatArrow;
-        Token.Int "10";
+    ; Token.Pipe
+    ; Token.False
+    ; Token.FatArrow
+    ; Token.Int "10"
 
-        Token.Rbrace;
-        Token.Semicolon;
+    ; Token.Rbrace
+    ; Token.Semicolon
 
-        Token.If;
-        Token.Ident "x";
-        Token.Gt;
-        Token.Int "5";
-        Token.Lbrace;
+    ; Token.If
+    ; Token.Ident "x"
+    ; Token.Gt
+    ; Token.Int "5"
+    ; Token.Lbrace
 
-        Token.Return;
-        Token.Int "2";
-        Token.Semicolon;
+    ; Token.Return
+    ; Token.Int "2"
+    ; Token.Semicolon
 
-        Token.Rbrace;
-        Token.Else;
-        Token.If;
-        Token.Ident "x";
-        Token.Lt;
-        Token.Int "5";
-        Token.Lbrace;
+    ; Token.Rbrace
+    ; Token.Else
+    ; Token.If
+    ; Token.Ident "x"
+    ; Token.Lt
+    ; Token.Int "5"
+    ; Token.Lbrace
 
-        Token.Int "1";
+    ; Token.Int "1"
 
-        Token.Rbrace;
-        Token.Else;
-        Token.Lbrace;
+    ; Token.Rbrace
+    ; Token.Else
+    ; Token.Lbrace
 
-        Token.Int "0";
+    ; Token.Int "0"
         
-        Token.Rbrace;
+    ; Token.Rbrace
 
-        Token.Eof;
+    ; Token.Eof
     ] 
     |> test_token_seq (new Lexer.t ~input:code |> ref)
 ;;
@@ -260,27 +260,27 @@ let test_functions () =
     "
     in
 
-    [   Token.Let;
-        Token.Ident "add";
-        Token.Assign;
-        Token.Fn;
-        Token.Lparen;
-        Token.Ident "x";
-        Token.Comma;
-        Token.Ident "y";
-        Token.Rparen;
-        Token.Arrow;
-        Token.Ident "int";
-        Token.Lbrace;
+    [ Token.Let
+    ; Token.Ident "add"
+    ; Token.Assign
+    ; Token.Fn
+    ; Token.Lparen
+    ; Token.Ident "x"
+    ; Token.Comma
+    ; Token.Ident "y"
+    ; Token.Rparen
+    ; Token.Arrow
+    ; Token.Ident "int"
+    ; Token.Lbrace
 
-        Token.Ident "x";
-        Token.Plus;
-        Token.Ident "y";
+    ; Token.Ident "x"
+    ; Token.Plus
+    ; Token.Ident "y"
 
-        Token.Rbrace;
-        Token.Semicolon;
+    ; Token.Rbrace
+    ; Token.Semicolon
 
-        Token.Eof;
+    ; Token.Eof
     ] 
     |> test_token_seq (new Lexer.t ~input:code |> ref)
 ;;

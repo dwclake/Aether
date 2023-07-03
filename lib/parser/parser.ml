@@ -6,8 +6,8 @@ type t = { lexer: Lexer.t ref
          ; peek: option_t;
          };;
 
-let next_token ?(count=1) (parser: t) =
-    let rec next_token' (parser: t) = function
+let next_token ?(count=1) parser =
+    let rec next_token' parser = function
         | x when x <= 0 -> parser
         | x ->
             let token = Lexer.next_token parser.lexer in
@@ -112,7 +112,7 @@ and parse_expression_statement parser =
         | Ok(value) -> parser, Ok (Ast.Expression{value})
         | Error(message) -> parser, Error message
 
-and parse_expression parser precedence: t * (Ast.expression, string) result =
+and parse_expression parser precedence =
     match get_prefix_fn parser with
         | Some fn ->
             let parser, prefix = fn parser in
@@ -346,7 +346,7 @@ and parse_infix parser lhs =
         | err -> parser, err
 ;;
 
-let parse_program parser: t * Ast.program =
+let parse_program parser =
     let rec parse_program' parser stmts errors =
         match parser.current with
             | Some Token.Eof -> parser, stmts, errors
@@ -364,5 +364,5 @@ let parse_program parser: t * Ast.program =
     let statements = statements |> List.rev in
     let errors = errors |> List.rev in
 
-    parser, {statements; errors}
+    parser, Ast.{statements; errors}
 ;;
