@@ -99,21 +99,21 @@ and string_of_expr = function
             f.name ^ Format.sprintf
                 "{%s -> %s}"
                 (Core.List.fold f.parameter_list ~init:"" ~f:(fun x acc -> x ^ ", " ^ acc))
-                (string_of_expr f.block)
+                @@ string_of_expr f.block
     | AnonFn f -> 
             Format.sprintf
                 "{%s -> %s}"
                 (Core.List.fold f.parameter_list ~init:"" ~f:(fun x acc -> x ^ ", " ^ acc))
-                (string_of_expr f.block)
+                @@ string_of_expr f.block
     | Prefix e ->
             Format.sprintf
                 "(%s%s)"
                 (Token.to_string e.operator)
-                (string_of_expr e.value)
+                @@ string_of_expr e.value
     | Infix e ->
             Format.sprintf
                 "(%s %s %s)"
                 (string_of_expr e.lhs)
                 (Token.to_string e.operator)
-                (string_of_expr e.rhs)
+                @@ string_of_expr e.rhs
 ;;

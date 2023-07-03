@@ -41,8 +41,10 @@ let rec test_statement_seq ?(i=1) lists =
 ;;
 
 let test_stmts_length (program: Ast.program) len =
-    if List.length program.statements != len then
-        failf "statements length is not %d. got=%d" len (List.length program.statements)
+    if List.length program.statements != len 
+        then failf "statements length is not %d. got=%d" 
+            len 
+            @@ List.length program.statements
 ;;
 
 let test_next_token () =

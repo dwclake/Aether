@@ -11,7 +11,7 @@ let lex_input input =
         |> ref
     in
     let token =
-        Lexer.next_token(lexer)
+        Lexer.next_token lexer
         |> ref
     in
     while (!token != Token.Eof) do
@@ -24,10 +24,10 @@ let lex_input input =
 ;;
 
 let print token =
-    printf "\t%s\n" (Token.show token)
+    printf "\t%s\n" @@ Token.show token
 ;;
 
-let print_toks (tokens: Token.t list): unit = 
+let print_toks tokens = 
     printf "{\n";
     tokens |> Core.List.iter ~f:print;
     printf "}\n";
@@ -47,11 +47,8 @@ let rec start () =
             ~f:(fun x accum -> x ^ accum)
         |> lex_input
     in
-
-    
     printf "\n";
     print_toks tokens;
-    
 
     start()
 ;;
