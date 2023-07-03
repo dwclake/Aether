@@ -12,12 +12,10 @@ let next_token ?(count=1) parser =
         | x when x <= 0 -> parser
         | x ->
             let token = Lexer.next_token parser.lexer in
-
-            (x - 1) |> next_token'
-            { lexer= parser.lexer
-            ; current= parser.peek
-            ; peek= Some token
-            }
+            next_token' { lexer= parser.lexer
+                        ; current= parser.peek
+                        ; peek= Some token
+                        } (x - 1)
     in 
     next_token' parser count
 ;;
