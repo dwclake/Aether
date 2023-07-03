@@ -21,14 +21,6 @@ let check_parser_errors list =
         print list
 ;;
 
-let rec test_token_seq (parser: Parser.t) ?(i = 1) = function
-    | [] -> ()
-    | h::t ->
-        check tt (string_of_int i) h parser.current;
-        let parser = Parser.next_token parser in
-        test_token_seq parser ~i:(i + 1) t;
-;;
-
 let rec test_statement_seq ?(i=1) lists = match lists with
     | ([], []) -> ()
     | (es::et, s::t) ->
@@ -44,25 +36,6 @@ let test_stmts_length (program: Ast.program) len =
         then failf "statements length is not %d. got=%d" 
             len 
             @@ List.length program.statements
-;;
-
-let test_next_token () =
-    let input = "=+(){},;" in
-
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    [ Some Token.Assign
-    ; Some Token.Plus
-    ; Some Token.Lparen
-    ; Some Token.Rparen
-    ; Some Token.Lbrace
-    ; Some Token.Rbrace
-    ; Some Token.Comma
-    ; Some Token.Semicolon
-    ; Some Token.Eof
-    ] 
-    |> test_token_seq parser
 ;;
 
 let test_binding_statement () =

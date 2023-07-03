@@ -10,8 +10,7 @@ let suite =
         ; test_case "Functions" `Quick Lexer_t.test_functions
         ])
     ; ("Parser",
-        [ test_case "Next token" `Quick Parser_t.test_next_token
-        ; test_case "Binding statement" `Quick Parser_t.test_binding_statement
+        [ test_case "Binding statement" `Quick Parser_t.test_binding_statement
         ; test_case "Return statement" `Quick Parser_t.test_return_statement
         ; test_case "Identifier expression statement" `Quick Parser_t.test_identifier_expression
         ; test_case "Integer expression" `Quick Parser_t.test_integer_expression

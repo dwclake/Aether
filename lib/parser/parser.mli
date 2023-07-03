@@ -12,10 +12,7 @@ type precedence =
     | `Index
 ][@@deriving ord]
 
-type t = { lexer: Lexer.t ref
-         ; current: option_t
-         ; peek: option_t
-         }
+type t
 
 val create: lexer:Lexer.t ref -> t
 val next_token: ?count:int -> t -> t
