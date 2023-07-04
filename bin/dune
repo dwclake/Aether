@@ -1,9 +1,9 @@
 (executable
  (name main)
- (public_name aether)
+ (public_name briar)
  (modules main)
- (libraries aether core stdio domainslib))
+ (libraries briar core stdio domainslib))
 (executable
  (public_name repl)
  (modules repl)
- (libraries aether core stdio))
+ (libraries briar core stdio))

@@ -1,6 +1,6 @@
 (lang dune 3.8)
 
-(name aether)
+(name briar)
 
 (generate_opam_files true)
 
@@ -16,7 +16,7 @@
 (documentation https://url/to/documentation)
 
 (package
- (name aether)
+ (name briar)
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends (ocaml(= :5.0.0)) 

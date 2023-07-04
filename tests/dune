@@ -1,21 +1,21 @@
 (test
-  (name aether_t)
-  (modules aether_t)
-  (libraries aether alcotest
+  (name briar_t)
+  (modules briar_t)
+  (libraries briar alcotest
              lexer_t
              parser_t
              ast_t))
 (library
   (name lexer_t)
   (modules lexer_t)
-  (libraries aether alcotest))
+  (libraries briar alcotest))
 
 (library
   (name parser_t)
   (modules parser_t)
-  (libraries aether alcotest core))
+  (libraries briar alcotest core))
 
 (library
   (name ast_t)
   (modules ast_t)
-  (libraries aether alcotest))
+  (libraries briar alcotest))
