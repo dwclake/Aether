@@ -8,6 +8,7 @@ type t =
     | Let
     | Const
     | Mut
+    | Rec
     | Match
     | True
     | False
@@ -72,6 +73,7 @@ let to_string = function
     | Const -> "const"
     | Mut -> "mut"
     | Match -> "match"
+    | Rec -> "rec"
     | True -> "true"
     | False -> "false"
     | Return -> "return"
@@ -135,6 +137,7 @@ let to_string_opt = function
     | Some Const -> "const"
     | Some Mut -> "mut"
     | Some Match -> "match"
+    | Some Rec -> "rec"
     | Some True -> "true"
     | Some False -> "false"
     | Some Return -> "return"
@@ -186,7 +189,7 @@ let to_string_opt = function
 
     | Some Illegal -> "illegal"
     | Some Eof -> "eof"
-    | None -> "\000"
+    | None -> "illegal"
 ;;
 
 let of_char = function
@@ -235,6 +238,7 @@ let try_keyword = function
     | "const" -> Some Const
     | "mut" -> Some Mut
     | "match" -> Some Match 
+    | "rec" -> Some Rec
     | "true" -> Some True
     | "false" -> Some False
     | "return" -> Some Return

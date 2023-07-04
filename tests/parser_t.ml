@@ -309,7 +309,7 @@ let test_if_else_expression () =
             y;
         };
         if (x < y) {
-
+            ();
         } else {
             y
         }
@@ -350,11 +350,11 @@ let test_if_else_expression () =
 
 let test_fn_literal_expression () =
     let input = "
-        %{x, y -> x + y};
-        %{foo -> {
+        fn x, y => x + y;
+        fn foo => {
             x;
             12
-        }};
+        };
     "
     in
 
@@ -391,13 +391,13 @@ let test_fn_literal_expression () =
 
 let test_complex_parsing () =
     let input = "
-        const div = %{x, y -> {
+        const div = fn x, y => {
             if y != 0 {
                 x / y;
             } else {
                 x / 1
             }
-        }};
+        };
     "
     in
 
@@ -426,7 +426,7 @@ let test_complex_parsing () =
                             ; operator= Token.Slash
                             ; rhs= Ast.Identifier "y"
                             }}]
-                        ; alternative= Some( Ast.Block [Ast.Expression{value= Ast.Infix
+                        ; alternative= Some (Ast.Block [Ast.Expression{value= Ast.Infix
                             { lhs= Ast.Identifier "x"
                             ; operator= Token.Slash
                             ; rhs= Ast.Integer 1

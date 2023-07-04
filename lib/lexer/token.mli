@@ -8,6 +8,7 @@ type t =
     | Let
     | Const
     | Mut
+    | Rec
     | Match
     | True
     | False

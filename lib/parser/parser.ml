@@ -91,18 +91,12 @@ and parse_binding_statement parser kind = match parser.peek with
 and parse_return_statement parser =
     let parser = next_token parser in
     let parser, expr = parse_expression parser `Lowest in
-
     match expr with 
         | Ok value -> parser, Ok (Ast.Return{value})
         | Error message -> parser, Error message
 
 and parse_expression_statement parser =
     let parser, expr = parse_expression parser `Lowest in
-    let parser = if parser.peek == Some Token.Semicolon
-        then next_token parser
-        else parser
-    in
-    
     match expr with
         | Ok(value) -> parser, Ok (Ast.Expression{value})
         | Error(message) -> parser, Error message
@@ -129,7 +123,7 @@ and get_prefix_fn parser = match parser.current with
     | Some Token.Lparen -> Some parse_group
     | Some Token.Lbrace -> Some parse_block
     | Some Token.If -> Some parse_if
-    | Some Token.Percent -> Some parse_fn_anon
+    | Some Token.Fn -> Some parse_fn_anon
     | _ -> None
 
 and parse_identifier parser ~identifier =
@@ -164,16 +158,14 @@ and parse_group parser =
     let parser = next_token parser in
     match parser.current with
         | Some Token.Rparen -> 
-            next_token parser,
-            Ok Ast.Unit
+            parser, Ok Ast.Unit
         | _ ->
             let parser, expr = parse_expression parser `Lowest in
             match expr with
                 | Ok expr ->
                     begin match parser.peek with
                         | Some Token.Rparen ->
-                            next_token parser,
-                            Ok expr
+                            next_token parser, Ok expr
                         | Some _ -> parser, Error (peek_error parser Token.Rparen)
                         | None -> parser, Error "No peek token"
                     end
@@ -185,8 +177,7 @@ and parse_block parser =
     let rec parse_block' ?(acc=[]) parser =
         match parser.current with
             | Some Token.Rbrace ->
-                next_token parser,
-                Ok acc
+                parser, Ok acc
             | Some Token.Semicolon ->
                 let parser = next_token parser in
                 parse_block' parser ~acc
@@ -202,8 +193,7 @@ and parse_block parser =
     in
     match parser.current with
         | Some Token.Rbrace ->
-            next_token parser,
-            Ok (Ast.Block [Ast.Expression{value= Ast.Unit}])
+            next_token parser, Ok (Ast.Block [Ast.Expression{value= Ast.Unit}])
         | _ ->
             let parser, block = parse_block' parser in
             match block with
@@ -228,7 +218,9 @@ and parse_if parser =
             end
         | err -> parser, err
 
-and parse_else parser cond cons = match parser.current with
+and parse_else parser cond cons = 
+    let parser = next_token parser in
+    match parser.current with
     | Some Token.Else ->
         let parser = next_token parser in
         let parser, alt = parse_expression parser `Lowest in
@@ -248,35 +240,32 @@ and parse_else parser cond cons = match parser.current with
         }
     )
 
-and parse_fn_anon parser = match parser.peek with 
-    | Some Token.Lbrace ->
-        let parser, params = parse_param_list parser in
-        begin match params with
-            | Ok params ->
-                begin match parser.peek with
-                    | Some Token.Arrow ->
-                        let parser = next_token parser ~count:2 in
-                        let parser, expr = parse_expression parser `Lowest in
-                        begin match expr with
-                            | Ok expr ->
-                                next_token parser ~count:2,
-                                Ok (Ast.AnonFn
-                                    { parameter_list= params
-                                    ; block= expr
-                                    ; arity= List.length params
-                                    })
-                            | err -> parser, err
-                        end
-                    | Some _ -> parser, Error (peek_error parser Token.Arrow)
-                    | None -> parser, Error "Missing peek token"
-                end
-            | Error message -> parser, Error message
-        end
-    | Some _ -> parser, Error (peek_error parser Token.Lbrace)
-    | None -> parser, Error "Missing peek token"
+and parse_fn_anon parser =
+    let parser, params = parse_param_list parser in
+    begin match params with
+        | Ok params ->
+            begin match parser.current with
+                | Some Token.FatArrow ->
+                    let parser = next_token parser in
+                    let parser, expr = parse_expression parser `Lowest in
+                    begin match expr with
+                        | Ok expr ->
+                            next_token parser,
+                            Ok (Ast.AnonFn
+                                { parameter_list= params
+                                ; block= expr
+                                ; arity= List.length params
+                                })
+                        | err -> parser, err
+                    end
+                | Some _ -> parser, Error (peek_error parser Token.FatArrow)
+                | None -> parser, Error "Missing peek token"
+            end
+        | Error message -> parser, Error message
+    end
 
 and parse_param_list parser =
-    let parser = next_token parser ~count:2 in
+    let parser = next_token parser in
 
     let rec parse_param_list' ?(acc=[]) parser: t * string list =
         match parser.current with
@@ -290,6 +279,7 @@ and parse_param_list parser =
             | _ -> parser, acc
     in
     let parser, params = parse_param_list' parser in
+    let parser = next_token parser in
     parser, Ok (params |> List.rev)
 
 and build_infix precedence parser lhs = match parser.peek with
