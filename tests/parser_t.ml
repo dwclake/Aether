@@ -351,7 +351,7 @@ let test_if_else_expression () =
 let test_fn_literal_expression () =
     let input = "
         %{x, y -> x + y};
-        %{foo, bar -> {
+        %{foo -> {
             x;
             12
         }};
@@ -373,13 +373,15 @@ let test_fn_literal_expression () =
                 ; operator= Token.Plus
                 ; rhs= Ast.Identifier "y"
                 }
+            ; arity= 2
             }}
      ; Ast.Expression{value= Ast.AnonFn
-            { parameter_list= ["foo"; "bar"]
+            { parameter_list= ["foo"]
             ; block= Ast.Block 
                 [ Ast.Expression{value= Ast.Identifier "x"}
                 ; Ast.Expression{value= Ast.Integer 12}
                 ]
+            ; arity= 1
             }}
     ],
         program.statements
@@ -412,7 +414,8 @@ let test_complex_parsing () =
             ; name= "div"
             ; value= Ast.AnonFn
                 {parameter_list= ["x"; "y"]
-                ; block= Ast.Block [Ast.Expression{value= Ast.If
+                ; block= Ast.Block [
+                    Ast.Expression{value= Ast.If
                         { condition= Ast.Infix
                             { lhs= Ast.Identifier "y"
                             ; operator= Token.Neq
@@ -429,7 +432,9 @@ let test_complex_parsing () =
                             ; rhs= Ast.Integer 1
                             }}])
                         }}
-                ]}}
+                ]
+                ; arity= 2
+                }}
     ],
         program.statements
     )

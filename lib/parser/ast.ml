@@ -19,10 +19,12 @@ type node =
             name: identifier;
             parameter_list: identifier list;
             block: expression;
+            arity: int;
         }
         | AnonFn of {
             parameter_list: identifier list;
             block: expression;
+            arity: int;
         }
         | Prefix of {
             operator: Token.t;
@@ -97,14 +99,16 @@ and string_of_expr = function
             alternative
     | Fn f -> 
         f.name ^ Format.sprintf
-            "{%s -> %s}"
+            "{%s -> %s}/%d"
             (Core.List.fold f.parameter_list ~init:"" ~f:(fun x acc -> x ^ ", " ^ acc))
-            @@ string_of_expr f.block
+            (string_of_expr f.block)
+            f.arity
     | AnonFn f -> 
         Format.sprintf
-            "{%s -> %s}"
+            "{%s -> %s}/%d"
             (Core.List.fold f.parameter_list ~init:"" ~f:(fun x acc -> x ^ ", " ^ acc))
-            @@ string_of_expr f.block
+            (string_of_expr f.block)
+            f.arity
     | Prefix e ->
         Format.sprintf
             "(%s%s)"

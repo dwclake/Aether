@@ -262,7 +262,8 @@ and parse_fn_anon parser = match parser.peek with
                                 next_token parser ~count:2,
                                 Ok (Ast.AnonFn
                                     { parameter_list= params
-                                    ; block= expr;
+                                    ; block= expr
+                                    ; arity= List.length params
                                     })
                             | err -> parser, err
                         end
