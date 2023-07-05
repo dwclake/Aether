@@ -59,14 +59,17 @@ let get_prec token: precedence = match token with
     | Some Token.Minus -> `Sum
     | Some Token.Slash
     | Some Token.Asterisk -> `Product
+    | Some Token.Lparen -> `Call
+    | Some Token.Lbracket -> `Index
     | _ -> `Lowest
 ;;
 
 let rec parse_statement parser = match parser.current with
     | Some Token.Let -> parse_binding_statement parser Token.Let
-    | Some Token.Const -> parse_binding_statement parser Token.Const;
-    | Some Token.Return -> parse_return_statement parser;
-    | _ -> parse_expression_statement parser;
+    | Some Token.Const -> parse_binding_statement parser Token.Const
+    | Some Token.Return -> parse_return_statement parser
+    | Some _ -> parse_expression_statement parser
+    | None -> parser, Error "Not more tokens"
 
 and parse_binding_statement parser kind = match parser.peek with
     | Some (Token.Ident name) -> begin
@@ -250,9 +253,9 @@ and parse_fn_anon parser =
                     let parser, expr = parse_expression parser `Lowest in
                     begin match expr with
                         | Ok expr ->
-                            next_token parser,
+                            parser,
                             Ok (Ast.AnonFn
-                                { parameter_list= params
+                                { parameters= params
                                 ; block= expr
                                 ; arity= List.length params
                                 })
@@ -287,7 +290,7 @@ and build_infix precedence parser lhs = match parser.peek with
     | _ ->
         match get_infix_fn parser with
             | Some fn ->
-                let parser, expr = fn lhs in
+                let parser, expr = fn parser lhs in
                 begin match expr with
                     | Ok expr -> build_infix precedence parser expr
                     | err -> parser, err
@@ -304,10 +307,12 @@ and get_infix_fn parser = match parser.peek with
     | Some Token.Lt
     | Some Token.Gt
     | Some Token.Leq
-    | Some Token.Geq -> Some (parse_infix @@ next_token parser)
+    | Some Token.Geq -> Some (parse_infix)
+    | Some Token.Lparen -> Some (parse_call)
     | _ -> None
 
 and parse_infix parser lhs =
+    let parser = next_token parser in
     let operator = Option.get parser.current in
     let precedence = get_prec parser.current in
     
@@ -321,6 +326,16 @@ and parse_infix parser lhs =
                 ; rhs
                 })
         | err -> parser, err
+
+and parse_call parser expr =
+    match expr with
+        | Ast.Identifier id ->
+                let parser = next_token parser ~count:5 in
+                parser, Ok (Ast.FnCall
+                { fn= Ast.Identifier id
+                ; arguments= [Ast.Integer 1; Ast.Integer 2]
+                })
+        | _ -> parser, Error "Fn call missing identifier."
 ;;
 
 let parse_program parser =

@@ -332,7 +332,8 @@ let test_if_else_expression () =
 
 let test_fn_literal_expression () =
     let _, program = "
-        fn x, y => x + y;
+        fn x, y => x + y
+        fn x, y => {x + y};
         fn foo => {
             x;
             12
@@ -344,10 +345,10 @@ let test_fn_literal_expression () =
         |> Parser.parse_program 
     in
     check_parser_errors program.errors;
-    test_stmts_length program 2;
+    test_stmts_length program 3;
 
     ([ Ast.Expression{value= Ast.AnonFn
-            { parameter_list= ["x"; "y"]
+            { parameters= ["x"; "y"]
             ; block= Ast.Infix
                 { lhs= Ast.Identifier "x"
                 ; operator= Token.Plus
@@ -356,12 +357,60 @@ let test_fn_literal_expression () =
             ; arity= 2
             }}
      ; Ast.Expression{value= Ast.AnonFn
-            { parameter_list= ["foo"]
+            { parameters= ["x"; "y"]
+            ; block= Ast.Block [Ast.Expression{value= Ast.Infix
+                { lhs= Ast.Identifier "x"
+                ; operator= Token.Plus
+                ; rhs= Ast.Identifier "y"
+                }}]
+            ; arity= 2
+            }}
+     ; Ast.Expression{value= Ast.AnonFn
+            { parameters= ["foo"]
             ; block= Ast.Block 
                 [ Ast.Expression{value= Ast.Identifier "x"}
                 ; Ast.Expression{value= Ast.Integer 12}
                 ]
             ; arity= 1
+            }}
+    ],
+        program.statements
+    )
+    |> test_statement_seq
+;;
+
+let test_fn_call_expression () =
+    (*let _, program = "
+        let sum = fn x, y => x + y;
+        sum(1, 2)
+        "
+    *)
+    let _, program = "
+        sum(1, 2)
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
+    in
+    check_parser_errors program.errors;
+    test_stmts_length program 1;
+
+    ([ (*Ast.Binding
+            { kind= Token.Let
+            ; name= "sum"
+            ; value= Ast.AnonFn
+                { parameters= ["x"; "y"]
+                ; block= Ast.Infix
+                    { lhs= Ast.Identifier "x"
+                    ; operator= Token.Plus
+                    ; rhs= Ast.Identifier "y"
+                    }
+                ; arity= 2
+                }}
+     ;*) Ast.Expression{value= Ast.FnCall
+            { fn= Ast.Identifier "sum"
+            ; arguments= [Ast.Integer 1; Ast.Integer 2]
             }}
     ],
         program.statements
@@ -391,7 +440,7 @@ let test_complex_parsing () =
             { kind= Token.Const
             ; name= "div"
             ; value= Ast.AnonFn
-                {parameter_list= ["x"; "y"]
+                {parameters= ["x"; "y"]
                 ; block= Ast.Block [
                     Ast.Expression{value= Ast.If
                         { condition= Ast.Infix

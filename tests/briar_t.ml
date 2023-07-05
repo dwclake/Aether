@@ -16,11 +16,12 @@ let suite =
         ; test_case "Integer expression" `Quick Parser_t.test_integer_expression
         ; test_case "Float expression" `Quick Parser_t.test_float_expression
         ; test_case "Boolean expression" `Quick Parser_t.test_boolean_expression
+        ; test_case "Prefix expression" `Quick Parser_t.test_prefix_expression
+        ; test_case "Infix expression" `Quick Parser_t.test_infix_expression
         ; test_case "If expression" `Quick Parser_t.test_if_expression
         ; test_case "If else expression" `Quick Parser_t.test_if_else_expression
         ; test_case "Fn literal expression" `Quick Parser_t.test_fn_literal_expression
-        ; test_case "Prefix expression" `Quick Parser_t.test_prefix_expression
-        ; test_case "Infix expression" `Quick Parser_t.test_infix_expression
+        ; test_case "Fn call expression" `Quick Parser_t.test_fn_call_expression
         ; test_case "Complex expression" `Quick Parser_t.test_complex_parsing
         ])
     ; ("Ast",

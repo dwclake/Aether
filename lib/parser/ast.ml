@@ -10,38 +10,42 @@ type node =
         | Float of floating
         | Boolean of bool
         | Block of block
-        | If of {
-            condition: expression;
-            consequence: expression;
-            alternative: expression option;
-        }
-        | Fn of {
-            name: identifier;
-            parameter_list: identifier list;
-            block: expression;
-            arity: int;
-        }
-        | AnonFn of {
-            parameter_list: identifier list;
-            block: expression;
-            arity: int;
-        }
-        | Prefix of {
-            operator: Token.t;
-            value: expression;
-        }
-        | Infix of {
-            lhs: expression;
-            operator: Token.t;
-            rhs: expression;
-        }
+        | If of 
+            { condition: expression
+            ; consequence: expression
+            ; alternative: expression option
+            }
+        | Fn of 
+            { name: identifier
+            ; parameters: identifier list
+            ; block: expression
+            ; arity: int
+            }
+        | AnonFn of 
+            { parameters: identifier list
+            ; block: expression
+            ; arity: int
+            }
+        | FnCall of 
+            { fn: expression
+            ; arguments: expression list
+            }
+        | Prefix of 
+            { operator: Token.t
+            ; value: expression
+            }
+        | Infix of 
+            { lhs: expression
+            ; operator: Token.t
+            ; rhs: expression
+            }
 
     and statement =
-        | Binding of { 
-            kind: Token.t;
-            name: identifier; 
-            value: expression
-        }
+        | Binding of 
+            { kind: Token.t
+            ; name: identifier 
+            ; value: expression
+            }
         | Return of {value: expression}
         | Expression of {value: expression}
 
@@ -60,8 +64,8 @@ let token_literal = function
     | Statement _ -> "statement"
 ;;
 
-let rec string ~(block) =
-    let rec loop ?(acc="") = function
+let rec string ~block =
+    let rec string' ?(acc="") = function
         | [] -> acc
         | h::t -> begin
             let literal = begin match h with
@@ -75,10 +79,10 @@ let rec string ~(block) =
                     let value = string_of_expr stmt.value in
                     Format.sprintf "%s;" value
             end in
-            loop ~acc:(acc ^ literal) t
+            string' ~acc:(acc ^ literal) t
         end
     in
-    loop block
+    string' block
 
 and string_of_expr = function
     | Unit -> "()"
@@ -100,15 +104,20 @@ and string_of_expr = function
     | Fn f -> 
         f.name ^ Format.sprintf
             "{%s -> %s}/%d"
-            (Core.List.fold f.parameter_list ~init:"" ~f:(fun x acc -> x ^ ", " ^ acc))
+            (Core.List.fold f.parameters ~init:"" ~f:(fun x acc -> x ^ ", " ^ acc))
             (string_of_expr f.block)
             f.arity
     | AnonFn f -> 
         Format.sprintf
             "{%s -> %s}/%d"
-            (Core.List.fold f.parameter_list ~init:"" ~f:(fun x acc -> x ^ ", " ^ acc))
+            (Core.List.fold f.parameters ~init:"" ~f:(fun x acc -> acc ^ ", " ^ x))
             (string_of_expr f.block)
             f.arity
+    | FnCall f ->
+        Format.sprintf
+            "%s(%s)"
+            (string_of_expr f.fn)
+            @@ Core.List.fold f.arguments ~init:"" ~f:(fun acc x -> acc ^ ", " ^ (string_of_expr x))
     | Prefix e ->
         Format.sprintf
             "(%s%s)"
