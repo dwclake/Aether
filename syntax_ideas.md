@@ -12,7 +12,13 @@ fn (x, y) => [x] @ [y] // Anonymous fn definition. @ can be used for appending a
 
 fn x => x ^ x // paren are optional in anonymous fn parameter list, ^ is exponentiation
 
-let myCar = { as _; // An anonymous struct, the identifier following as is the name of the "self" pointer, _ sets it as unused
+struct car{ // struct definition with type declarations
+    make: string,
+    mut model: string,
+    color: fn () -> string
+}
+
+let myCar = %car{ // An anonymous struct
     make: "Mazda",
     mut model: "RX-7",
     color: fn -> return "red";
@@ -29,12 +35,6 @@ enum traffic_light = { // enumeration definition, enum variants can hold data
 const x = traffic_light.red(int);
 
 let y = :red; // polymorphic enum start with :
-
-struct car { // struct definition with type declarations
-    make: string,
-    mut model: string,
-    color: fn () -> string
-}
 
 let map = %{"make": "Chevrolet", "model": "Impala"}; // A hashmap with string keys
 map["make"] // -> Chevrolet
