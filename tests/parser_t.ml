@@ -39,18 +39,17 @@ let test_stmts_length (program: Ast.program) len =
 ;;
 
 let test_binding_statement () =
-    let input = "
+    let _, program = "
         let x = 5;
         const y = 10;
         let foobar = 838383;
-    "
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
     in
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-
     test_stmts_length program 3;
 
     ([ Ast.Binding{kind= Token.Let; name= "x"; value= Ast.Integer 5}
@@ -63,20 +62,18 @@ let test_binding_statement () =
 ;;
 
 let test_return_statement () =
-    let input = "
+    let _, program = "
         return ();
         return {};
         return 10;
         return 993322;
-    "
+        "
+        |> new Lexer.t 
+        |> ref 
+        |> Parser.create
+        |> Parser.parse_program 
     in
-
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 4;
     
     ([ Ast.Return{value= Ast.Unit}
@@ -90,17 +87,15 @@ let test_return_statement () =
 ;;
 
 let test_identifier_expression () =
-    let input = "
+    let _, program = "
         foobar;
-    "
+        "
+        |> new Lexer.t 
+        |> ref 
+        |> Parser.create
+        |> Parser.parse_program
     in
-    
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 1;
 
     ([ Ast.Expression{value= Ast.Identifier "foobar"}],
@@ -110,17 +105,15 @@ let test_identifier_expression () =
 ;;
 
 let test_integer_expression () =
-    let input = "
+    let _, program = "
         5;
-    "
+        "
+        |> new Lexer.t
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program
     in
-    
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 1;
 
     ([ Ast.Expression{value= Ast.Integer 5}],
@@ -130,17 +123,15 @@ let test_integer_expression () =
 ;;
 
 let test_float_expression () =
-    let input = "
+    let _, program = "
         5.4;
-    "
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
     in
-    
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 1;
 
     ([ Ast.Expression{value= Ast.Float 5.4}],
@@ -150,20 +141,18 @@ let test_float_expression () =
 ;;
 
 let test_boolean_expression () =
-    let input = "
+    let _, program = "
         true;
         !false;
         const foobar = true;
         let barfoo = false;
-    "
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
     in
-    
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 4;
 
     ([ Ast.Expression{value= Ast.Boolean true}
@@ -177,19 +166,17 @@ let test_boolean_expression () =
 ;;
 
 let test_prefix_expression () =
-    let input = "
+    let _, program = "
         !5;
         -15;
         !foobar;
-    "
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
     in
-    
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 3;
 
     ([ Ast.Expression{value= Ast.Prefix{operator= Token.Bang; value= Ast.Integer 5}}
@@ -202,7 +189,7 @@ let test_prefix_expression () =
 ;;
 
 let test_infix_expression () =
-    let input = "
+    let _, program = "
         5 + foobar;
         bar / 12;
         12.2 * 13;
@@ -211,15 +198,13 @@ let test_infix_expression () =
         -5 * !x;
         3 > 5 == false;
         1 + (2 + 3) + 4;
-    "
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
     in
-    
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 8;
 
     ([ Ast.Expression{value= Ast.Infix
@@ -273,17 +258,15 @@ let test_infix_expression () =
 ;;
 
 let test_if_expression () =
-    let input = "
+    let _, program = "
         if x < y { x } 
-    "
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
     in
-
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 1;
 
     ([ Ast.Expression{value= Ast.If
@@ -302,7 +285,7 @@ let test_if_expression () =
 ;;
 
 let test_if_else_expression () =
-    let input = "
+    let _, program = "
         if (x < y) { 
             x 
         } else {
@@ -313,13 +296,12 @@ let test_if_else_expression () =
         } else {
             y
         }
-    "
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
     in
-
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
     
     test_stmts_length program 2;
@@ -349,21 +331,19 @@ let test_if_else_expression () =
 ;;
 
 let test_fn_literal_expression () =
-    let input = "
+    let _, program = "
         fn x, y => x + y;
         fn foo => {
             x;
             12
         };
-    "
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
     in
-
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 2;
 
     ([ Ast.Expression{value= Ast.AnonFn
@@ -390,7 +370,7 @@ let test_fn_literal_expression () =
 ;;
 
 let test_complex_parsing () =
-    let input = "
+    let _, program = "
         const div = fn x, y => {
             if y != 0 {
                 x / y;
@@ -398,15 +378,13 @@ let test_complex_parsing () =
                 x / 1
             }
         };
-    "
+        "
+        |> new Lexer.t 
+        |> ref
+        |> Parser.create
+        |> Parser.parse_program 
     in
-
-    let lexer = new Lexer.t ~input |> ref in
-    let parser = Parser.create ~lexer in
-
-    let _, program = Parser.parse_program parser in
     check_parser_errors program.errors;
-    
     test_stmts_length program 1;
 
     ([ Ast.Binding

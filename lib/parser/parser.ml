@@ -20,7 +20,7 @@ let next_token ?(count=1) parser =
     next_token' parser count
 ;;
 
-let create ~lexer =
+let create lexer =
     { lexer
     ; current= None
     ; peek= None

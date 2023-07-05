@@ -14,7 +14,11 @@ let rec test_token_seq lexer ?(i=1) = function
 ;;
 
 let test_next_token () =
-    let code = "=+(){},;" in
+    let lexer = 
+        "=+(){},;"
+        |> new Lexer.t
+        |> ref
+    in
 
     [ Token.Assign
     ; Token.Plus
@@ -26,17 +30,19 @@ let test_next_token () =
     ; Token.Semicolon
     ; Token.Eof
     ]
-    |> test_token_seq (new Lexer.t ~input:code |> ref)
+    |> test_token_seq (lexer)
 ;;
 
 
 let test_ident_tokens () =
-    let code = "
+    let lexer = "
         let five = 5;
         let ten = 10.0;
 
         let result = add(five, ten);
-    " 
+        "
+        |> new Lexer.t
+        |> ref
     in
 
     [ Token.Let
@@ -63,17 +69,19 @@ let test_ident_tokens () =
     ; Token.Semicolon
     ; Token.Eof
     ] 
-    |> test_token_seq (new Lexer.t ~input:code |> ref)
+    |> test_token_seq (lexer)
 ;;
 
 let test_operators () =
-    let code = {|
+    let lexer = {|
         {};
         
         []:.$!-/*5\~`?'"%@^#;
 
         5 < 10 > 5;
     |}
+    |> new Lexer.t
+    |> ref
     in
 
     [ Token.Lbrace
@@ -110,12 +118,12 @@ let test_operators () =
     ; Token.Semicolon
     ; Token.Eof
     ] 
-    |> test_token_seq (new Lexer.t ~input:code |> ref)
+    |> test_token_seq (lexer)
 ;;
 
 
 let test_comp_ops () =
-    let code = "
+    let lexer = "
         let x = 12;
         let y = 1 =>;
         5 <= 10;
@@ -124,7 +132,9 @@ let test_comp_ops () =
         y == 1;
         true || false;
         x && y;
-    "
+        " 
+        |> new Lexer.t 
+        |> ref 
     in
 
     [ Token.Let
@@ -172,11 +182,11 @@ let test_comp_ops () =
 
     ; Token.Eof
     ] 
-    |> test_token_seq (new Lexer.t ~input:code |> ref)
+    |> test_token_seq (lexer)
 ;;
 
 let test_keywords () =
-    let code = "
+    let lexer = "
         let y = true;
         const x = match y {
             | true => 20
@@ -190,7 +200,9 @@ let test_keywords () =
         } else {
             0
         }
-    "
+        " 
+        |> new Lexer.t 
+        |> ref 
     in
 
     [ Token.Let
@@ -249,15 +261,17 @@ let test_keywords () =
 
     ; Token.Eof
     ] 
-    |> test_token_seq (new Lexer.t ~input:code |> ref)
+    |> test_token_seq (lexer)
 ;;
 
 let test_functions () =
-    let code = "
+    let lexer = "
         let add = fn(x, y) -> int {
             x + y
         };
-    "
+        " 
+        |> new Lexer.t 
+        |> ref 
     in
 
     [ Token.Let
@@ -282,5 +296,5 @@ let test_functions () =
 
     ; Token.Eof
     ] 
-    |> test_token_seq (new Lexer.t ~input:code |> ref)
+    |> test_token_seq (lexer)
 ;;

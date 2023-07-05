@@ -1,4 +1,4 @@
-class t = fun ~input -> 
+class t = fun input -> 
     let ch = match input with
         | "" -> '\000'
         | _ -> input.[0]

@@ -7,11 +7,13 @@ let prompt = ">> "
 let lex_input input =
     let tokens = ref [] in
     let lexer =
-        new Lexer.t ~input 
+        input
+        |> new Lexer.t
         |> ref
     in
     let token =
-        Lexer.next_token lexer
+        lexer
+        |> Lexer.next_token
         |> ref
     in
     while (!token != Token.Eof) do

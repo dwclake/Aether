@@ -1,4 +1,4 @@
-class t: input:string -> 
+class t: string -> 
     object
         val input': string
         method input: string
