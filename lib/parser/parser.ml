@@ -167,8 +167,7 @@ and parse_group parser =
             match expr with
                 | Ok expr ->
                     begin match parser.peek with
-                        | Some Token.Rparen ->
-                            next_token parser, Ok expr
+                        | Some Token.Rparen -> next_token parser, Ok expr
                         | Some _ -> parser, Error (peek_error parser Token.Rparen)
                         | None -> parser, Error "No peek token"
                     end
@@ -179,8 +178,7 @@ and parse_block parser =
 
     let rec parse_block' ?(acc=[]) parser =
         match parser.current with
-            | Some Token.Rbrace ->
-                parser, Ok acc
+            | Some Token.Rbrace -> parser, Ok acc
             | Some Token.Semicolon ->
                 let parser = next_token parser in
                 parse_block' parser ~acc
@@ -329,13 +327,43 @@ and parse_infix parser lhs =
 
 and parse_call parser expr =
     match expr with
-        | Ast.Identifier id ->
-                let parser = next_token parser ~count:5 in
-                parser, Ok (Ast.FnCall
-                { fn= Ast.Identifier id
-                ; arguments= [Ast.Integer 1; Ast.Integer 2]
-                })
+        | Ast.Identifier _ as ident->
+                let parser, args = parse_arguments parser in
+                begin match args with
+                    | Ok args -> 
+                        next_token parser, Ok (Ast.FnCall
+                            { fn= ident
+                            ; arguments= args
+                            })
+                    | Error message -> parser, Error message
+                end
         | _ -> parser, Error "Fn call missing identifier."
+
+and parse_arguments parser =
+    let parser = next_token parser ~count:2 in
+
+    let rec parse_arguments' ?(acc=[]) parser =
+        let parser, expr = parse_expression parser `Lowest in
+        match expr with
+            | Ok expr ->
+                begin match parser.peek with
+                    | Some Token.Comma -> 
+                        let parser = next_token parser ~count:2 in
+                        parse_arguments' parser ~acc:([expr] @ acc)
+                    | _ -> parser, Ok([expr] @ acc)
+                end
+            | Error message -> parser, Error message
+    in
+    match parser.current with
+        | Some Token.Rparen -> parser, Ok[Ast.Unit]
+        | _ ->
+            let parser, args = parse_arguments' parser in
+            begin match args with
+                | Ok args -> 
+                    let parser = next_token parser in
+                    parser, Ok (args |> List.rev)
+                | Error message -> parser, Error message
+            end
 ;;
 
 let parse_program parser =
@@ -352,7 +380,6 @@ let parse_program parser =
                         parse_program' parser stmts ([message] @ errors)
     in
     let (parser, statements, errors) = parse_program' parser [] [] in
-
     let statements = statements |> List.rev in
     let errors = errors |> List.rev in
 

@@ -380,13 +380,11 @@ let test_fn_literal_expression () =
 ;;
 
 let test_fn_call_expression () =
-    (*let _, program = "
-        let sum = fn x, y => x + y;
-        sum(1, 2)
-        "
-    *)
     let _, program = "
-        sum(1, 2)
+        let sum = fn x, y => x + y;
+        sum(1, 2);
+        sum();
+        sum()
         "
         |> new Lexer.t 
         |> ref
@@ -394,9 +392,9 @@ let test_fn_call_expression () =
         |> Parser.parse_program 
     in
     check_parser_errors program.errors;
-    test_stmts_length program 1;
+    test_stmts_length program 4;
 
-    ([ (*Ast.Binding
+    ([ Ast.Binding
             { kind= Token.Let
             ; name= "sum"
             ; value= Ast.AnonFn
@@ -408,9 +406,17 @@ let test_fn_call_expression () =
                     }
                 ; arity= 2
                 }}
-     ;*) Ast.Expression{value= Ast.FnCall
+     ; Ast.Expression{value= Ast.FnCall
             { fn= Ast.Identifier "sum"
             ; arguments= [Ast.Integer 1; Ast.Integer 2]
+            }}
+     ; Ast.Expression{value= Ast.FnCall
+            { fn= Ast.Identifier "sum"
+            ; arguments= [Ast.Unit]
+            }}
+     ; Ast.Expression{value= Ast.FnCall
+            { fn= Ast.Identifier "sum"
+            ; arguments= [Ast.Unit]
             }}
     ],
         program.statements
