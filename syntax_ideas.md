@@ -8,9 +8,9 @@ arr[0] // => 1
 
 const pos = (3, 5); // A tuple
 
-fn (x, y) => [x] @ [y] // Anonymous fn definition. @ can be used for appending array, strings, and fn composition
+|x, y| => [x] @ [y] // Anonymous fn definition. @ can be used for appending array, strings, and fn composition
 
-fn x => x ^ x // paren are optional in anonymous fn parameter list, ^ is exponentiation
+|x| => x ^ x // paren are optional in anonymous fn parameter list, ^ is exponentiation
 
 struct car{ // struct definition with type declarations
     make: string,
@@ -40,11 +40,11 @@ let map = %{"make": "Chevrolet", "model": "Impala"}; // A hashmap with string ke
 map["make"] // -> Chevrolet
 let map = %{make: "Chevrolet", model: "Impala"}; // A hashmap with polymorphic enums as keys
 
-let add(a, b) => {
+fn add(a, b) => {
     return a + b;
 }
 
-let add(a, ?b) => { // ? marks optional parameters
+fn add(a, ?b) => { // ? marks optional parameters
     let x = if b { // Options can be cooerced to bools, Some -> true, None -> false
         a + b
     } else {
@@ -52,7 +52,7 @@ let add(a, ?b) => { // ? marks optional parameters
     };
 }
 
-let add(a, ?b=2) => { // optional parameters can be followed be default values
+fn add(a, ?b=2) => { // optional parameters can be followed be default values
     let x = if b > 0 {
         a + b
     } else {
@@ -60,7 +60,7 @@ let add(a, ?b=2) => { // optional parameters can be followed be default values
     };
 }
 
-let div(a: int, b: int) -> !int => { // ! marks a function which returns either ok(of the type after !) or error
+fn div(a: int, b: int) -> !int => { // ! marks a function which returns either ok(of the type after !) or error
     if b == 0 {
         return err("cannot divide by zero")
     } else {
@@ -76,7 +76,7 @@ match arr {
     }
 }
 
-let rec sum(arr, acc) {
+fn rec sum(arr, acc) {
     match arr {
         | [] -> acc
         | [h, ...tail] -> {
@@ -85,7 +85,7 @@ let rec sum(arr, acc) {
     }
 }
 
-let rec fib(x) => {
+fn rec fib(x) => {
     match x {
         | a when a > 2 -> 0 // guard clauses follow var name and when
         | 1 -> 1
@@ -100,11 +100,11 @@ let rec fib(x) => {
         @ filter(...);
 }
 
-let twice ~f, x => { // ~ marks named parameters, paren are optional in fn def
+fn twice ~f, x => { // ~ marks named parameters, paren are optional in fn def
     return f(f(x));
 }
 
-let twice ~f, x => {
+fn twice ~f, x => {
     return x @ f @ f;
 }
 
