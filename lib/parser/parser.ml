@@ -5,7 +5,8 @@ type t =
     { lexer: Lexer.t ref
     ; current: option_t
     ; peek: option_t;
-    };;
+    }
+;;
 
 let next_token ?(count=1) parser =
     let rec next_token' parser = function

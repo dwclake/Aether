@@ -40,8 +40,8 @@ let peek lexer =
 let rec skip_whitespace lexer =
     match !lexer#ch with
         | ' ' | '\t' | '\n' | '\r' ->
-            advance lexer;
-            skip_whitespace lexer;
+            let () = advance lexer in
+            skip_whitespace lexer
         | _ -> ()
 ;;
 
@@ -146,6 +146,6 @@ let next_token lexer =
                 ~rules:[('=', Token.Eq); ('>', Token.FatArrow)]
         (* Individual characters *)
         | ch ->
-                let () = advance lexer in
+            let () = advance lexer in
             Token.of_char ch
 ;;
