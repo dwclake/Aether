@@ -38,7 +38,7 @@ let test_binding_statement () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 3;
+    let () = test_stmts_length program 3 in
 
     ([ Ast.Binding{kind= Token.Let; name= {identifier= "x"}; value= Ast.Integer 5}
      ; Ast.Binding{kind= Token.Const; name= {identifier= "y"}; value= Ast.Integer 10}
@@ -62,7 +62,7 @@ let test_return_statement () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 4;
+    let () = test_stmts_length program 4 in
 
     ([ Ast.Return{value= Ast.Unit}
      ; Ast.Return{value= Ast.Block [Ast.Expression{value= Ast.Unit}]}
@@ -84,7 +84,7 @@ let test_identifier_expression () =
         |> Parser.parse_program
         |> unwrap
     in
-    test_stmts_length program 1;
+    let () = test_stmts_length program 1 in
 
     ([ Ast.Expression{value= Ast.Identifier {identifier= "foobar"}}],
        program.statements
@@ -102,7 +102,7 @@ let test_integer_expression () =
         |> Parser.parse_program
         |> unwrap
     in
-    test_stmts_length program 1;
+    let () = test_stmts_length program 1 in
 
     ([ Ast.Expression{value= Ast.Integer 5}],
        program.statements
@@ -120,7 +120,7 @@ let test_float_expression () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 1;
+    let () = test_stmts_length program 1 in
 
     ([ Ast.Expression{value= Ast.Float 5.4}],
        program.statements
@@ -141,7 +141,7 @@ let test_boolean_expression () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 4;
+    let () = test_stmts_length program 4 in
 
     ([ Ast.Expression{value= Ast.Boolean true}
      ; Ast.Expression{value= Ast.Prefix{operator= Token.Bang; value= Ast.Boolean false}}
@@ -165,7 +165,7 @@ let test_prefix_expression () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 3;
+    let () = test_stmts_length program 3 in
 
     ([ Ast.Expression{value= Ast.Prefix{operator= Token.Bang; value= Ast.Integer 5}}
      ; Ast.Expression{value= Ast.Prefix{operator= Token.Minus; value= Ast.Integer 15}}
@@ -193,7 +193,7 @@ let test_infix_expression () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 8;
+    let () = test_stmts_length program 8 in
 
     ([ Ast.Expression{value= Ast.Infix
             { lhs= Ast.Integer 5
@@ -255,7 +255,7 @@ let test_if_expression () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 1;
+    let () = test_stmts_length program 1 in
 
     ([ Ast.Expression{value= Ast.If
             { condition= Ast.Infix
@@ -291,7 +291,7 @@ let test_if_else_expression () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 2;
+    let () = test_stmts_length program 2 in
 
     ([ Ast.Expression{value= Ast.If
             { condition= Ast.Infix
@@ -332,7 +332,7 @@ let test_fn_literal_expression () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 3;
+    let () = test_stmts_length program 3 in
 
     ([ Ast.Expression{value= Ast.AnonFn
             { parameters= [{identifier= "x"}; {identifier= "y"}]
@@ -379,7 +379,7 @@ let test_fn_call_expression () =
         |> Parser.parse_program
         |> unwrap
     in
-    test_stmts_length program 4;
+    let () = test_stmts_length program 4 in
 
     ([ Ast.Binding
             { kind= Token.Let
@@ -427,7 +427,7 @@ let test_complex_parsing () =
         |> Parser.parse_program 
         |> unwrap
     in
-    test_stmts_length program 1;
+    let () = test_stmts_length program 1 in
 
     ([ Ast.Binding
             { kind= Token.Const
