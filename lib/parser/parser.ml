@@ -7,8 +7,6 @@ type t =
     ; peek: option_t;
     };;
 
-let ( let* ) res f = Core.Result.bind res ~f;;
-
 let next_token ?(count=1) parser =
     let rec next_token' parser = function
         | x when x <= 0 -> parser
@@ -29,17 +27,6 @@ let create lexer =
     }
     |> next_token ~count:2
 ;;
-
-let peek_error parser token =
-    Format.sprintf 
-        "Expected next token to be %s, got %s instead" 
-        (Token.show token) 
-        (Token.show (Option.get parser.peek))
-;;
-
-let skip_semicolon parser = match parser.peek with
-    | Some Token.Semicolon -> next_token parser
-    | _ -> parser
 
 type precedence = 
     [ `Lowest
@@ -69,6 +56,19 @@ let get_prec token: precedence = match token with
     | Some Token.Lbracket -> `Index
     | _ -> `Lowest
 ;;
+
+let ( let* ) res f = Core.Result.bind res ~f;;
+
+let peek_error parser token =
+    Format.sprintf 
+        "Expected next token to be %s, got %s instead" 
+        (Token.show token) 
+        (Token.show (Option.get parser.peek))
+;;
+
+let skip_semicolon parser = match parser.peek with
+    | Some Token.Semicolon -> next_token parser
+    | _ -> parser
 
 let rec parse_statement parser = match parser.current with
     | Some Token.Let -> parse_binding_statement parser Token.Let
