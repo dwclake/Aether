@@ -105,12 +105,20 @@ fn rec fib(x) => {
     fn ( + ) a, b => {
         a - b
     }
+
+    1 + 2 // -1
 }
 
-{   // S' combinator, evaluates fn1 and fn2, 
-    // if fn takes single param, it will automatically be applied to fn1 and 2, then passes the results to fn3
-    fn combinator x => fn1 <fn3> fn2
-    fn findGCD list => max <gcd> mix
+{   // Can also use prefix notation for operators
+    1 + 2 // infix
+    + 1, 2 // polish
+}
+
+{   // S' combinator, returns a lambda, where fn1 and fn2 are evaluated with a single argument, then passed to fn3, 
+    // fn1 and fn2 must take a single parameter to use the shorthand, and fn3 must take two parameters
+    let combinator = fn1 <fn3> fn2
+    let findGCD = max <gcd> mix
+    let combinator = |x, y| => fn1(x, y) <fn3> fn2(y, x)
 }
 
 fn twice ~f, x => { // ~ marks named parameters, paren are optional in fn def
