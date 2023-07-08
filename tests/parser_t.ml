@@ -319,9 +319,9 @@ let test_if_else_expression () =
 
 let test_fn_literal_expression () =
     let program = "
-        fn x, y => x + y
-        fn x, y => {x + y};
-        fn foo => {
+        |x, y| => x + y
+        |x, y| => {x + y};
+        |foo| => {
             x;
             12
         };
@@ -368,7 +368,7 @@ let test_fn_literal_expression () =
 
 let test_fn_call_expression () =
     let program = "
-        let sum = fn x, y => x + y;
+        let sum = |x, y| => x + y;
         sum(1, 2);
         sum();
         sum()
@@ -413,7 +413,7 @@ let test_fn_call_expression () =
 
 let test_complex_parsing () =
     let program = "
-        const div = fn x, y => {
+        const div = |x, y| => {
             if y != 0 {
                 x / y;
             } else {

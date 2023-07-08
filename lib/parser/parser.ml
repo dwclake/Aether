@@ -67,6 +67,13 @@ let peek_error parser token =
         (Token.show (Option.get parser.peek))
 ;;
 
+let current_error parser token =
+    Format.sprintf 
+        "Expected current token to be %s, got %s instead" 
+        (Token.show token) 
+        (Token.show (Option.get parser.current))
+;;
+
 let skip_semicolon parser = match parser.peek with
     | Some Token.Semicolon -> next_token parser
     | _ -> parser
@@ -125,12 +132,12 @@ and get_prefix_fn parser = match parser.current with
     | Some Token.Lparen -> Some parse_group
     | Some Token.Lbrace -> Some parse_block
     | Some Token.If -> Some parse_if
-    | Some Token.Fn -> Some parse_fn_anon
+    | Some Token.Pipe -> Some parse_fn_anon
     | _ -> None
 
 and parse_identifier_expr parser = match parser.current with
     | Some (Token.Ident identifier) -> Ok (parser, Ast.Identifier {identifier})
-    | _ -> Error (parser, peek_error parser (Token.Ident ""))
+    | _ -> Error (parser, current_error parser (Token.Ident ""))
 
 and parse_int parser ~number =  match int_of_string_opt number with
     | Some value -> Ok (parser, Ast.Integer value)
@@ -231,7 +238,7 @@ and parse_fn_anon parser =
                 ; block= expr
                 ; arity= List.length params
                 })
-        | Some _ -> Error (parser, peek_error parser Token.FatArrow)
+        | Some _ -> Error (parser, current_error parser Token.FatArrow)
         | None -> Error (parser, "Missing peek token")
 
 and parse_param_list parser =
@@ -245,7 +252,7 @@ and parse_param_list parser =
             | _ -> Ok (parser, [ident] @ acc)
     in
     let* parser, params = parse_param_list' parser in
-    let parser = next_token parser in
+    let parser = next_token parser ~count:2 in
     Ok (parser, params |> List.rev)
 
 and build_infix precedence parser lhs = match parser.peek with
