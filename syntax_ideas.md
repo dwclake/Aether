@@ -101,15 +101,27 @@ fn rec fib(x) => {
         >> filter(...);
 }
 
+{   // Operator overloading
+    fn ( + ) a, b => {
+        a - b
+    }
+}
+
+{   // S' combinator, evaluates fn1 and fn2, then passes them to fn3
+    fn combinator x => fn1(x) <fn3> fn2(x)
+    fn findGCD list => max(list) <gcd> mix(list)
+}
+
 fn twice ~f, x => { // ~ marks named parameters, paren are optional in fn def
     return f(f(x));
 }
 
 fn twice ~f, x => {
-    return x @ f @ f;
+    return x >> f >> f;
 }
 
-twice ~f:fib, 2; // named parameters must be specified with the name followed by :, paren are optional in fn calls
+twice ~f:&fib/1, 2; // named parameters must be specified with the name followed by :, paren are optional in fn calls
+                  // & needed to create an anonymous fn from a named fn and must be followed by / and the arity ie num of parameters
 twice(2, f); // if argument name matches named parameter can just use argument name, named arguments can go in any order
 
 ```
