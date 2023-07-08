@@ -8,7 +8,7 @@ arr[0] // => 1
 
 const pos = (3, 5); // A tuple
 
-|x, y| => [x] @ [y] // Anonymous fn definition. @ can be used for appending array, strings, and fn composition
+|x, y| => [x] @ [y] // Anonymous fn definition. @ can be used for appending array, strings
 
 |x| => x ^ x // paren are optional in anonymous fn parameter list, ^ is exponentiation
 
@@ -93,11 +93,12 @@ fn rec fib(x) => {
     }
 }
 
-{ // the composition operator @ takes the value of the previous expression and passes it to the function after it
-    let mut nums = 1..100 // Range
-        @ collect(...)
-        @ map(...) 
-        @ filter(...);
+{ // the composition operator >> takes the value of the previous expression 
+  // and passes it to the first arg of the function after it
+    let nums = 1..100 // Range
+        >> collect(...)
+        >> map(...) 
+        >> filter(...);
 }
 
 fn twice ~f, x => { // ~ marks named parameters, paren are optional in fn def
