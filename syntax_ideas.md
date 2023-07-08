@@ -107,9 +107,10 @@ fn rec fib(x) => {
     }
 }
 
-{   // S' combinator, evaluates fn1 and fn2, then passes them to fn3
-    fn combinator x => fn1(x) <fn3> fn2(x)
-    fn findGCD list => max(list) <gcd> mix(list)
+{   // S' combinator, evaluates fn1 and fn2, 
+    // if fn takes single param, it will automatically be applied to fn1 and 2, then passes the results to fn3
+    fn combinator x => fn1 <fn3> fn2
+    fn findGCD list => max <gcd> mix
 }
 
 fn twice ~f, x => { // ~ marks named parameters, paren are optional in fn def
