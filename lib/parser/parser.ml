@@ -328,7 +328,7 @@ let parse_program parser =
                 let parser = next_token parser in
                 parse_program' parser ([stmt] @ stmts)
     in
-    let* _, statements = parse_program' parser [] in
+    let* parser, statements = parse_program' parser [] in
     let statements = statements |> List.rev in
 
     Ok (parser, Ast.{statements})
