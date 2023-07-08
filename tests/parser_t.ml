@@ -41,10 +41,10 @@ let test_binding_statement () =
     test_stmts_length program 3;
 
     ([ Ast.Binding{kind= Token.Let; name= {identifier= "x"}; value= Ast.Integer 5}
-    ; Ast.Binding{kind= Token.Const; name= {identifier= "y"}; value= Ast.Integer 10}
-    ; Ast.Binding{kind= Token.Let; name= {identifier= "foobar"}; value= Ast.Integer 838383}
-    ],
-      program.statements
+     ; Ast.Binding{kind= Token.Const; name= {identifier= "y"}; value= Ast.Integer 10}
+     ; Ast.Binding{kind= Token.Let; name= {identifier= "foobar"}; value= Ast.Integer 838383}
+     ],
+       program.statements
     ) 
     |> test_statement_seq
 ;;
@@ -65,11 +65,11 @@ let test_return_statement () =
     test_stmts_length program 4;
 
     ([ Ast.Return{value= Ast.Unit}
-    ; Ast.Return{value= Ast.Block [Ast.Expression{value= Ast.Unit}]}
-    ; Ast.Return{value= Ast.Integer 10}
-    ; Ast.Return{value= Ast.Integer 993322}
-    ],
-      program.statements
+     ; Ast.Return{value= Ast.Block [Ast.Expression{value= Ast.Unit}]}
+     ; Ast.Return{value= Ast.Integer 10}
+     ; Ast.Return{value= Ast.Integer 993322}
+     ],
+       program.statements
     )
     |> test_statement_seq
 ;;
@@ -148,7 +148,7 @@ let test_boolean_expression () =
      ; Ast.Binding{kind= Token.Const; name= {identifier= "foobar"}; value= Ast.Boolean true}
      ; Ast.Binding{kind= Token.Let; name= {identifier= "barfoo"}; value= Ast.Boolean false}
      ],
-        program.statements
+       program.statements
     )
     |> test_statement_seq
 ;;
@@ -170,8 +170,8 @@ let test_prefix_expression () =
     ([ Ast.Expression{value= Ast.Prefix{operator= Token.Bang; value= Ast.Integer 5}}
      ; Ast.Expression{value= Ast.Prefix{operator= Token.Minus; value= Ast.Integer 15}}
      ; Ast.Expression{value= Ast.Prefix{operator= Token.Bang; value= Ast.Identifier {identifier= "foobar"}}}
-    ],
-        program.statements
+     ],
+       program.statements
     )
     |> test_statement_seq
 ;;
@@ -239,8 +239,8 @@ let test_infix_expression () =
             ; operator= Token.Plus
             ; rhs= Ast.Integer 4
             }}
-    ],
-        program.statements
+     ],
+       program.statements
     )
     |> test_statement_seq
 ;;
@@ -266,8 +266,8 @@ let test_if_expression () =
             ; consequence= Ast.Block [Ast.Expression{value= Ast.Identifier {identifier= "x"}}]
             ; alternative= None
             }}
-    ],
-        program.statements    
+     ],
+       program.statements    
     )
     |> test_statement_seq
 ;;
@@ -311,8 +311,8 @@ let test_if_else_expression () =
             ; consequence= Ast.Block [Ast.Expression{value= Ast.Unit}]
             ; alternative= Some (Ast.Block [Ast.Expression{value= Ast.Identifier {identifier= "y"}}])
             }}
-    ],
-        program.statements    
+     ],
+       program.statements    
     )
     |> test_statement_seq
 ;;
@@ -360,8 +360,8 @@ let test_fn_literal_expression () =
                 ]
             ; arity= 1
             }}
-    ],
-        program.statements
+     ],
+       program.statements
     )
     |> test_statement_seq
 ;;
@@ -405,8 +405,8 @@ let test_fn_call_expression () =
             { fn= Ast.Identifier {identifier= "sum"}
             ; arguments= [Ast.Unit]
             }}
-    ],
-        program.statements
+     ],
+       program.statements
     )
     |> test_statement_seq
 ;;
@@ -455,8 +455,8 @@ let test_complex_parsing () =
                 ]
                 ; arity= 2
                 }}
-    ],
-        program.statements
+     ],
+       program.statements
     )
     |> test_statement_seq
 ;;
