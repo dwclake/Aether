@@ -4,21 +4,16 @@ open Alcotest
 let tt = testable Parser.pp_option_t Parser.equal_option_t
 let ts = testable Ast.pp_statement Ast.equal_statement
 
-let check_parser_errors list =
-    let open List in
-    let open Stdio in
+let unwrap result = match result with
+    | Ok (_, program) -> program
+    | Error (_, message) -> failwith message
+;;
 
-    if length list == 0 then
-        ()
-    else
-        eprintf "Parser had %d errors" (length list);
-        let rec print = function
-            | [] -> eprintf "\n"; flush_all();
-            | h::t ->
-                eprintf "\n- parser error: %s" h;
-                print t
-        in
-        print list
+let test_stmts_length (program: Ast.program) len =
+    if List.length program.statements != len 
+        then failf "statements length is not %d. got=%d" 
+            len 
+            @@ List.length program.statements
 ;;
 
 let rec test_statement_seq ?(i=1) lists = match lists with
@@ -31,15 +26,8 @@ let rec test_statement_seq ?(i=1) lists = match lists with
     | _ -> failwith "Lists must be of the same size"
 ;;
 
-let test_stmts_length (program: Ast.program) len =
-    if List.length program.statements != len 
-        then failf "statements length is not %d. got=%d" 
-            len 
-            @@ List.length program.statements
-;;
-
 let test_binding_statement () =
-    let _, program = "
+    let program = "
         let x = 5;
         const y = 10;
         let foobar = 838383;
@@ -48,21 +36,21 @@ let test_binding_statement () =
         |> ref
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 3;
 
-    ([ Ast.Binding{kind= Token.Let; name= "x"; value= Ast.Integer 5}
-     ; Ast.Binding{kind= Token.Const; name= "y"; value= Ast.Integer 10}
-     ; Ast.Binding{kind= Token.Let; name= "foobar"; value= Ast.Integer 838383}
-     ],
-        program.statements
+    ([ Ast.Binding{kind= Token.Let; name= {identifier= "x"}; value= Ast.Integer 5}
+    ; Ast.Binding{kind= Token.Const; name= {identifier= "y"}; value= Ast.Integer 10}
+    ; Ast.Binding{kind= Token.Let; name= {identifier= "foobar"}; value= Ast.Integer 838383}
+    ],
+      program.statements
     ) 
     |> test_statement_seq
 ;;
 
 let test_return_statement () =
-    let _, program = "
+    let program = "
         return ();
         return {};
         return 10;
@@ -72,48 +60,48 @@ let test_return_statement () =
         |> ref 
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 4;
-    
+
     ([ Ast.Return{value= Ast.Unit}
-     ; Ast.Return{value= Ast.Block [Ast.Expression{value= Ast.Unit}]}
-     ; Ast.Return{value= Ast.Integer 10}
-     ; Ast.Return{value= Ast.Integer 993322}
+    ; Ast.Return{value= Ast.Block [Ast.Expression{value= Ast.Unit}]}
+    ; Ast.Return{value= Ast.Integer 10}
+    ; Ast.Return{value= Ast.Integer 993322}
     ],
-        program.statements
+      program.statements
     )
     |> test_statement_seq
 ;;
 
 let test_identifier_expression () =
-    let _, program = "
+    let program = "
         foobar;
         "
         |> new Lexer.t 
         |> ref 
         |> Parser.create
         |> Parser.parse_program
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 1;
 
-    ([ Ast.Expression{value= Ast.Identifier "foobar"}],
+    ([ Ast.Expression{value= Ast.Identifier {identifier= "foobar"}}],
        program.statements
     )
     |> test_statement_seq
 ;;
 
 let test_integer_expression () =
-    let _, program = "
+    let program = "
         5;
         "
         |> new Lexer.t
         |> ref
         |> Parser.create
         |> Parser.parse_program
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 1;
 
     ([ Ast.Expression{value= Ast.Integer 5}],
@@ -123,15 +111,15 @@ let test_integer_expression () =
 ;;
 
 let test_float_expression () =
-    let _, program = "
+    let program = "
         5.4;
         "
         |> new Lexer.t 
         |> ref
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 1;
 
     ([ Ast.Expression{value= Ast.Float 5.4}],
@@ -141,7 +129,7 @@ let test_float_expression () =
 ;;
 
 let test_boolean_expression () =
-    let _, program = "
+    let program = "
         true;
         !false;
         const foobar = true;
@@ -151,14 +139,14 @@ let test_boolean_expression () =
         |> ref
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 4;
 
     ([ Ast.Expression{value= Ast.Boolean true}
      ; Ast.Expression{value= Ast.Prefix{operator= Token.Bang; value= Ast.Boolean false}}
-     ; Ast.Binding{kind= Token.Const; name= "foobar"; value= Ast.Boolean true}
-     ; Ast.Binding{kind= Token.Let; name= "barfoo"; value= Ast.Boolean false}
+     ; Ast.Binding{kind= Token.Const; name= {identifier= "foobar"}; value= Ast.Boolean true}
+     ; Ast.Binding{kind= Token.Let; name= {identifier= "barfoo"}; value= Ast.Boolean false}
      ],
         program.statements
     )
@@ -166,7 +154,7 @@ let test_boolean_expression () =
 ;;
 
 let test_prefix_expression () =
-    let _, program = "
+    let program = "
         !5;
         -15;
         !foobar;
@@ -175,13 +163,13 @@ let test_prefix_expression () =
         |> ref
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 3;
 
     ([ Ast.Expression{value= Ast.Prefix{operator= Token.Bang; value= Ast.Integer 5}}
      ; Ast.Expression{value= Ast.Prefix{operator= Token.Minus; value= Ast.Integer 15}}
-     ; Ast.Expression{value= Ast.Prefix{operator= Token.Bang; value= Ast.Identifier "foobar"}}
+     ; Ast.Expression{value= Ast.Prefix{operator= Token.Bang; value= Ast.Identifier {identifier= "foobar"}}}
     ],
         program.statements
     )
@@ -189,7 +177,7 @@ let test_prefix_expression () =
 ;;
 
 let test_infix_expression () =
-    let _, program = "
+    let program = "
         5 + foobar;
         bar / 12;
         12.2 * 13;
@@ -203,17 +191,17 @@ let test_infix_expression () =
         |> ref
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 8;
 
     ([ Ast.Expression{value= Ast.Infix
             { lhs= Ast.Integer 5
             ; operator= Token.Plus
-            ; rhs= Ast.Identifier "foobar"
+            ; rhs= Ast.Identifier {identifier= "foobar"}
             }}
      ; Ast.Expression{value= Ast.Infix
-            { lhs= Ast.Identifier "bar"
+            { lhs= Ast.Identifier {identifier= "bar"}
             ; operator= Token.Slash
             ; rhs= Ast.Integer 12
             }}
@@ -228,14 +216,14 @@ let test_infix_expression () =
             ; rhs= Ast.Integer 13
             }}
      ; Ast.Expression{value= Ast.Infix
-            { lhs= Ast.Identifier "a"
+            { lhs= Ast.Identifier {identifier= "a"}
             ; operator= Token.Plus
-            ; rhs= Ast.Infix{lhs= Ast.Identifier "b"; operator= Token.Slash; rhs= Ast.Identifier "c"}
+            ; rhs= Ast.Infix{lhs= Ast.Identifier {identifier= "b"}; operator= Token.Slash; rhs= Ast.Identifier {identifier= "c"}}
             }}
      ; Ast.Expression{value= Ast.Infix
             { lhs= Ast.Prefix{operator= Token.Minus; value= Ast.Integer 5}
             ; operator= Token.Asterisk
-            ; rhs= Ast.Prefix{operator= Token.Bang; value= Ast.Identifier "x"}
+            ; rhs= Ast.Prefix{operator= Token.Bang; value= Ast.Identifier {identifier= "x"}}
             }}
      ; Ast.Expression{value= Ast.Infix
             { lhs= Ast.Infix{lhs=Ast.Integer 3 ; operator= Token.Gt; rhs= Ast.Integer 5}
@@ -258,24 +246,24 @@ let test_infix_expression () =
 ;;
 
 let test_if_expression () =
-    let _, program = "
+    let program = "
         if x < y { x } 
         "
         |> new Lexer.t 
         |> ref
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 1;
 
     ([ Ast.Expression{value= Ast.If
             { condition= Ast.Infix
-                { lhs= Ast.Identifier "x"
+                { lhs= Ast.Identifier {identifier= "x"}
                 ; operator= Token.Lt
-                ; rhs= Ast.Identifier "y"
+                ; rhs= Ast.Identifier {identifier= "y"}
                 }
-            ; consequence= Ast.Block [Ast.Expression{value= Ast.Identifier "x"}]
+            ; consequence= Ast.Block [Ast.Expression{value= Ast.Identifier {identifier= "x"}}]
             ; alternative= None
             }}
     ],
@@ -285,7 +273,7 @@ let test_if_expression () =
 ;;
 
 let test_if_else_expression () =
-    let _, program = "
+    let program = "
         if (x < y) { 
             x 
         } else {
@@ -301,28 +289,27 @@ let test_if_else_expression () =
         |> ref
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
-    
     test_stmts_length program 2;
 
     ([ Ast.Expression{value= Ast.If
             { condition= Ast.Infix
-                { lhs= Ast.Identifier "x"
+                { lhs= Ast.Identifier {identifier= "x"}
                 ; operator= Token.Lt
-                ; rhs= Ast.Identifier "y"
+                ; rhs= Ast.Identifier {identifier= "y"}
                 }
-            ; consequence= Ast.Block [Ast.Expression{value= Ast.Identifier "x"}]
-            ; alternative= Some (Ast.Block [Ast.Expression{value= Ast.Identifier "y"}])
+            ; consequence= Ast.Block [Ast.Expression{value= Ast.Identifier {identifier= "x"}}]
+            ; alternative= Some (Ast.Block [Ast.Expression{value= Ast.Identifier {identifier= "y"}}])
             }}
      ; Ast.Expression{value= Ast.If
             { condition= Ast.Infix
-                { lhs= Ast.Identifier "x"
+                { lhs= Ast.Identifier {identifier= "x"}
                 ; operator= Token.Lt
-                ; rhs= Ast.Identifier "y"
+                ; rhs= Ast.Identifier {identifier= "y"}
                 }
             ; consequence= Ast.Block [Ast.Expression{value= Ast.Unit}]
-            ; alternative= Some (Ast.Block [Ast.Expression{value= Ast.Identifier "y"}])
+            ; alternative= Some (Ast.Block [Ast.Expression{value= Ast.Identifier {identifier= "y"}}])
             }}
     ],
         program.statements    
@@ -331,7 +318,7 @@ let test_if_else_expression () =
 ;;
 
 let test_fn_literal_expression () =
-    let _, program = "
+    let program = "
         fn x, y => x + y
         fn x, y => {x + y};
         fn foo => {
@@ -343,32 +330,32 @@ let test_fn_literal_expression () =
         |> ref
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 3;
 
     ([ Ast.Expression{value= Ast.AnonFn
-            { parameters= ["x"; "y"]
+            { parameters= [{identifier= "x"}; {identifier= "y"}]
             ; block= Ast.Infix
-                { lhs= Ast.Identifier "x"
+                { lhs= Ast.Identifier {identifier= "x"}
                 ; operator= Token.Plus
-                ; rhs= Ast.Identifier "y"
+                ; rhs= Ast.Identifier {identifier= "y"}
                 }
             ; arity= 2
             }}
      ; Ast.Expression{value= Ast.AnonFn
-            { parameters= ["x"; "y"]
+            { parameters= [{identifier= "x"}; {identifier= "y"}]
             ; block= Ast.Block [Ast.Expression{value= Ast.Infix
-                { lhs= Ast.Identifier "x"
+                { lhs= Ast.Identifier {identifier= "x"}
                 ; operator= Token.Plus
-                ; rhs= Ast.Identifier "y"
+                ; rhs= Ast.Identifier {identifier= "y"}
                 }}]
             ; arity= 2
             }}
      ; Ast.Expression{value= Ast.AnonFn
-            { parameters= ["foo"]
-            ; block= Ast.Block 
-                [ Ast.Expression{value= Ast.Identifier "x"}
+            { parameters= [{identifier= "foo"}]
+            ; block= Ast.Block
+                [ Ast.Expression{value= Ast.Identifier {identifier= "x"}}
                 ; Ast.Expression{value= Ast.Integer 12}
                 ]
             ; arity= 1
@@ -380,7 +367,7 @@ let test_fn_literal_expression () =
 ;;
 
 let test_fn_call_expression () =
-    let _, program = "
+    let program = "
         let sum = fn x, y => x + y;
         sum(1, 2);
         sum();
@@ -389,33 +376,33 @@ let test_fn_call_expression () =
         |> new Lexer.t 
         |> ref
         |> Parser.create
-        |> Parser.parse_program 
+        |> Parser.parse_program
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 4;
 
     ([ Ast.Binding
             { kind= Token.Let
-            ; name= "sum"
+            ; name= {identifier= "sum"}
             ; value= Ast.AnonFn
-                { parameters= ["x"; "y"]
+                { parameters= [{identifier= "x"}; {identifier= "y"}]
                 ; block= Ast.Infix
-                    { lhs= Ast.Identifier "x"
+                    { lhs= Ast.Identifier {identifier= "x"}
                     ; operator= Token.Plus
-                    ; rhs= Ast.Identifier "y"
+                    ; rhs= Ast.Identifier {identifier= "y"}
                     }
                 ; arity= 2
                 }}
      ; Ast.Expression{value= Ast.FnCall
-            { fn= Ast.Identifier "sum"
+            { fn= Ast.Identifier {identifier= "sum"}
             ; arguments= [Ast.Integer 1; Ast.Integer 2]
             }}
      ; Ast.Expression{value= Ast.FnCall
-            { fn= Ast.Identifier "sum"
+            { fn= Ast.Identifier {identifier= "sum"}
             ; arguments= [Ast.Unit]
             }}
      ; Ast.Expression{value= Ast.FnCall
-            { fn= Ast.Identifier "sum"
+            { fn= Ast.Identifier {identifier= "sum"}
             ; arguments= [Ast.Unit]
             }}
     ],
@@ -425,7 +412,7 @@ let test_fn_call_expression () =
 ;;
 
 let test_complex_parsing () =
-    let _, program = "
+    let program = "
         const div = fn x, y => {
             if y != 0 {
                 x / y;
@@ -438,29 +425,29 @@ let test_complex_parsing () =
         |> ref
         |> Parser.create
         |> Parser.parse_program 
+        |> unwrap
     in
-    check_parser_errors program.errors;
     test_stmts_length program 1;
 
     ([ Ast.Binding
             { kind= Token.Const
-            ; name= "div"
+            ; name= {identifier= "div"}
             ; value= Ast.AnonFn
-                {parameters= ["x"; "y"]
+                {parameters= [{identifier= "x"}; {identifier= "y"}]
                 ; block= Ast.Block [
                     Ast.Expression{value= Ast.If
                         { condition= Ast.Infix
-                            { lhs= Ast.Identifier "y"
+                            { lhs= Ast.Identifier {identifier= "y"}
                             ; operator= Token.Neq
                             ; rhs= Ast.Integer 0
                             }
                         ; consequence= Ast.Block [Ast.Expression{value= Ast.Infix
-                            { lhs= Ast.Identifier "x"
+                            { lhs= Ast.Identifier {identifier= "x"}
                             ; operator= Token.Slash
-                            ; rhs= Ast.Identifier "y"
+                            ; rhs= Ast.Identifier {identifier= "y"}
                             }}]
                         ; alternative= Some (Ast.Block [Ast.Expression{value= Ast.Infix
-                            { lhs= Ast.Identifier "x"
+                            { lhs= Ast.Identifier {identifier= "x"}
                             ; operator= Token.Slash
                             ; rhs= Ast.Integer 1
                             }}])

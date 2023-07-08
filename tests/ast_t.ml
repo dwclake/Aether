@@ -5,13 +5,11 @@ let test_string() =
     let program: Ast.program = {
         statements= [Ast.Binding
             { kind= Token.Let
-            ; name= "myVar"
-            ; value= Ast.Identifier "anotherVar"
+            ; name= Ast.{identifier= "myVar"}
+            ; value= Ast.Identifier {identifier= "anotherVar"}
             };
         ];
-        errors= []
     } 
     in
-
     check Alcotest.string "1" "let myVar = anotherVar;" @@ Ast.string ~block:program.statements
 ;;

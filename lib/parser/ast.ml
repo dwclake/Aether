@@ -50,14 +50,14 @@ type node =
         | Expression of {value: expression}
 
     and block = statement list
+    and identifier = {identifier: string}
     and integer = int
-    and identifier = string
     and floating = float
 
-    and program = { 
-        statements: statement list;
-        errors: string list
-};;
+    and program = 
+        { statements: statement list
+        }
+;;
 
 let token_literal = function
     | Program _ -> "program"
@@ -71,7 +71,7 @@ let rec string ~block =
             let literal = begin match h with
                 | Binding stmt ->
                     let value = string_of_expr stmt.value in
-                    Format.sprintf "%s %s = %s;" (Token.to_string stmt.kind) stmt.name value
+                    Format.sprintf "%s %s = %s;" (Token.to_string stmt.kind) stmt.name.identifier value
                 | Return stmt ->
                     let value = string_of_expr stmt.value in
                     Format.sprintf "return %s;" value
@@ -86,7 +86,7 @@ let rec string ~block =
 
 and string_of_expr = function
     | Unit -> "()"
-    | Identifier i -> i
+    | Identifier {identifier} -> identifier
     | Integer i -> string_of_int i
     | Float f -> string_of_float f
     | Boolean b -> string_of_bool b
@@ -102,15 +102,15 @@ and string_of_expr = function
             (string_of_expr i.consequence)
             alternative
     | Fn f -> 
-        f.name ^ Format.sprintf
+        f.name.identifier ^ Format.sprintf
             "{%s -> %s}/%d"
-            (Core.List.fold f.parameters ~init:"" ~f:(fun x acc -> x ^ ", " ^ acc))
+            (Core.List.fold f.parameters ~init:"" ~f:(fun acc x -> acc ^ ", " ^ x.identifier))
             (string_of_expr f.block)
             f.arity
     | AnonFn f -> 
         Format.sprintf
             "{%s -> %s}/%d"
-            (Core.List.fold f.parameters ~init:"" ~f:(fun x acc -> acc ^ ", " ^ x))
+            (Core.List.fold f.parameters ~init:"" ~f:(fun acc x -> acc ^ ", " ^ x.identifier))
             (string_of_expr f.block)
             f.arity
     | FnCall f ->

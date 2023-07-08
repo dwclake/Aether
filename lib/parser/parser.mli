@@ -16,4 +16,4 @@ type t
 
 val create: Lexer.t ref -> t
 val next_token: ?count:int -> t -> t
-val parse_program: t -> t * Ast.program
+val parse_program: t -> (t * Ast.program, t * string) result
