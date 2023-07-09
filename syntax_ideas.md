@@ -18,7 +18,7 @@ struct car{ // struct definition with type declarations
     color: fn () -> string
 }
 
-let myCar = %car{ // An anonymous struct
+let myCar = %car{ // A struct literal
     make: "Mazda",
     mut model: "RX-7",
     color: fn -> return "red";
