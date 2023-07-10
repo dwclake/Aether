@@ -225,7 +225,7 @@ and parse_else parser cond cons =
             ; consequence= cons
             ; alternative= None;
             }
-    )
+        )
 
 and parse_fn_anon parser =
     let* parser, params = parse_param_list parser in
