@@ -4,6 +4,7 @@ let flush_out () = Out_channel.flush Out_channel.stdout;;
 
 let prompt = ">> "
 
+(*
 let lex_input input =
     let tokens = ref [] in
     let lexer =
@@ -24,15 +25,11 @@ let lex_input input =
 
     !tokens |> List.rev
 ;;
+*)
 
-let print token =
-    printf "\t%s\n" @@ Token.show token
-;;
-
-let print_toks tokens = 
-    printf "{\n";
-    tokens |> Core.List.iter ~f:print;
-    printf "}\n";
+let unwrap result = match result with
+    | Ok (_, program) -> program
+    | Error (_, message) -> failwith message
 ;;
 
 let rec start () =
@@ -44,17 +41,23 @@ let rec start () =
     in
 
     let input = In_channel.input_lines In_channel.stdin in
-    let tokens = 
+    let program = 
         List.fold 
             input 
             ~init:"" 
             ~f:(fun x accum -> x ^ accum)
-        |> lex_input
+        |> new Lexer.t |> ref
+        |> Parser.create
+        |> Parser.parse_program
+        |> unwrap
+    in
+    let program = program.statements
+        |> Ast.string
     in
 
     let () = 
         printf "\n";
-        print_toks tokens;
+        printf "%s\n" program;
     in    
     start()
 ;;

@@ -11,5 +11,5 @@ let test_string() =
         ];
     } 
     in
-    check Alcotest.string "1" "let myVar = anotherVar;" @@ Ast.string ~block:program.statements
+    check Alcotest.string "1" "let myVar = anotherVar;" @@ Ast.string program.statements
 ;;

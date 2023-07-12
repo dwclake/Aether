@@ -64,7 +64,7 @@ let token_literal = function
     | Statement _ -> "statement"
 ;;
 
-let rec string ~block =
+let rec string block =
     let rec string' ?(acc="") = function
         | [] -> acc
         | h::t -> begin
@@ -90,34 +90,67 @@ and string_of_expr = function
     | Integer i -> string_of_int i
     | Float f -> string_of_float f
     | Boolean b -> string_of_bool b
-    | Block block -> string ~block
+    | Block block -> string block
     | If i -> 
         let alternative = match i.alternative with
-            | Some block -> " else {\n\t" ^ string_of_expr block ^ "\n}"
+            | Some block -> " else {\n    " ^ string_of_expr block ^ "\n}"
             | None -> ""
         in
         Format.sprintf 
-            "if %s {\n\t%s\n}%s"
+            "if %s {\n    %s\n}%s"
             (string_of_expr i.condition)
             (string_of_expr i.consequence)
             alternative
     | Fn f -> 
+        let params_to_string = match f.parameters with
+            | [] -> (fun acc _ -> acc ^ "")
+            | [y] -> (fun acc x -> y.identifier ^ acc ^ x.identifier)
+            | _ -> (fun acc x -> x.identifier ^ ", " ^ acc)
+        in
+        let params = f.parameters
+            |> List.rev
+            |> Core.List.fold ~init:"" ~f:params_to_string
+            |> String.trim
+            |> remove_comma
+        in
         f.name.identifier ^ Format.sprintf
-            "{%s -> %s}/%d"
-            (Core.List.fold f.parameters ~init:"" ~f:(fun acc x -> acc ^ ", " ^ x.identifier))
+            "%s => {\n\t%s\n}/%d"
+            params
             (string_of_expr f.block)
             f.arity
     | AnonFn f -> 
+        let params_to_string = match f.parameters with
+            | [] -> (fun acc _ -> acc ^ "")
+            | [y] -> (fun acc x -> y.identifier ^ acc ^ x.identifier)
+            | _ -> (fun acc x -> x.identifier ^ ", " ^ acc)
+        in
+        let params = f.parameters
+            |> List.rev
+            |> Core.List.fold ~init:"" ~f:params_to_string
+            |> String.trim
+            |> remove_comma
+        in
         Format.sprintf
-            "{%s -> %s}/%d"
-            (Core.List.fold f.parameters ~init:"" ~f:(fun acc x -> acc ^ ", " ^ x.identifier))
+            "|%s| => {\n    %s\n}/%d"
+            params
             (string_of_expr f.block)
             f.arity
     | FnCall f ->
+        let args_to_string = match f.arguments with
+            | [] -> (fun acc _ -> acc ^ "")
+            | [y] -> (fun acc x -> acc ^ (string_of_expr y) ^ (string_of_expr x))
+            | _ -> (fun acc x -> (string_of_expr x) ^ ", " ^ acc)
+        in
+        let args = f.arguments
+            |> List.rev
+            |> Core.List.fold ~init:"" ~f:args_to_string
+            |> String.trim
+            |> remove_comma
+        in
         Format.sprintf
             "%s(%s)"
             (string_of_expr f.fn)
-            @@ Core.List.fold f.arguments ~init:"" ~f:(fun acc x -> acc ^ ", " ^ (string_of_expr x))
+            args
     | Prefix e ->
         Format.sprintf
             "(%s%s)"
@@ -129,4 +162,10 @@ and string_of_expr = function
             (string_of_expr e.lhs)
             (Token.to_string e.operator)
             @@ string_of_expr e.rhs
+
+and remove_comma s =
+    Core.String.filteri s ~f:(fun x _ -> match x with 
+        | i when i == (String.length s) - 1 -> false
+        | _ -> true
+    )
 ;;
