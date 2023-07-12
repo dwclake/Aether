@@ -1,31 +1,25 @@
-module Task = Domainslib.Task;;
+(* Ctrl+d on a empty line to end input *)
 
-let rec fib n =
-    if n < 2
-        then 1
-        else fib (n - 1) + fib (n - 2)
+let main () = 
+    let args = Sys.argv in
+    match args with
+        | [|_; "repl"|] ->
+            Briar.Repl.start()
+        | [|_; "script"; file|] ->
+            begin match Briar.Script.run_script file with
+                | Ok (program) -> Stdio.print_endline program
+                | Error (error) -> Stdio.prerr_endline error
+            end
+        | _ -> Stdio.printf "
+Welcome to Briar!
+
+usage: 
+    briar <cmd> <args>
+
+<cmd>'s:
+    repl - starts repl
+    script <filename> - interprets file
+"
 ;;
 
-let rec fib_par pool n =
-    if n > 20 
-        then begin
-            let a = Task.async pool (fun _ -> fib_par pool (n - 1)) in
-            let b = Task.async pool (fun _ -> fib_par pool (n - 2)) in
-
-            Task.await pool a + Task.await pool b
-        end else
-            fib n
-;;
-
-let num_domains = try int_of_string Sys.argv.(1) with _ -> 1;;
-let n = try int_of_string Sys.argv.(2) with _ -> 1;;
-
-let main () =
-    let pool = Task.setup_pool ~num_domains:(num_domains - 1) () in
-    let res = Task.run pool (fun _ -> fib_par pool n) in
-
-    Task.teardown_pool pool;
-    Stdio.printf "fib(%d) = %d\n" n res
-;;
-
-let () = main();;
+let _ = main ();;

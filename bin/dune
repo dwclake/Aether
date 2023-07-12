@@ -3,7 +3,3 @@
  (public_name briar)
  (modules main)
  (libraries briar core stdio domainslib))
-(executable
- (public_name repl)
- (modules repl)
- (libraries briar core stdio))
