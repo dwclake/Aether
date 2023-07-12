@@ -2,4 +2,4 @@
  (name main)
  (public_name briar)
  (modules main)
- (libraries briar core stdio clap domainslib))
+ (libraries briar_i core stdio clap domainslib))

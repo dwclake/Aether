@@ -1,4 +1,4 @@
-open Briar
+open Briar_i
 open Alcotest
 
 let tt = testable Token.pp Token.equal

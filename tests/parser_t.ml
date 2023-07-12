@@ -1,4 +1,4 @@
-open Briar
+open Briar_i
 open Alcotest
 
 let tt = testable Parser.pp_option_t Parser.equal_option_t

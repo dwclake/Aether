@@ -19,9 +19,9 @@ let main () =
 
     match command with
         | `repl -> 
-            Briar.Repl.start()
+            Briar_i.Repl.start()
         | `script file -> 
-            begin match Briar.Script.run_script file with
+            begin match Briar_i.Script.run_script file with
                 | Ok (program) -> Stdio.print_endline program
                 | Error (error) -> Stdio.prerr_endline error
             end
