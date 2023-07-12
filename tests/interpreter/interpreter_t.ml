@@ -27,6 +27,9 @@ let suite =
     ; ("Ast",
         [test_case "Test string" `Quick Ast_t.test_string;]
         )
+    ; ("Evaluator",
+        [test_case "Int evaluation" `Quick Evaluator_t.test_int_eval;]
+        )
     ]
 
 let () = 

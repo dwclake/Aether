@@ -1,9 +1,11 @@
 (test
   (name interpreter_t)
   (modules interpreter_t)
-  (libraries briar_i alcotest
+  (libraries alcotest
+             briar_i
              lexer_t
              parser_t
+             evaluator_t
              ast_t))
 (library
   (name lexer_t)
@@ -13,6 +15,11 @@
 (library
   (name parser_t)
   (modules parser_t)
+  (libraries briar_i alcotest core))
+
+(library
+  (name evaluator_t)
+  (modules evaluator_t)
   (libraries briar_i alcotest core))
 
 (library

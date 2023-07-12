@@ -27,9 +27,9 @@ Enter exit or press Ctrl+c to exit.
     logo
 ;;
 
-let flush_out () = Out_channel.flush Out_channel.stdout;;
+let prompt = ":bis> "
 
-let prompt = ">> "
+let flush_out () = Out_channel.flush Out_channel.stdout;;
 
 (* Ctrl+d on a empty line to end input *)
 let start () =
