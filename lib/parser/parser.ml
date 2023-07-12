@@ -295,7 +295,7 @@ and parse_call parser expr =
     match expr with
         | Ast.Identifier _ as ident->
             let* parser, args = parse_arguments parser in
-            Ok (next_token parser, Ast.FnCall
+            Ok (parser, Ast.FnCall
                 { fn= ident
                 ; arguments= args
                 })

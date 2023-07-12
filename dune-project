@@ -25,7 +25,8 @@
           (core(= :0.16.0)) 
           (ppx_deriving(= :5.2.1))
           (domainslib(= :0.5.0))
-          (stdio(= :0.16.0))
+          (stdio(= :.0.16.0))
+          (clap(= :0.3.0))
  )
  (tags
   (topics "to describe" your project))

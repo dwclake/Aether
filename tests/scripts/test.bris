@@ -1,1 +1,9 @@
-|x| => x * x;
+|x, y| => {
+    let result = if x <= 12 {
+        x * y
+    } else {
+        12 * y
+    };
+
+    doSomething(result, false)
+}
