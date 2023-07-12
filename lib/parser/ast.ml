@@ -71,13 +71,13 @@ let rec string block =
             let literal = begin match h with
                 | Binding stmt ->
                     let value = string_of_expr stmt.value in
-                    Format.sprintf "%s %s = %s;" (Token.to_string stmt.kind) stmt.name.identifier value
+                    Format.sprintf "%s %s = %s;\n" (Token.to_string stmt.kind) stmt.name.identifier value
                 | Return stmt ->
                     let value = string_of_expr stmt.value in
-                    Format.sprintf "return %s;" value
+                    Format.sprintf "return %s;\n" value
                 | Expression stmt ->
                     let value = string_of_expr stmt.value in
-                    Format.sprintf "%s;" value
+                    Format.sprintf "%s;\n" value
             end in
             string' ~acc:(acc ^ literal) t
         end
