@@ -23,11 +23,11 @@ let intro = Format.sprintf
 Enter to continue typing on a new line.
 Ctrl+d on a emply line to submit.
 Enter exit or press Ctrl+c to exit.
-    "
-    logo
+"
+logo
 ;;
 
-let prompt = ":bis> "
+let prompt = ":> "
 
 let flush_out () = Out_channel.flush Out_channel.stdout;;
 
