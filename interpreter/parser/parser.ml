@@ -198,14 +198,13 @@ and parse_block parser =
 and parse_if parser =
     let parser = next_token parser in
     let* parser, cond = parse_expression parser `Lowest in
-    begin match parser.peek with
+    match parser.peek with
         | Some Token.Lbrace ->
             let parser = next_token parser in
             let* parser, cons = parse_expression parser `Lowest in
             parse_else parser cond cons
         | Some _ -> Error (parser, peek_error parser Token.Lbrace)
         | None -> Error (parser, "No peek token")
-    end
 
 and parse_else parser cond cons = 
     let parser = next_token parser in

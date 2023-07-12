@@ -1,5 +1,5 @@
 let main () = 
-    Clap.description "Welcome to Briar!";
+    Clap.description "Welcome to the Briar cli!";
     let script = Clap.section "SCRIPT" in
     let command =
         Clap.subcommand 
@@ -21,10 +21,9 @@ let main () =
         | `repl -> 
             Briar_i.Repl.start()
         | `script file -> 
-            begin match Briar_i.Script.run_script file with
+            (match Briar_i.Script.run_script file with
                 | Ok (program) -> Stdio.print_endline program
-                | Error (error) -> Stdio.prerr_endline error
-            end
+                | Error (error) -> Stdio.prerr_endline error)
 ;;
 
 let () = main ();;

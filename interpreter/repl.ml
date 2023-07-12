@@ -44,10 +44,9 @@ let start () =
             flush_out();
         in
 
-        let input = In_channel.input_lines In_channel.stdin in
-        let program = 
-            List.fold 
-                input 
+        let program =
+            In_channel.input_lines In_channel.stdin 
+            |> List.fold 
                 ~init:"" 
                 ~f:(fun x accum -> x ^ accum)
         in
@@ -69,7 +68,7 @@ let start () =
                     printf "\n";
                     printf "%s\n" program;
                 in    
-                loop()
+                loop ()
         in
-        loop()
+        loop ()
 ;;
