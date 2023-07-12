@@ -111,7 +111,7 @@ and string_of_expr = function
             |> List.rev
             |> Core.List.fold ~init:"" ~f:params_to_string
             |> String.trim
-            |> remove_comma
+            |> remove_trailing_comma
         in
         f.name.identifier ^ Format.sprintf
             "%s => {\n\t%s\n}/%d"
@@ -128,7 +128,7 @@ and string_of_expr = function
             |> List.rev
             |> Core.List.fold ~init:"" ~f:params_to_string
             |> String.trim
-            |> remove_comma
+            |> remove_trailing_comma
         in
         Format.sprintf
             "|%s| => {\n    %s\n}/%d"
@@ -145,7 +145,7 @@ and string_of_expr = function
             |> List.rev
             |> Core.List.fold ~init:"" ~f:args_to_string
             |> String.trim
-            |> remove_comma
+            |> remove_trailing_comma
         in
         Format.sprintf
             "%s(%s)"
@@ -163,7 +163,7 @@ and string_of_expr = function
             (Token.to_string e.operator)
             @@ string_of_expr e.rhs
 
-and remove_comma s =
+and remove_trailing_comma s =
     Core.String.filteri s ~f:(fun x _ -> match x with 
         | i when i == (String.length s) - 1 -> false
         | _ -> true

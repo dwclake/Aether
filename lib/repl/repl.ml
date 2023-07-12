@@ -18,18 +18,24 @@ let rec start () =
             input 
             ~init:"" 
             ~f:(fun x accum -> x ^ accum)
-        |> new Lexer.t |> ref
-        |> Parser.create
-        |> Parser.parse_program
     in
-    let program = match program with
-        | Ok (_, program) -> program.statements |> Ast.string
-        | Error (_, message) -> "Error: " ^ message
-    in
+    match program with
+        | "exit" -> ()
+        | _ ->
+            let program = 
+                program
+                |> new Lexer.t |> ref
+                |> Parser.create
+                |> Parser.parse_program
+            in
+            let program = match program with
+                | Ok (_, program) -> program.statements |> Ast.string
+                | Error (_, message) -> "Error: " ^ message
+            in
 
-    let () = 
-        printf "\n";
-        printf "%s\n" program;
-    in    
-    start()
+            let () = 
+                printf "\n";
+                printf "%s\n" program;
+            in    
+            start()
 ;;
