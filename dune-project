@@ -5,11 +5,11 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github dwclake/briar))
 
-(authors "Author Name")
+(authors "Devon Webb")
 
-(maintainers "Maintainer Name")
+(maintainers "Devon Webb")
 
 (license LICENSE)
 

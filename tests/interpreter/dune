@@ -1,6 +1,6 @@
 (test
-  (name briar_t)
-  (modules briar_t)
+  (name interpreter_t)
+  (modules interpreter_t)
   (libraries briar_i alcotest
              lexer_t
              parser_t

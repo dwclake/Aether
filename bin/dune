@@ -1,5 +1,4 @@
 (executable
- (name main)
+ (name briar)
  (public_name briar)
- (modules main)
  (libraries briar_i core stdio clap domainslib))
